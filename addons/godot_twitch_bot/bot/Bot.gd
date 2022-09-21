@@ -96,14 +96,24 @@ func send(msg: String) -> void:
 
 
 func load_ini() -> void:
-	config.load("config.ini")
+	var err := config.load("user://config.ini")
+	if err:
+		save_ini()
+		config.set_value("auth", "oauth", oauth)
+		config.save("user://config.ini")
 	oauth = config.get_value("auth", "oauth", "")
 	bot_name = config.get_value("auth", "bot_name", "")
 	channels = config.get_value("channels", "channels", [])
+	join_message = config.get_value("channels", "join_message", "")
 	pass
 
 
+# oauth can only be set manually
 func save_ini() -> void:
+	config.set_value("auth", "bot_name", "")
+	config.set_value("channels", "channels", Array(channels))
+	config.set_value("channels", "join_message", join_message)
+	config.save("user://config.ini")
 	pass
 
 

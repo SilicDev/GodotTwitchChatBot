@@ -34,6 +34,8 @@ _global_script_class_icons={
 
 config/name="GodotTwitchChatBot"
 run/main_scene="res://src/MainConsole.tscn"
+config/use_custom_user_dir=true
+config/custom_user_dir_name="GodotTwitchBot"
 config/icon="res://icon.png"
 
 [editor_plugins]
