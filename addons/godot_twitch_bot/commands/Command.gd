@@ -31,7 +31,7 @@ func _ready() -> void:
 
 
 func should_fire(parsedMessage: Dictionary) -> bool:
-	if permission_level == Badge.NONE or (parsedMessage.has("tags") and parsedMessage.tags["user-type"] and get_badge_from_user_type(parsedMessage.tags["user-type"]) >= permission_level):
+	if permission_level == Badge.NONE or (parsedMessage.has("tags") and parsedMessage.tags["user-type"] and has_permission(parsedMessage.tags["user-type"]) >= permission_level):
 		if parsedMessage.command.has("botCommand") and parsedMessage.command.botCommand == name:
 			return true
 		if not regex.empty():
@@ -41,7 +41,7 @@ func should_fire(parsedMessage: Dictionary) -> bool:
 	return false
 
 
-func get_badge_from_user_type(user_type: String) -> int:
+func has_permission(user_type: String) -> int:
 	match user_type:
 		"broadcaster":
 			return Badge.BROADCASTER

@@ -5,10 +5,12 @@ extends Node
 export(PoolStringArray) var channels := PoolStringArray([])
 export(Array, Resource) var commands := []
 export(String) var bot_name := ""
-export(String) var oauth := ""
 export(String, MULTILINE) var join_message := ""
 
 var connection : Connection
+
+var oauth := ""
+var client_id := ""
 
 var running = false
 var connected = false
@@ -35,6 +37,7 @@ func _notification(what: int) -> void:
 		for c in channels:
 			send("PART " + c)
 		connection.disconnect_from_host()
+		save_ini()
 		print("Disconnected")
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -64,6 +67,7 @@ func _process(delta: float) -> void:
 							for c in channels:
 								send("JOIN #" + c.to_lower())
 						"JOIN":
+							print("joined " + parsedMessage.command.channel)
 							if not join_message.empty():
 								send("PRIVMSG " + parsedMessage.command.channel + " :" + join_message)
 							pass
@@ -96,10 +100,9 @@ func load_ini() -> void:
 	var err := config.load("user://config.ini")
 	if err:
 		save_ini()
-		config.set_value("auth", "oauth", oauth)
-		config.save("user://config.ini")
-	oauth = config.get_value("auth", "oauth", "")
 	bot_name = config.get_value("auth", "bot_name", "")
+	oauth = config.get_value("auth", "oauth", "")
+	client_id = config.get_value("auth", "client_id", "")
 	channels = config.get_value("channels", "channels", [])
 	join_message = config.get_value("channels", "join_message", "")
 	pass
@@ -107,7 +110,9 @@ func load_ini() -> void:
 
 # oauth can only be set manually
 func save_ini() -> void:
-	config.set_value("auth", "bot_name", "")
+	config.set_value("auth", "bot_name", bot_name)
+	config.set_value("auth", "oauth", oauth)
+	config.set_value("auth", "client_id", client_id)
 	config.set_value("channels", "channels", Array(channels))
 	config.set_value("channels", "join_message", join_message)
 	config.save("user://config.ini")
