@@ -3,11 +3,14 @@ extends Connection
 
 var socket : StreamPeerTCP
 
+var host : String = "irc.chat.twitch.tv"
+var port : int = 6667
+
 func _init() -> void:
 	socket = StreamPeerTCP.new()
 
 
-func connect_to_host(host: String, port: int) -> int:
+func connect_to_host() -> int:
 	status = Status.CONNECTING
 	var err = socket.connect_to_host(host, port)
 	if not err:

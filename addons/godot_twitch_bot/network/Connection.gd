@@ -14,7 +14,7 @@ var status = Status.DISCONNECTED
 # var a: int = 2
 # var b: String = "text"
 
-func connect_to_host(host: String, port: int) -> int:
+func connect_to_host() -> int:
 	return OK
 
 

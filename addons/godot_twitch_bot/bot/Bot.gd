@@ -10,9 +10,6 @@ export(String, MULTILINE) var join_message := ""
 
 var connection : Connection
 
-var host : String = "irc.chat.twitch.tv"
-var port : int = 6667
-
 var running = false
 var connected = false
 var close_requested = false
@@ -27,7 +24,7 @@ func _ready() -> void:
 	load_ini()
 	connection = preload("res://addons/godot_twitch_bot/network/TCPConnection.gd").new()
 	running = true
-	var err := connection.connect_to_host(host, port)
+	var err := connection.connect_to_host()
 	if not err:
 		print("Connecting...")
 	pass # Replace with function body.
