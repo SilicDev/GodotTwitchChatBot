@@ -19,9 +19,12 @@ var close_requested = false
 
 var connected_channels := PoolStringArray([])
 
+var config := ConfigFile.new()
+
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	load_ini()
 	connection = preload("res://addons/godot_twitch_bot/network/TCPConnection.gd").new()
 	running = true
 	var err := connection.connect_to_host(host, port)
@@ -90,6 +93,18 @@ func _process(delta: float) -> void:
 
 func send(msg: String) -> void:
 	connection.send(msg)
+
+
+func load_ini() -> void:
+	config.load("config.ini")
+	oauth = config.get_value("auth", "oauth", "")
+	bot_name = config.get_value("auth", "bot_name", "")
+	channels = config.get_value("channels", "channels", [])
+	pass
+
+
+func save_ini() -> void:
+	pass
 
 
 func parse_message(message: String):
