@@ -18,6 +18,10 @@ func connect_to_host() -> int:
 	return OK
 
 
+func update() -> void:
+	pass
+
+
 func disconnect_from_host() -> void:
 	pass
 

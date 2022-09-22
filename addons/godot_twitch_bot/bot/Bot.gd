@@ -17,6 +17,7 @@ var connected = false
 var close_requested = false
 
 var connected_channels := PoolStringArray([])
+var chats := {}
 
 var config := ConfigFile.new()
 
@@ -24,34 +25,35 @@ var config := ConfigFile.new()
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	load_ini()
-	connection = preload("res://addons/godot_twitch_bot/network/TCPConnection.gd").new()
+	#connect_to_twitch()
 	running = true
-	var err := connection.connect_to_host()
-	if not err:
-		print("Connecting...")
 	pass # Replace with function body.
 
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_QUIT_REQUEST:
 		for c in channels:
-			send("PART " + c)
+			part_channel(c)
 		connection.disconnect_from_host()
 		save_ini()
 		print("Disconnected")
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
+	if not connection:
+		return
+	connection.update()
 	if connection.status == Connection.Status.CONNECTED:
 		if not connected:
 			connected = true
+			print("Authorizing...")
 			send("CAP REQ :twitch.tv/membership twitch.tv/tags twitch.tv/commands")
 			send("PASS oauth:" + oauth)
 			send("NICK " + bot_name)
 		if connection.has_message():
 			var messages := connection.receive().split("\r\n")
 			for msg in messages:
-				print(msg)
+				print("> " + msg)
 				var parsedMessage = parse_message(msg)
 				if parsedMessage:
 					match parsedMessage.command.command:
@@ -64,8 +66,9 @@ func _process(delta: float) -> void:
 						"PING":
 							send("PONG :" + parsedMessage.parameters)
 						"001":
+							print("Successfully authorized!")
 							for c in channels:
-								send("JOIN #" + c.to_lower())
+								join_channel(c)
 						"JOIN":
 							print("joined " + parsedMessage.command.channel)
 							if not join_message.empty():
@@ -73,23 +76,43 @@ func _process(delta: float) -> void:
 							pass
 						"PART":
 							push_warning("The stream must have banned (/ban) the bot!")
-							send("PART " + parsedMessage.command.channel)
+							part_channel(parsedMessage.command.channel)
 						"NOTICE":
 							# If the authentication failed, leave the channel.
 							# The server will close the connection.
 							if "Login authentication failed" == parsedMessage.parameters:
 								push_error("Authentication failed; left " + str(channels))
 								for c in channels:
-									send("PART " + c)
+									part_channel(c)
 							elif "You don’t have permission to perform that action" == parsedMessage.parameters:
 								push_error("No permission. Check if the access token is still valid. Left " + str(channels))
 								for c in channels:
-									send("PART " + c)
+									part_channel(c)
 	
 	elif connection.status == Connection.Status.DISCONNECTED and connected:
 		push_warning("Lost Connection")
 		connected = false
 	pass
+
+
+func connect_to_twitch() -> int:
+	print("Connecting...")
+	connection = preload("res://addons/godot_twitch_bot/network/TCPConnection.gd").new()
+	var err := connection.connect_to_host()
+	if not err:
+		print("Connected")
+	return err
+
+
+func join_channel(channel: String) -> void:
+	send("JOIN #" + channel.to_lower())
+
+
+func part_channel(channel: String) -> void:
+	var c := channel
+	if c.begins_with("#"):
+		c = c.substr(1)
+	send("PART #" + c)
 
 
 func send(msg: String) -> void:

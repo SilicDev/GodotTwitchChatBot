@@ -1,13 +1,33 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://addons/godot_twitch_bot/bot/Bot.gd" type="Script" id=1]
+[ext_resource path="res://src/MainConsole.gd" type="Script" id=2]
+[ext_resource path="res://addons/godot_twitch_bot/commands/Command.gd" type="Script" id=3]
+
+[sub_resource type="Resource" id=1]
+script = ExtResource( 3 )
+name = "lmao"
+regex = ""
+permission_level = 0
+aliases = PoolStringArray(  )
+response = "gottem"
+
+[sub_resource type="Resource" id=2]
+script = ExtResource( 3 )
+name = "!lmao1"
+regex = ""
+permission_level = 4
+aliases = PoolStringArray(  )
+response = "gottem!!1!11!!"
 
 [node name="MainConsole" type="Panel"]
 anchor_right = 1.0
 anchor_bottom = 1.0
+script = ExtResource( 2 )
 
 [node name="Bot" type="Node" parent="."]
 script = ExtResource( 1 )
+commands = [ SubResource( 1 ), SubResource( 2 ) ]
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 anchor_right = 1.0
@@ -25,15 +45,51 @@ margin_bottom = 595.0
 
 [node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
 margin_right = 1014.0
-margin_bottom = 20.0
+margin_bottom = 26.0
 
-[node name="Button" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="Config" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer"]
 margin_right = 72.0
-margin_bottom = 20.0
+margin_bottom = 26.0
 text = "Configure"
 
-[node name="RichTextLabel" type="RichTextLabel" parent="MarginContainer/VBoxContainer"]
-margin_top = 24.0
+[node name="VSeparator" type="VSeparator" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+margin_left = 76.0
+margin_right = 80.0
+margin_bottom = 26.0
+
+[node name="Connect" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+margin_left = 84.0
+margin_right = 210.0
+margin_bottom = 26.0
+text = "Connect to Twitch"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+margin_left = 214.0
+margin_right = 1014.0
+margin_bottom = 26.0
+size_flags_horizontal = 3
+alignment = 2
+
+[node name="LineEdit" type="LineEdit" parent="MarginContainer/VBoxContainer/HBoxContainer/HBoxContainer"]
+margin_left = 561.0
+margin_right = 761.0
+margin_bottom = 26.0
+rect_min_size = Vector2( 200, 0 )
+expand_to_text_length = true
+context_menu_enabled = false
+clear_button_enabled = true
+placeholder_text = "Enter Channel"
+
+[node name="Join" type="Button" parent="MarginContainer/VBoxContainer/HBoxContainer/HBoxContainer"]
+margin_left = 765.0
+margin_right = 800.0
+margin_bottom = 26.0
+text = "Join"
+
+[node name="TabContainer" type="TabContainer" parent="MarginContainer/VBoxContainer"]
+margin_top = 30.0
 margin_right = 1014.0
 margin_bottom = 590.0
 size_flags_vertical = 3
+
+[connection signal="pressed" from="MarginContainer/VBoxContainer/HBoxContainer/Connect" to="." method="_on_Connect_pressed"]
