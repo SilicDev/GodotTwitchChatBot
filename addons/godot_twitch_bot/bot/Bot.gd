@@ -3,7 +3,6 @@ extends Node
 
 
 export(PoolStringArray) var channels := PoolStringArray([])
-export(Array, Resource) var commands := []
 export(String) var bot_name := ""
 export(String, MULTILINE) var join_message := ""
 
@@ -18,6 +17,7 @@ var close_requested = false
 
 var connected_channels := PoolStringArray([])
 var chats := {}
+var commands := []
 
 var config := ConfigFile.new()
 
@@ -53,7 +53,8 @@ func _process(delta: float) -> void:
 		if connection.has_message():
 			var messages := connection.receive().split("\r\n")
 			for msg in messages:
-				print("> " + msg)
+				if OS.is_debug_build():
+					print("> " + msg)
 				var parsedMessage = parse_message(msg)
 				if parsedMessage:
 					match parsedMessage.command.command:

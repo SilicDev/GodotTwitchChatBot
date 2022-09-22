@@ -1,24 +1,7 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=3 format=2]
 
 [ext_resource path="res://addons/godot_twitch_bot/bot/Bot.gd" type="Script" id=1]
 [ext_resource path="res://src/MainConsole.gd" type="Script" id=2]
-[ext_resource path="res://addons/godot_twitch_bot/commands/Command.gd" type="Script" id=3]
-
-[sub_resource type="Resource" id=1]
-script = ExtResource( 3 )
-name = "lmao"
-regex = ""
-permission_level = 0
-aliases = PoolStringArray(  )
-response = "gottem"
-
-[sub_resource type="Resource" id=2]
-script = ExtResource( 3 )
-name = "!lmao1"
-regex = ""
-permission_level = 4
-aliases = PoolStringArray(  )
-response = "gottem!!1!11!!"
 
 [node name="MainConsole" type="Panel"]
 anchor_right = 1.0
@@ -27,7 +10,6 @@ script = ExtResource( 2 )
 
 [node name="Bot" type="Node" parent="."]
 script = ExtResource( 1 )
-commands = [ SubResource( 1 ), SubResource( 2 ) ]
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 anchor_right = 1.0

@@ -3,9 +3,6 @@ class_name Command
 extends Resource
 
 
-# Declare member variables here. Examples:
-# var a: int = 2
-# var b: String = "text"
 export(String) var name := ""
 export(String, MULTILINE) var regex := ""
 enum Badge {
@@ -20,14 +17,9 @@ export(PoolStringArray) var aliases := PoolStringArray([])
 export(String, MULTILINE) var response := ""
 var matcher = RegEx.new()
 
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass # Replace with function body.
 
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta: float) -> void:
-#	pass
+func get_response() -> String:
+	return response
 
 
 func should_fire(parsedMessage: Dictionary) -> bool:
