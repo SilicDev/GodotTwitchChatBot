@@ -1,6 +1,6 @@
 extends PanelContainer
 
-signal on_send_button_pressed(msg, channel)
+signal send_button_pressed(msg, channel)
 signal part_requested(channel)
 
 onready var chat := $VBoxContainer/PanelContainer/RichTextLabel
@@ -32,7 +32,7 @@ func add_bot_message(message: String) -> void:
 
 
 func _on_Send_pressed() -> void:
-	emit_signal("on_send_button_pressed", messageInput.text, name)
+	emit_signal("send_button_pressed", messageInput.text, name)
 	messageInput.text = ""
 	pass # Replace with function body.
 

@@ -46,7 +46,8 @@ func _on_Bot_joined_channel(channel) -> void:
 	if not channel in chats.keys():
 		var chat = load("res://src/ChatWindow.tscn").instance()
 		tabs.add_child(chat)
-		chat.connect("on_send_button_pressed", self, "_on_Chat_send_button_pressed")
+		chat.connect("send_button_pressed", self, "_on_Chat_send_button_pressed")
+		chat.connect("part_requested", self, "_on_Chat_part_requested")
 		chat.name = channel
 		chat.botLabel.text = bot.bot_name
 		chats[channel] = chat
