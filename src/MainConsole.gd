@@ -1,7 +1,7 @@
 extends Panel
 
 
-onready var bot := $Bot
+onready var bot : TwitchBot = $Bot
 onready var connectButton := $MarginContainer/VBox/HBox/Connect
 onready var channelName := $MarginContainer/VBox/HBox/HBox/LineEdit
 onready var joinButton := $MarginContainer/VBox/HBox/HBox/Join
@@ -33,6 +33,7 @@ func _on_Join_pressed() -> void:
 	if not channelName.text.empty() and not channelName.text in bot.connected_channels:
 		bot.join_channel(channelName.text)
 		joinButton.disabled = true
+		channelName.text = ""
 	pass # Replace with function body.
 
 
@@ -43,28 +44,37 @@ func _on_LineEdit_text_changed(new_text: String) -> void:
 
 func _on_Bot_joined_channel(channel) -> void:
 	if not channel in chats.keys():
-		var chat = RichTextLabel.new() # Replace with a chat window
-		chat.bbcode_enabled = true
+		var chat = load("res://src/ChatWindow.tscn").instance()
 		tabs.add_child(chat)
+		chat.connect("on_send_button_pressed", self, "_on_Chat_send_button_pressed")
 		chat.name = channel
+		chat.botLabel.text = bot.bot_name
 		chats[channel] = chat
+		chats.chat.append_bbcode("[i]Joined channel.[/i]\n")
 	pass # Replace with function body.
 
 
 func _on_Bot_parted_channel(channel) -> void:
 	if chats.has(channel):
-		chats.erase(chats[channel])
+		chats.chat.append_bbcode("[i]Parted channel.[/i]\n")
 	pass # Replace with function body.
 
 
 func _on_Bot_chat_message_received(message, channel) -> void:
 	if chats.has(channel):
-		chats[channel].append_bbcode("[b][color=" + message.tags.color + "]" + message.tags["display-name"] + "[/color][/b]: " + message.parameters + "\n")
-		
+		chats[channel].add_message(message)
 	pass # Replace with function body.
 
 
 func _on_Bot_chat_message_send(message, channel) -> void:
 	if chats.has(channel):
-		chats[channel].append_bbcode("[b]" + bot.bot_name + "[/b]: " + message + "\n")
+		chats[channel].add_bot_message(message)
 	pass # Replace with function body.
+
+
+func _on_Chat_send_button_pressed(message, channel) -> void:
+	bot.chat(channel, message)
+
+
+func _on_Chat_part_requested(channel) -> void:
+	bot.part_channel(channel)

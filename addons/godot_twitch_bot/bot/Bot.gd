@@ -89,8 +89,9 @@ func _process(delta: float) -> void:
 								chat(parsedMessage.command.channel, join_message)
 							pass
 						"PART":
-							push_warning("The stream must have banned (/ban) the bot!")
-							part_channel(parsedMessage.command.channel)
+							if parsedMessage.source.nick == bot_name:
+								push_warning("The stream must have banned (/ban) the bot!")
+								part_channel(parsedMessage.command.channel)
 						"NOTICE":
 							# If the authentication failed, leave the channel.
 							# The server will close the connection.
@@ -141,6 +142,9 @@ func chat(channel: String, msg: String) -> void:
 
 
 func send(msg: String) -> void:
+	if not connection:
+		push_warning("Must be connected to send messages!")
+		return
 	connection.send(msg)
 
 
