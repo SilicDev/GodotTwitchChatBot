@@ -50,7 +50,7 @@ func _on_Bot_joined_channel(channel) -> void:
 		chat.name = channel
 		chat.botLabel.text = bot.bot_name
 		chats[channel] = chat
-		chats.chat.append_bbcode("[i]Joined channel.[/i]\n")
+		chats[channel].chat.append_bbcode("[i]Joined channel.[/i]\n")
 	pass # Replace with function body.
 
 
