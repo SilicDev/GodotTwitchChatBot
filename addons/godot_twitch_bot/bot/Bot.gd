@@ -91,7 +91,10 @@ func _process(delta: float) -> void:
 								chat(parsedMessage.command.channel, join_message)
 							pass
 						"PART":
-							if parsedMessage.source.nick == bot_name:
+							var c : String = parsedMessage.command.channel
+							if c.begins_with("#"):
+								c = c.substr(1)
+							if parsedMessage.source.nick == bot_name and c in connected_channels:
 								push_warning("The stream must have banned (/ban) the bot!")
 								part_channel(parsedMessage.command.channel)
 						"NOTICE":
