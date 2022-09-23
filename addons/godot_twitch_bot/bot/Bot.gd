@@ -2,6 +2,13 @@ class_name TwitchBot
 extends Node
 
 
+signal joined_channel(channel)
+signal parted_channel(channel)
+signal chat_message_received(message, channel)
+signal chat_message_send(message, channel)
+signal pinged()
+
+
 export(PoolStringArray) var channels := PoolStringArray([])
 export(String) var bot_name := ""
 export(String, MULTILINE) var join_message := ""
@@ -16,7 +23,6 @@ var connected = false
 var close_requested = false
 
 var connected_channels := PoolStringArray([])
-var chats := {}
 var commands := []
 
 var config := ConfigFile.new()
@@ -59,12 +65,14 @@ func _process(delta: float) -> void:
 				if parsedMessage:
 					match parsedMessage.command.command:
 						"PRIVMSG":
+							emit_signal("chat_message_received", parsedMessage, parsedMessage.command.channel.substr(1))
 							for c in commands:
 								if c.should_fire(parsedMessage):
-									send("PRIVMSG " + parsedMessage.command.channel + " :" + c.response)
+									chat(parsedMessage.command.channel, c.get_response())
 									break
 							pass
 						"PING":
+							emit_signal("pinged")
 							send("PONG :" + parsedMessage.parameters)
 						"001":
 							print("Successfully authorized!")
@@ -72,8 +80,13 @@ func _process(delta: float) -> void:
 								join_channel(c)
 						"JOIN":
 							print("joined " + parsedMessage.command.channel)
+							var c : String = parsedMessage.command.channel
+							if c.begins_with("#"):
+								c = c.substr(1)
+							connected_channels.append(c)
+							emit_signal("joined_channel", c)
 							if not join_message.empty():
-								send("PRIVMSG " + parsedMessage.command.channel + " :" + join_message)
+								chat(parsedMessage.command.channel, join_message)
 							pass
 						"PART":
 							push_warning("The stream must have banned (/ban) the bot!")
@@ -106,7 +119,8 @@ func connect_to_twitch() -> int:
 
 
 func join_channel(channel: String) -> void:
-	send("JOIN #" + channel.to_lower())
+	if not channel in connected_channels:
+		send("JOIN #" + channel.to_lower())
 
 
 func part_channel(channel: String) -> void:
@@ -114,6 +128,16 @@ func part_channel(channel: String) -> void:
 	if c.begins_with("#"):
 		c = c.substr(1)
 	send("PART #" + c)
+	connected_channels.remove(connected_channels.find(c))
+	emit_signal("parted_channel", c)
+
+
+func chat(channel: String, msg: String) -> void:
+	var c := channel
+	if c.begins_with("#"):
+		c = c.substr(1)
+	send("PRIVMSG #" + c + " :" + msg)
+	emit_signal("chat_message_send", msg, c)
 
 
 func send(msg: String) -> void:
