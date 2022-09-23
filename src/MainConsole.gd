@@ -38,7 +38,7 @@ func _on_Join_pressed() -> void:
 
 
 func _on_LineEdit_text_changed(new_text: String) -> void:
-	joinButton.disabled = new_text.empty() or new_text.to_lower() in bot.connected_channels
+	joinButton.disabled = not bot.connected or (new_text.empty() or new_text.to_lower() in bot.connected_channels)
 	pass # Replace with function body.
 
 

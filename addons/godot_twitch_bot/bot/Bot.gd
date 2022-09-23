@@ -9,6 +9,12 @@ signal chat_message_send(message, channel)
 signal pinged()
 
 
+enum ConnectionMethod {
+	TCP,
+	WEBSOCKET,
+}
+
+
 export(PoolStringArray) var channels := PoolStringArray([])
 export(String) var bot_name := ""
 export(String, MULTILINE) var join_message := ""
@@ -17,6 +23,8 @@ var connection : Connection
 
 var oauth := ""
 var client_id := ""
+
+var connection_method = ConnectionMethod.TCP
 
 var running = false
 var connected = false
@@ -40,11 +48,12 @@ func _ready() -> void:
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_QUIT_REQUEST:
-		for c in channels:
-			part_channel(c)
-		connection.disconnect_from_host()
+		if connected:
+			for c in channels:
+				part_channel(c)
+			connection.disconnect_from_host()
+			print("Disconnected")
 		save_ini()
-		print("Disconnected")
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
@@ -116,11 +125,17 @@ func _process(delta: float) -> void:
 
 
 func connect_to_twitch() -> int:
-	print("Connecting...")
-	connection = preload("res://addons/godot_twitch_bot/network/TCPConnection.gd").new()
+	if connection_method == ConnectionMethod.TCP:
+		print("Connecting via TCP...")
+		connection = preload("res://addons/godot_twitch_bot/network/TCPConnection.gd").new()
+	elif connection_method == ConnectionMethod.WEBSOCKET:
+		print("Connecting via WebSocket...")
+		connection = preload("res://addons/godot_twitch_bot/network/WSConnection.gd").new()
 	var err := connection.connect_to_host()
 	if not err:
 		print("Connected")
+	else:
+		connected = false
 	return err
 
 
@@ -160,6 +175,11 @@ func load_ini() -> void:
 	bot_name = config.get_value("auth", "bot_name", "")
 	oauth = config.get_value("auth", "oauth", "")
 	client_id = config.get_value("auth", "client_id", "")
+	var protocol = config.get_value("auth", "protocol", "TCP").to_upper()
+	if protocol in ConnectionMethod.keys():
+		connection_method = ConnectionMethod[protocol]
+	else:
+		connection_method = ConnectionMethod.TCP
 	channels = config.get_value("channels", "channels", [])
 	join_message = config.get_value("channels", "join_message", "")
 	pass
@@ -170,6 +190,7 @@ func save_ini() -> void:
 	config.set_value("auth", "bot_name", bot_name)
 	config.set_value("auth", "oauth", oauth)
 	config.set_value("auth", "client_id", client_id)
+	config.set_value("auth", "protocol", ConnectionMethod.keys()[connection_method])
 	config.set_value("channels", "channels", Array(channels))
 	config.set_value("channels", "join_message", join_message)
 	config.save("user://config.ini")
