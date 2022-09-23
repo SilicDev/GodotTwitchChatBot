@@ -25,6 +25,7 @@ margin_right = 1003.0
 margin_bottom = 551.0
 focus_mode = 2
 size_flags_vertical = 3
+scroll_following = true
 selection_enabled = true
 
 [node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
