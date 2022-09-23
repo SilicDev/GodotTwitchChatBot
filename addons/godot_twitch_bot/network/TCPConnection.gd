@@ -4,7 +4,7 @@ extends Connection
 var socket : StreamPeerTCP
 
 var host : String = "irc.chat.twitch.tv"
-var port : int = 6667
+var port : int = 6697
 
 func _init() -> void:
 	socket = StreamPeerTCP.new()

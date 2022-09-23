@@ -49,7 +49,8 @@ func _on_Bot_joined_channel(channel) -> void:
 		chat.connect("send_button_pressed", self, "_on_Chat_send_button_pressed")
 		chat.connect("part_requested", self, "_on_Chat_part_requested")
 		chat.name = channel
-		chat.botLabel.text = bot.bot_name
+		chat.botLabel.text = bot.display_name
+		chat.bot_color = bot.chat_color
 		chats[channel] = chat
 		chats[channel].chat.append_bbcode("[i]Joined channel.[/i]\n")
 	pass # Replace with function body.

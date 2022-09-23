@@ -26,6 +26,9 @@ var client_id := ""
 
 var connection_method = ConnectionMethod.TCP
 
+var display_name := ""
+var chat_color := ""
+
 var running = false
 var connected = false
 var close_requested = false
@@ -117,6 +120,9 @@ func _process(delta: float) -> void:
 								push_error("No permission. Check if the access token is still valid. Left " + str(channels))
 								for c in channels:
 									part_channel(c)
+						"GLOBALUSERSTATE":
+							display_name = parsedMessage.tags["display-name"]
+							chat_color = parsedMessage.tags["color"]
 	
 	elif connection.status == Connection.Status.DISCONNECTED and connected:
 		push_warning("Lost Connection")
@@ -150,6 +156,7 @@ func part_channel(channel: String) -> void:
 		c = c.substr(1)
 	send("PART #" + c)
 	connected_channels.remove(connected_channels.find(c))
+	print(connected_channels)
 	emit_signal("parted_channel", c)
 
 

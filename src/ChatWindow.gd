@@ -7,6 +7,8 @@ onready var chat := $VBoxContainer/PanelContainer/RichTextLabel
 onready var messageInput := $VBoxContainer/HBoxContainer/LineEdit
 onready var botLabel := $VBoxContainer/HBoxContainer/Label
 
+var bot_color := ""
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	chat.bbcode_enabled = true
@@ -27,7 +29,10 @@ func add_message(message: Dictionary) -> void:
 
 
 func add_bot_message(message: String) -> void:
-	chat.append_bbcode("[b]" + botLabel.text + "[/b]: " + message + "\n")
+	if bot_color.empty():
+		chat.append_bbcode("[b]" + botLabel.text + "[/b]: " + message + "\n")
+	else:
+		chat.append_bbcode("[b][color=" + bot_color + "]" + botLabel.text + "[/color][/b]: " + message + "\n")
 	pass
 
 
