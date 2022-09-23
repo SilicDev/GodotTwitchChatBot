@@ -57,7 +57,7 @@ func _on_Bot_joined_channel(channel) -> void:
 
 func _on_Bot_parted_channel(channel) -> void:
 	if chats.has(channel):
-		chats.chat.append_bbcode("[i]Parted channel.[/i]\n")
+		chats[channel].chat.append_bbcode("[i]Parted channel.[/i]\n")
 	pass # Replace with function body.
 
 
