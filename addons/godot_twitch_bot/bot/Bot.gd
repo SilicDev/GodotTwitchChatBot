@@ -8,6 +8,8 @@ signal connected()
 signal disconnected()
 signal chat_message_received(message, channel)
 signal chat_message_send(message, channel)
+signal userstate_received(tags, channel)
+signal roomstate_received(tags, channel)
 signal pinged()
 
 
@@ -34,6 +36,9 @@ var chat_color := ""
 var running = false
 var connected = false
 var close_requested = false
+
+var read_only := true
+var request_membership := true
 
 var connected_channels := PoolStringArray([])
 var commandManagers := {}
@@ -66,9 +71,15 @@ func _process(delta: float) -> void:
 		if not connected:
 			connected = true
 			print("Authorizing...")
-			send("CAP REQ :twitch.tv/membership twitch.tv/tags twitch.tv/commands")
-			send("PASS oauth:" + oauth)
-			send("NICK " + bot_name)
+			if not read_only:
+				if request_membership:
+					send("CAP REQ :twitch.tv/membership twitch.tv/tags twitch.tv/commands")
+				else:
+					send("CAP REQ :twitch.tv/tags twitch.tv/commands")
+				send("PASS oauth:" + oauth)
+				send("NICK " + bot_name)
+			else:
+				send("NICK " + "justinfan12345")
 		if connection.has_message():
 			var messages := connection.receive().split("\r\n")
 			for msg in messages:
@@ -83,10 +94,11 @@ func _process(delta: float) -> void:
 							c = c.substr(1)
 					match parsedMessage.command.command:
 						"PRIVMSG":
-							emit_signal("chat_message_received", parsedMessage, parsedMessage.command.channel.substr(1))
+							emit_signal("chat_message_received", parsedMessage, c)
 							if c in commandManagers.keys():
 								var cmd : String = commandManagers[c].test_commands(parsedMessage)
-								chat(c, commandManagers[c].get_response(cmd))
+								if not cmd.empty():
+									chat(c, commandManagers[c].get_response(cmd))
 						"PING":
 							emit_signal("pinged")
 							send("PONG :" + parsedMessage.parameters)
@@ -95,15 +107,16 @@ func _process(delta: float) -> void:
 							for cnl in channels:
 								join_channel(cnl)
 						"JOIN":
-							print("joined " + parsedMessage.command.channel)
-							connected_channels.append(c)
-							commandManagers[c] = load("res://addons/godot_twitch_bot/commands/util/CommandManager.gd").new(c)
-							emit_signal("joined_channel", c)
-							if not join_message.empty():
-								chat(parsedMessage.command.channel, join_message)
+							if parsedMessage.source.nick == bot_name or read_only:
+								print("joined " + parsedMessage.command.channel)
+								connected_channels.append(c)
+								commandManagers[c] = load("res://addons/godot_twitch_bot/commands/util/CommandManager.gd").new(c)
+								emit_signal("joined_channel", c)
+								if not join_message.empty():
+									chat(parsedMessage.command.channel, join_message)
 							pass
 						"PART":
-							if parsedMessage.source.nick == bot_name and c in connected_channels:
+							if (parsedMessage.source.nick == bot_name and c in connected_channels) or read_only:
 								push_warning("The stream must have banned (/ban) the bot!")
 								part_channel(parsedMessage.command.channel)
 						"NOTICE":
@@ -120,6 +133,10 @@ func _process(delta: float) -> void:
 						"GLOBALUSERSTATE":
 							display_name = parsedMessage.tags["display-name"]
 							chat_color = parsedMessage.tags["color"]
+						"USERSTATE":
+							emit_signal("userstate_received", parsedMessage.tags, c)
+						"ROOMSTATE":
+							emit_signal("roomstate_received", parsedMessage.tags, c)
 	
 	elif connection.status == Connection.Status.DISCONNECTED and connected:
 		push_warning("Lost Connection")
@@ -167,11 +184,13 @@ func part_channel(channel: String) -> void:
 
 
 func chat(channel: String, msg: String) -> void:
-	var c := channel
-	if c.begins_with("#"):
-		c = c.substr(1)
-	send("PRIVMSG #" + c + " :" + msg)
-	emit_signal("chat_message_send", msg, c)
+	if not read_only:
+		var c := channel
+		if c.begins_with("#"):
+			c = c.substr(1)
+		# TODO: check if roomstate allows message to be sent
+		send("PRIVMSG #" + c + " :" + msg)
+		emit_signal("chat_message_send", msg, c)
 
 
 func send(msg: String) -> void:

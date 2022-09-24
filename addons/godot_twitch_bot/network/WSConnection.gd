@@ -38,6 +38,11 @@ func disconnect_from_host() -> void:
 
 
 func send(message: String) -> void:
+	if OS.is_debug_build():
+		if message.begins_with("PASS"):
+			print("< PASS oauth:", "*".repeat(message.length() - 11))
+		else:
+			print("< " + message)
 	socket.get_peer(1).put_packet((message + "\r\n").to_utf8())
 	pass
 
