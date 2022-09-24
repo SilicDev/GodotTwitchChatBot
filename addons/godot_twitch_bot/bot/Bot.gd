@@ -4,6 +4,8 @@ extends Node
 
 signal joined_channel(channel)
 signal parted_channel(channel)
+signal connected()
+signal disconnected()
 signal chat_message_received(message, channel)
 signal chat_message_send(message, channel)
 signal pinged()
@@ -34,7 +36,7 @@ var connected = false
 var close_requested = false
 
 var connected_channels := PoolStringArray([])
-var commands := []
+var commandManagers := {}
 
 var config := ConfigFile.new()
 
@@ -52,10 +54,7 @@ func _ready() -> void:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_QUIT_REQUEST:
 		if connected:
-			for c in channels:
-				part_channel(c)
-			connection.disconnect_from_host()
-			print("Disconnected")
+			disconnect_from_twitch()
 		save_ini()
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -77,35 +76,33 @@ func _process(delta: float) -> void:
 					print("> " + msg)
 				var parsedMessage = messageParser.parse_message(msg)
 				if parsedMessage:
+					var c := ""
+					if parsedMessage.command.channel:
+						c = parsedMessage.command.channel
+						if c.begins_with("#"):
+							c = c.substr(1)
 					match parsedMessage.command.command:
 						"PRIVMSG":
 							emit_signal("chat_message_received", parsedMessage, parsedMessage.command.channel.substr(1))
-							for c in commands:
-								if c.should_fire(parsedMessage):
-									chat(parsedMessage.command.channel, c.get_response())
-									break
-							pass
+							if c in commandManagers.keys():
+								var cmd : String = commandManagers[c].test_commands(parsedMessage)
+								chat(c, commandManagers[c].get_response(cmd))
 						"PING":
 							emit_signal("pinged")
 							send("PONG :" + parsedMessage.parameters)
 						"001":
 							print("Successfully authorized!")
-							for c in channels:
-								join_channel(c)
+							for cnl in channels:
+								join_channel(cnl)
 						"JOIN":
 							print("joined " + parsedMessage.command.channel)
-							var c : String = parsedMessage.command.channel
-							if c.begins_with("#"):
-								c = c.substr(1)
 							connected_channels.append(c)
+							commandManagers[c] = load("res://addons/godot_twitch_bot/commands/util/CommandManager.gd").new(c)
 							emit_signal("joined_channel", c)
 							if not join_message.empty():
 								chat(parsedMessage.command.channel, join_message)
 							pass
 						"PART":
-							var c : String = parsedMessage.command.channel
-							if c.begins_with("#"):
-								c = c.substr(1)
 							if parsedMessage.source.nick == bot_name and c in connected_channels:
 								push_warning("The stream must have banned (/ban) the bot!")
 								part_channel(parsedMessage.command.channel)
@@ -114,12 +111,12 @@ func _process(delta: float) -> void:
 							# The server will close the connection.
 							if "Login authentication failed" == parsedMessage.parameters:
 								push_error("Authentication failed; left " + str(channels))
-								for c in channels:
-									part_channel(c)
+								for cnl in channels:
+									part_channel(cnl)
 							elif "You don’t have permission to perform that action" == parsedMessage.parameters:
 								push_error("No permission. Check if the access token is still valid. Left " + str(channels))
-								for c in channels:
-									part_channel(c)
+								for cnl in channels:
+									part_channel(cnl)
 						"GLOBALUSERSTATE":
 							display_name = parsedMessage.tags["display-name"]
 							chat_color = parsedMessage.tags["color"]
@@ -139,10 +136,20 @@ func connect_to_twitch() -> int:
 		connection = preload("res://addons/godot_twitch_bot/network/WSConnection.gd").new()
 	var err := connection.connect_to_host()
 	if not err:
+		emit_signal("connected")
 		print("Connected")
 	else:
 		connected = false
 	return err
+
+
+func disconnect_from_twitch() -> void:
+	for c in channels:
+		part_channel(c)
+	connection.disconnect_from_host()
+	connected = false
+	emit_signal("disconnected")
+	print("Disconnected")
 
 
 func join_channel(channel: String) -> void:

@@ -3,6 +3,18 @@ extends Reference
 
 var file := File.new()
 
+var commands := {}
+
+var active_commands := {}
+
+var modules := {}
+var counters := {}
+
+var channel : String
+
+func _init(cnl: String) -> void:
+	channel = cnl
+
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -12,6 +24,20 @@ func _ready() -> void:
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta: float) -> void:
 #	pass
+
+
+func test_commands(message: Dictionary) -> String:
+	for c in active_commands:
+		if c.should_fire(message):
+			return c.name
+	return ""
+
+
+func get_response(cmd: String) -> String:
+	if cmd in active_commands.keys():
+		var msg = active_commands[cmd].get_response()
+		return msg
+	return ""
 
 
 func load_command(path: String):
@@ -46,3 +72,7 @@ func save_command(path: String, cmd: Command) -> int:
 	file.store_string(JSON.print(dict))
 	file.close()
 	return OK
+
+
+func toggle_module(module: String, on_off: bool) -> void:
+	pass
