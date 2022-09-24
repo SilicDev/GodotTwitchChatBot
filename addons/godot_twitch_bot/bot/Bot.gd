@@ -14,8 +14,8 @@ signal pinged()
 
 
 enum ConnectionMethod {
-	TCP,
 	WEBSOCKET,
+	TCP,
 }
 
 
@@ -28,7 +28,7 @@ var connection : Connection
 var oauth := ""
 var client_id := ""
 
-var connection_method = ConnectionMethod.TCP
+var connection_method = ConnectionMethod.WEBSOCKET
 
 var display_name := ""
 var chat_color := ""
@@ -37,7 +37,7 @@ var running = false
 var connected = false
 var close_requested = false
 
-var read_only := true
+var read_only := false
 var request_membership := true
 
 var connected_channels := PoolStringArray([])
@@ -145,12 +145,13 @@ func _process(delta: float) -> void:
 
 
 func connect_to_twitch() -> int:
-	if connection_method == ConnectionMethod.TCP:
-		print("Connecting via TCP...")
-		connection = preload("res://addons/godot_twitch_bot/network/TCPConnection.gd").new()
-	elif connection_method == ConnectionMethod.WEBSOCKET:
+	load_ini()
+	if connection_method == ConnectionMethod.WEBSOCKET:
 		print("Connecting via WebSocket...")
 		connection = preload("res://addons/godot_twitch_bot/network/WSConnection.gd").new()
+	elif connection_method == ConnectionMethod.TCP:
+		print("Connecting via TCP...")
+		connection = preload("res://addons/godot_twitch_bot/network/TCPConnection.gd").new()
 	var err := connection.connect_to_host()
 	if not err:
 		emit_signal("connected")
@@ -161,7 +162,7 @@ func connect_to_twitch() -> int:
 
 
 func disconnect_from_twitch() -> void:
-	for c in channels:
+	for c in connected_channels:
 		part_channel(c)
 	connection.disconnect_from_host()
 	connected = false
@@ -204,26 +205,30 @@ func load_ini() -> void:
 	var err := config.load("user://config.ini")
 	if err:
 		save_ini()
+		config.load("user://config.ini")
 	bot_name = config.get_value("auth", "bot_name", "")
 	oauth = config.get_value("auth", "oauth", "")
-	client_id = config.get_value("auth", "client_id", "")
 	var protocol = config.get_value("auth", "protocol", "TCP").to_upper()
 	if protocol in ConnectionMethod.keys():
 		connection_method = ConnectionMethod[protocol]
 	else:
-		connection_method = ConnectionMethod.TCP
+		connection_method = ConnectionMethod.WEBSOCKET
+	read_only = config.get_value("auth", "read_only", false)
 	channels = config.get_value("channels", "channels", [])
 	join_message = config.get_value("channels", "join_message", "")
+	client_id = config.get_value("twitch", "client_id", "")
+	config.clear()
 	pass
 
 
-# oauth can only be set manually
 func save_ini() -> void:
 	config.set_value("auth", "bot_name", bot_name)
 	config.set_value("auth", "oauth", oauth)
-	config.set_value("auth", "client_id", client_id)
 	config.set_value("auth", "protocol", ConnectionMethod.keys()[connection_method])
+	config.set_value("auth", "read_only", read_only)
 	config.set_value("channels", "channels", Array(channels))
 	config.set_value("channels", "join_message", join_message)
+	config.set_value("twitch", "client_id", client_id)
 	config.save("user://config.ini")
+	config.clear()
 	pass

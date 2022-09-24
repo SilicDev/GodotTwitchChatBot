@@ -6,6 +6,7 @@ onready var connectButton := $MarginContainer/VBox/HBox/Connect
 onready var channelName := $MarginContainer/VBox/HBox/HBox/LineEdit
 onready var joinButton := $MarginContainer/VBox/HBox/HBox/Join
 onready var tabs := $MarginContainer/VBox/TabContainer
+onready var configMenu := $ConfigureDialog
 
 var chats = {}
 
@@ -93,4 +94,39 @@ func _on_Bot_disconnected() -> void:
 	joinButton.disabled = true
 	connectButton.disabled = false
 	connectButton.text = "Connect to Twitch"
+	pass # Replace with function body.
+
+
+func _on_ConfigureDialog_about_to_show() -> void:
+	configMenu.read_only = bot.read_only
+	configMenu.bot_name = bot.bot_name
+	configMenu.oauth = bot.oauth
+	configMenu.protocol = bot.connection_method
+	configMenu.channels = bot.channels
+	configMenu.join_message = bot.join_message
+	configMenu.clientID = bot.client_id
+	configMenu.update_data()
+	pass # Replace with function body.
+
+
+func _on_ConfigureDialog_popup_hide() -> void:
+	var config = ConfigFile.new()
+	config.set_value("auth", "bot_name", configMenu.bot_name)
+	config.set_value("auth", "oauth", configMenu.oauth)
+	config.set_value("auth", "protocol", bot.ConnectionMethod.keys()[configMenu.protocol])
+	config.set_value("auth", "read_only", configMenu.read_only)
+	bot.channels = configMenu.channels
+	config.set_value("channels", "channels", Array(configMenu.channels))
+	bot.join_message = configMenu.join_message
+	config.set_value("channels", "join_message", configMenu.join_message)
+	config.set_value("twitch", "client_id", configMenu.clientID)
+	config.save("user://config.ini")
+	config.clear()
+	if not bot.connected:
+		bot.load_ini()
+	pass # Replace with function body.
+
+
+func _on_Config_pressed() -> void:
+	configMenu.popup_centered_minsize(Vector2(600, 400))
 	pass # Replace with function body.
