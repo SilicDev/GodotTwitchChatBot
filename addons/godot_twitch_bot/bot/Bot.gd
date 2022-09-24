@@ -1,4 +1,4 @@
-class_name TwitchBot
+class_name TwitchBot, "res://addons/godot_twitch_bot/assets/icon.png"
 extends Node
 
 

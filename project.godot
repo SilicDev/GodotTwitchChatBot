@@ -27,7 +27,7 @@ _global_script_classes=[ {
 _global_script_class_icons={
 "Command": "",
 "Connection": "",
-"TwitchBot": ""
+"TwitchBot": "res://addons/godot_twitch_bot/assets/icon.png"
 }
 
 [application]
