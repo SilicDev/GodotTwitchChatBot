@@ -77,7 +77,7 @@ func _process(delta: float) -> void:
 				var parsedMessage = messageParser.parse_message(msg)
 				if parsedMessage:
 					var c := ""
-					if parsedMessage.command.channel:
+					if parsedMessage.command.has("channel"):
 						c = parsedMessage.command.channel
 						if c.begins_with("#"):
 							c = c.substr(1)
@@ -163,7 +163,6 @@ func part_channel(channel: String) -> void:
 		c = c.substr(1)
 	send("PART #" + c)
 	connected_channels.remove(connected_channels.find(c))
-	print(connected_channels)
 	emit_signal("parted_channel", c)
 
 

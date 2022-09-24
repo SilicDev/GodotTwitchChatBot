@@ -20,12 +20,13 @@ func _ready() -> void:
 
 
 func _on_Connect_pressed() -> void:
-	var err = bot.connect_to_twitch()
-	if err:
-		print("Connection failed")
+	connectButton.disabled = true
+	if not bot.connected:
+		var err = bot.connect_to_twitch()
+		if err:
+			print("Connection failed")
 	else:
-		connectButton.disabled = true
-		joinButton.disabled = false
+		bot.disconnect_from_twitch()
 	pass # Replace with function body.
 
 
@@ -80,3 +81,16 @@ func _on_Chat_send_button_pressed(message, channel) -> void:
 
 func _on_Chat_part_requested(channel) -> void:
 	bot.part_channel(channel)
+
+
+func _on_Bot_connected() -> void:
+	connectButton.disabled = false
+	connectButton.text = "Disconnect"
+	pass # Replace with function body.
+
+
+func _on_Bot_disconnected() -> void:
+	joinButton.disabled = true
+	connectButton.disabled = false
+	connectButton.text = "Connect to Twitch"
+	pass # Replace with function body.

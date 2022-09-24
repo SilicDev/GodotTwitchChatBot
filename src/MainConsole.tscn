@@ -78,6 +78,8 @@ tab_align = 0
 
 [connection signal="chat_message_received" from="Bot" to="." method="_on_Bot_chat_message_received"]
 [connection signal="chat_message_send" from="Bot" to="." method="_on_Bot_chat_message_send"]
+[connection signal="connected" from="Bot" to="." method="_on_Bot_connected"]
+[connection signal="disconnected" from="Bot" to="." method="_on_Bot_disconnected"]
 [connection signal="joined_channel" from="Bot" to="." method="_on_Bot_joined_channel"]
 [connection signal="parted_channel" from="Bot" to="." method="_on_Bot_parted_channel"]
 [connection signal="pressed" from="MarginContainer/VBox/HBox/Connect" to="." method="_on_Connect_pressed"]
