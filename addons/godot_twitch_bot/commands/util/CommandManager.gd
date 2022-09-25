@@ -8,7 +8,6 @@ var commands := {}
 var base_commands := {}
 
 var modules := {}
-var counters := {}
 
 var channel : String
 
@@ -16,8 +15,7 @@ var formatter = _load("cmd://util/MessageFormater.gd").new()
 
 func _init(cnl: String) -> void:
 	channel = cnl
-	_load_base_commands()
-	load_command_list("user://channels/" + channel + "/commands.json")
+	load_data()
 
 
 func test_commands(message: Dictionary) -> String:
@@ -34,6 +32,17 @@ func get_response(cmd: String, message: Dictionary) -> String:
 			msg = formatter.format_message(msg, channel, message)
 		return msg
 	return ""
+
+
+func load_data() -> void:
+	_load_base_commands()
+	load_command_list("user://channels/" + channel + "/commands.json")
+	formatter.load_counters("user://channels/" + channel + "/counters.json")
+
+
+func save_data() -> void:
+	save_command_list()
+	formatter.save_counters("user://channels/" + channel + "/counters.json")
 
 
 func load_command_list(path: String):
@@ -68,7 +77,6 @@ func load_command_list(path: String):
 func save_command_list(path: String = "") -> int:
 	if path.empty():
 		path = "user://channels/" + channel + "/commands.json"
-	var file := File.new()
 	var dir := Directory.new()
 	if not dir.dir_exists(path.get_base_dir()):
 		dir.make_dir_recursive(path.get_base_dir())

@@ -187,7 +187,7 @@ func part_channel(channel: String) -> void:
 	if c.begins_with("#"):
 		c = c.substr(1)
 	send("PART #" + c)
-	commandManagers[c].save_command_list()
+	commandManagers[c].save_data()
 	connected_channels.remove(connected_channels.find(c))
 	emit_signal("parted_channel", c)
 
@@ -237,6 +237,11 @@ func save_ini() -> void:
 	config.set_value("channels", "channels", Array(channels))
 	config.set_value("channels", "join_message", join_message)
 	config.set_value("twitch", "client_id", client_id)
-	config.save("user://config.ini")
+	var path = "user://config.ini"
+	var file := File.new()
+	var dir := Directory.new()
+	if not dir.dir_exists(path.get_base_dir()):
+		dir.make_dir_recursive(path.get_base_dir())
+	config.save(path)
 	config.clear()
 	pass
