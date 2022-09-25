@@ -10,6 +10,7 @@ signal chat_message_received(message, channel)
 signal chat_message_send(message, channel)
 signal userstate_received(tags, channel)
 signal roomstate_received(tags, channel)
+signal command_fired(cmd, params)
 signal pinged()
 
 
@@ -99,6 +100,10 @@ func _process(delta: float) -> void:
 								var cmd : String = commandManagers[c].test_commands(parsedMessage)
 								if not cmd.empty():
 									var resp : String = commandManagers[c].get_response(cmd, parsedMessage)
+									var params := PoolStringArray()
+									if parsedMessage.command.has("botCommandParams"):
+										params = parsedMessage.command.botCommandParams.split(" ")
+									emit_signal("command_fired", cmd, params)
 									if not resp.empty():
 										chat(c, resp)
 						"PING":
@@ -182,6 +187,7 @@ func part_channel(channel: String) -> void:
 	if c.begins_with("#"):
 		c = c.substr(1)
 	send("PART #" + c)
+	commandManagers[c].save_command_list()
 	connected_channels.remove(connected_channels.find(c))
 	emit_signal("parted_channel", c)
 
