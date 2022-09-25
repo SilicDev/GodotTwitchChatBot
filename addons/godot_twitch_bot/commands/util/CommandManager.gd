@@ -150,12 +150,12 @@ func edit_command(name: String, response: String) -> bool:
 	return false
 
 
-func _load_base_commands()  -> void:
-	var commandCmd = CommandCommand.new()
+func _load_base_commands() -> void:
+	var commandCmd = _load("cmd://CommandCommand.gd").new()
 	commandCmd.manager = self
 	base_commands["command"] = commandCmd
 	
-	var moduleCmd = ModuleCommand.new()
+	var moduleCmd = _load("cmd://ModuleCommand.gd").new()
 	moduleCmd.manager = self
 	base_commands["module"] = moduleCmd
 	
@@ -163,120 +163,11 @@ func _load_base_commands()  -> void:
 		commands[c] = base_commands[c]
 
 
+func _load(path: String) -> Resource:
+	path = path.replace("cmd://", "res://addons/godot_twitch_bot/commands/")
+	return load(path)
+
+
 class Module:
 	var commands := PoolStringArray([])
 	var active := true
-
-
-class CommandCommand extends Command:
-	enum Mode {
-		NONE,
-		EDIT,
-		ADD,
-		REMOVE,
-	}
-	
-	var mode : int = Mode.NONE
-	
-	var cmd := ""
-	var cmd_response := ""
-	
-	var manager
-	
-	func _init() -> void:
-		name = "command"
-		permission_level = Command.Badge.MODERATOR
-	
-	
-	func should_fire(parsedMessage: Dictionary) -> bool:
-		var res = .should_fire(parsedMessage)
-		if res:
-			var params := PoolStringArray()
-			if parsedMessage.command.has("botCommandParams"):
-				params = parsedMessage.command.botCommandParams.split(" ")
-			if params.empty() or params.size() < 2:
-				return false
-			match params[0].to_lower():
-				"edit":
-					mode = Mode.EDIT
-				"add":
-					mode = Mode.ADD
-				"remove":
-					mode = Mode.REMOVE
-			cmd = params[1].to_lower()
-			if cmd in manager.base_commands.keys():
-				return false
-			cmd_response = ""
-			for i in range(2, params.size()):
-				cmd_response += params[i] + " "
-			cmd_response = cmd_response.substr(0, cmd_response.length() - 1)
-			return true
-		return false
-	
-	func get_response() -> String:
-		match mode:
-			Mode.ADD:
-				var res = manager.add_command(cmd, cmd_response)
-				if res:
-					return "Successfully added command \"" + cmd + "\"!"
-				else:
-					return "Command with name \"" + cmd + "\" already exists!"
-			Mode.EDIT:
-				var res = manager.edit_command(cmd, cmd_response)
-				if res:
-					return "Successfully edited command \"" + cmd + "\": \"" + cmd_response + "\"!"
-				else:
-					return "Command with name \"" + cmd + "\" doesn't exist!"
-			Mode.REMOVE:
-				var res = manager.remove_command(cmd)
-				if res:
-					return "Successfully removed command \"" + cmd + "\"!"
-				else:
-					return "Command with name \"" + cmd + "\" doesn't exist!"
-		return response
-
-
-class ModuleCommand extends Command:
-	
-	var toggle : bool = true
-	
-	var module := ""
-	
-	var manager
-	
-	func _init() -> void:
-		name = "module"
-		permission_level = Command.Badge.MODERATOR
-	
-	
-	func should_fire(parsedMessage: Dictionary) -> bool:
-		var res = .should_fire(parsedMessage)
-		if res:
-			var params := PoolStringArray()
-			if parsedMessage.command.has("botCommandParams"):
-				params = parsedMessage.command.botCommandParams.split(" ")
-			if params.empty() or params.size() < 2:
-				return false
-			match params[0].to_lower():
-				"on", "true", "yes":
-					toggle = true
-				"off", "false", "no":
-					toggle = false
-			module = params[1].to_lower()
-			return true
-		return false
-	
-	func get_response() -> String:
-		if toggle:
-			var res = manager.toggle_module(module, true)
-			if res:
-				return "Successfully enabled module \"" + module + "\"!"
-			else:
-				return "Module with the name \"" + module + "\" doesn't exist!"
-		else:
-			var res = manager.toggle_module(module, false)
-			if res:
-				return "Successfully disabled module \"" + module + "\"!"
-			else:
-				return "Module with the name \"" + module + "\" doesn't exist!"
-		return response
