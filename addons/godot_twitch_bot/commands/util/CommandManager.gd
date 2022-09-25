@@ -12,6 +12,7 @@ var counters := {}
 
 var channel : String
 
+var formatter = _load("cmd://util/MessageFormater.gd").new()
 
 func _init(cnl: String) -> void:
 	channel = cnl
@@ -29,28 +30,10 @@ func test_commands(message: Dictionary) -> String:
 func get_response(cmd: String, message: Dictionary) -> String:
 	if cmd in commands.keys():
 		var msg : String = commands[cmd].get_response()
-		var params := PoolStringArray()
-		if message.command.has("botCommandParams"):
-			params = message.command.botCommandParams.split(" ")
-		msg = msg.replace("${sender}", message.tags["display-name"])
-		msg = msg.replace("${touser}", params[0] if not params.empty() else message.tags["display-name"])
-		msg = msg.replace("${channel}", channel)
-		msg = handle_random(msg)
+		if cmd != "command":
+			msg = formatter.format_message(msg, channel, message)
 		return msg
 	return ""
-
-
-func handle_random(msg: String) -> String:
-	var regex = RegEx.new()
-	regex.compile("\\$\\{random.([0-9]{1,3})\\}")
-	var matches = regex.search_all(msg)
-	for m in matches:
-		var matched = m.strings[0]
-		var bound = int(matched.substr(9, matched.length() - 10))
-		var pos = msg.find(matched)
-		msg.erase(pos, matched.length())
-		msg = msg.insert(pos, str(randi() % bound + 1))
-	return msg
 
 
 func load_command_list(path: String):
