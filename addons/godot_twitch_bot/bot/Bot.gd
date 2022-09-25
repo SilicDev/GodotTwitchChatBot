@@ -98,7 +98,9 @@ func _process(delta: float) -> void:
 							if c in commandManagers.keys():
 								var cmd : String = commandManagers[c].test_commands(parsedMessage)
 								if not cmd.empty():
-									chat(c, commandManagers[c].get_response(cmd))
+									var resp : String = commandManagers[c].get_response(cmd, parsedMessage)
+									if not resp.empty():
+										chat(c, resp)
 						"PING":
 							emit_signal("pinged")
 							send("PONG :" + parsedMessage.parameters)

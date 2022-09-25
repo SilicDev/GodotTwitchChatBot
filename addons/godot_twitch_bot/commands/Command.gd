@@ -15,7 +15,9 @@ enum Badge {
 export(Badge) var permission_level := Badge.NONE
 export(PoolStringArray) var aliases := PoolStringArray([])
 export(String, MULTILINE) var response := ""
-var matcher = RegEx.new()
+
+var active := true
+var matcher := RegEx.new()
 
 
 func get_response() -> String:
@@ -23,7 +25,7 @@ func get_response() -> String:
 
 
 func should_fire(parsedMessage: Dictionary) -> bool:
-	if permission_level == Badge.NONE or (parsedMessage.has("tags") and parsedMessage.tags["user-type"] and has_permission(parsedMessage.tags["user-type"]) >= permission_level):
+	if is_broadcaster(parsedMessage) or permission_level == Badge.NONE or (parsedMessage.has("tags") and parsedMessage.tags["user-type"] and has_permission(parsedMessage.tags["user-type"]) >= permission_level):
 		if parsedMessage.command.has("botCommand") and parsedMessage.command.botCommand == name:
 			return true
 		if not regex.empty():
@@ -45,3 +47,7 @@ func has_permission(user_type: String) -> int:
 			return Badge.SUBSCRIBER
 		_:
 			return Badge.NONE
+
+
+func is_broadcaster(parsedMessage: Dictionary) -> bool:
+	return parsedMessage.has("tags") and "broadcaster" in parsedMessage.tags["badges"]

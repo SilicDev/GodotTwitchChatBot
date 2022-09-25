@@ -217,7 +217,7 @@ static func parseParameters(rawParametersComponent, command) -> Dictionary:
 		command.botCommand = commandParts.substr(0)
 	else:
 		command.botCommand = commandParts.substr(0, paramsIdx)
-		command.botCommandParams = commandParts.substr(paramsIdx).trim_suffix(" ").trim_suffix("\r\n");
+		command.botCommandParams = commandParts.substr(paramsIdx + 1).trim_suffix(" ").trim_suffix("\r\n");
 		# TODO: remove extra spaces in parameters string
 
 	return command
