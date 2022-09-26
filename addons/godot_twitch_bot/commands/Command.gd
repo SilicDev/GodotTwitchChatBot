@@ -28,14 +28,13 @@ func get_response() -> String:
 
 
 func should_fire(parsedMessage: Dictionary) -> bool:
-	if is_broadcaster(parsedMessage) or permission_level == Badge.NONE or (parsedMessage.has("tags") and parsedMessage.tags["user-type"] and has_permission(parsedMessage.tags["user-type"]) >= permission_level):
-		if parsedMessage.command.has("botCommand"):
-			var cmd = parsedMessage.command.botCommand
-			if cmd == name or cmd in aliases:
-				return true
+	if is_broadcaster(parsedMessage) or permission_level == Badge.NONE or has_permission(parsedMessage.get("tags", {}).get("user-type")) >= permission_level:
+		var cmd = parsedMessage.get("command", {}).get("botCommand", "")
+		if cmd == name or cmd in aliases:
+			return true
 		if not regex.empty():
 			matcher.compile(regex)
-			if matcher.search(parsedMessage.parameters):
+			if matcher.search(parsedMessage.get("parameters", "")):
 				return true
 	return false
 
@@ -55,4 +54,4 @@ func has_permission(user_type: String) -> int:
 
 
 func is_broadcaster(parsedMessage: Dictionary) -> bool:
-	return parsedMessage.has("tags") and parsedMessage["tags"]["badges"] and "broadcaster" in parsedMessage.tags["badges"]
+	return "broadcaster" in parsedMessage.get("tags", {}).get("badges")

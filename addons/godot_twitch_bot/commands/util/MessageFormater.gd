@@ -7,17 +7,18 @@ var file := File.new()
 func format_message(msg: String, channel: String, message: Dictionary) -> String:
 	var params := PoolStringArray()
 	if message.command.has("botCommandParams"):
-		params = message.command.botCommandParams.split(" ")
-	msg = msg.replace("${sender}", message.tags["display-name"])
-	msg = msg.replace("${touser}", params[0] if not params.empty() else message.tags["display-name"])
+		params = message.get("command", {}).get("botCommandParams", "").split(" ")
+	var sender_name = message.get("tags", {}).get("display-name", "")
+	msg = msg.replace("${sender}", sender_name)
+	msg = msg.replace("${touser}", params[0] if not params.empty() else sender_name)
 	msg = handle_args(msg, params)
-	msg = handle_channel(msg, channel, message)
+	msg = handle_channel(msg, channel)
 	msg = handle_random(msg)
 	msg = handle_counter(msg)
 	return msg
 
 
-func handle_channel(msg: String, channel: String, message: Dictionary) -> String:
+func handle_channel(msg: String, channel: String) -> String:
 	msg = msg.replace("${channel}", channel)
 	var regex = RegEx.new()
 	regex.compile("\\$\\{channel [a-zA-Z0-9_]+\\}")

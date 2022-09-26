@@ -85,69 +85,72 @@ func _process(delta: float) -> void:
 			var messages := connection.receive().split("\r\n")
 			for msg in messages:
 				if OS.is_debug_build():
-					print("> " + msg)
+					if not msg.empty():
+						print("> " + msg)
 				var parsedMessage = messageParser.parse_message(msg)
 				if parsedMessage:
+					var commandDict = parsedMessage.get("command", {})
+					var parameters = parsedMessage.get("parameters", "")
+					var tags = parsedMessage.get("tags", {})
 					var c := ""
-					if parsedMessage.command.has("channel"):
-						c = parsedMessage.command.channel
-						if c.begins_with("#"):
-							c = c.substr(1)
-					match parsedMessage.command.command:
+					c = commandDict.get("channel", "")
+					if c.begins_with("#"):
+						c = c.substr(1)
+					match commandDict.get("command", ""):
 						"PRIVMSG":
 							emit_signal("chat_message_received", parsedMessage, c)
 							if c in commandManagers.keys():
 								var cmd : String = commandManagers[c].test_commands(parsedMessage)
 								if not cmd.empty():
 									var resp : String = commandManagers[c].get_response(cmd, parsedMessage)
-									var params := PoolStringArray()
-									if parsedMessage.command.has("botCommandParams"):
-										params = parsedMessage.command.botCommandParams.split(" ")
+									var params : PoolStringArray = commandDict.get("botCommandParams", "").split(" ")
 									emit_signal("command_fired", cmd, params)
 									if not resp.empty():
 										chat(c, resp)
 						"PING":
 							emit_signal("pinged")
-							send("PONG :" + parsedMessage.parameters)
+							send("PONG :" + parameters)
 						"001":
 							print("Successfully authorized!")
 							for cnl in channels:
 								join_channel(cnl)
 						"JOIN":
-							if parsedMessage.source.nick == bot_name or read_only:
-								print("joined " + parsedMessage.command.channel)
+							if parsedMessage.get("source", {}).get("nick", "") == bot_name or read_only:
+								print("joined " + commandDict.channel)
 								connected_channels.append(c)
 								commandManagers[c] = load("res://addons/godot_twitch_bot/commands/util/CommandManager.gd").new(c)
 								emit_signal("joined_channel", c)
 								if not join_message.empty():
-									chat(parsedMessage.command.channel, join_message)
+									chat(commandDict.channel, join_message)
 							pass
 						"PART":
-							if (parsedMessage.source.nick == bot_name and c in connected_channels) or read_only:
+							if (parsedMessage.get("source", {}).get("nick", "") and c in connected_channels) or read_only:
 								push_warning("The stream must have banned (/ban) the bot!")
-								part_channel(parsedMessage.command.channel)
+								part_channel(commandDict.channel)
 						"NOTICE":
 							# If the authentication failed, leave the channel.
 							# The server will close the connection.
-							if "Login authentication failed" == parsedMessage.parameters:
+							if "Login authentication failed" == parameters:
 								push_error("Authentication failed; left " + str(channels))
 								for cnl in channels:
 									part_channel(cnl)
-							elif "You don’t have permission to perform that action" == parsedMessage.parameters:
+							elif "You don’t have permission to perform that action" == parameters:
 								push_error("No permission. Check if the access token is still valid. Left " + str(channels))
 								for cnl in channels:
 									part_channel(cnl)
 						"GLOBALUSERSTATE":
-							display_name = parsedMessage.tags["display-name"]
-							chat_color = parsedMessage.tags["color"]
+							display_name = tags.get("display-name", "")
+							chat_color = tags.get("color", "#ffffff")
 						"USERSTATE":
-							emit_signal("userstate_received", parsedMessage.tags, c)
+							emit_signal("userstate_received", tags, c)
 						"ROOMSTATE":
-							emit_signal("roomstate_received", parsedMessage.tags, c)
+							emit_signal("roomstate_received", tags, c)
 	
-	elif connection.status == Connection.Status.DISCONNECTED and connected:
-		push_warning("Lost Connection")
-		connected = false
+	else:
+		print(connection.is_connected_to_host())
+		if connection.status == Connection.Status.DISCONNECTED and connected:
+			push_warning("Lost Connection")
+			connected = false
 	pass
 
 

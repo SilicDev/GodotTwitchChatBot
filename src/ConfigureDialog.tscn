@@ -67,7 +67,7 @@ margin_top = 5.0
 margin_right = 150.0
 margin_bottom = 19.0
 rect_min_size = Vector2( 150, 0 )
-hint_tooltip = "Thename of the bot account.
+hint_tooltip = "The name of the bot account.
 
 Won't take effect until the next reconnect."
 mouse_filter = 1

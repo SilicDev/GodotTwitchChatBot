@@ -21,10 +21,8 @@ func _ready() -> void:
 
 
 func add_message(message: Dictionary) -> void:
-	if message.tags.color:
-		chat.append_bbcode("[b][color=" + message.tags.color + "]" + message.tags["display-name"] + "[/color][/b]: " + message.parameters + "\n")
-	else:
-		chat.append_bbcode("[b]" + message.tags["display-name"] + "[/b]: " + message.parameters + "\n")
+	var tags = message.get("tags", {})
+	chat.append_bbcode("[b][color=" + tags.get("color") + "]" + tags.get("display-name", "Anonymous") + "[/color][/b]: " + message.parameters + "\n")
 	pass
 
 
