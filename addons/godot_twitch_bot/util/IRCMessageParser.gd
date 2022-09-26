@@ -174,6 +174,9 @@ static func parseCommand(rawCommandComponent):
 			parsedCommand = {
 				"command": commandParts[0],
 			}
+		"USERNOTICE":
+			# announcement msg-id=announcement;msg-param-color=PURPLE
+			pass
 		'421':
 			push_warning("Unsupported IRC command: " + commandParts[2])
 			return null

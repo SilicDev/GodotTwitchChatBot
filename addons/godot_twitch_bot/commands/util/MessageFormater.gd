@@ -25,6 +25,8 @@ func handle_channel(msg: String, channel: String, message: Dictionary) -> String
 	for m in matches:
 		var matched: String = m.strings[0]
 		var cnl = matched.substr(10, matched.length() - 11)
+		if cnl.begins_with("@"):
+			cnl = cnl.sub_str(1)
 		var pos = msg.find(matched)
 		msg.erase(pos, matched.length())
 		msg = msg.insert(pos, str(cnl.to_lower()))
