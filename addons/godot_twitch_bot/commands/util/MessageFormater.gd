@@ -1,6 +1,6 @@
 extends Reference
 
-var counters := {}
+var manager
 
 var file := File.new()
 
@@ -10,36 +10,25 @@ func format_message(msg: String, channel: String, message: Dictionary) -> String
 		params = message.command.botCommandParams.split(" ")
 	msg = msg.replace("${sender}", message.tags["display-name"])
 	msg = msg.replace("${touser}", params[0] if not params.empty() else message.tags["display-name"])
-	msg = msg.replace("${channel}", channel)
 	msg = handle_args(msg, params)
+	msg = handle_channel(msg, channel, message)
 	msg = handle_random(msg)
 	msg = handle_counter(msg)
 	return msg
 
 
-func save_counters(path: String) -> int:
-	var dir := Directory.new()
-	if not dir.dir_exists(path.get_base_dir()):
-		dir.make_dir_recursive(path.get_base_dir())
-	var err := file.open(path, File.WRITE)
-	if err:
-		push_error("Failed to save counters! Unable to open destination file (Error #" + str(err) + ")")
-		return err
-	file.store_string(JSON.print(counters))
-	file.close()
-	return OK
-
-
-func load_counters(path: String) -> int:
-	var err = file.open(path, File.READ)
-	if err:
-		save_counters(path)
-		file.open(path, File.READ)
-	var result := JSON.parse(file.get_as_text())
-	file.close()
-	if result.error:
-		push_error("Error loading counters: line " + str(result.error_line) + ": " + result.error_string)
-	return OK
+func handle_channel(msg: String, channel: String, message: Dictionary) -> String:
+	msg = msg.replace("${channel}", channel)
+	var regex = RegEx.new()
+	regex.compile("\\$\\{channel [a-zA-Z0-9_]+\\}")
+	var matches = regex.search_all(msg)
+	for m in matches:
+		var matched: String = m.strings[0]
+		var cnl = matched.substr(10, matched.length() - 11)
+		var pos = msg.find(matched)
+		msg.erase(pos, matched.length())
+		msg = msg.insert(pos, str(cnl.to_lower()))
+	return msg
 
 
 func handle_args(msg: String, args: PoolStringArray) -> String:
@@ -52,7 +41,7 @@ func handle_args(msg: String, args: PoolStringArray) -> String:
 		if arg < args.size() and arg >= 0:
 			var pos = msg.find(matched)
 			msg.erase(pos, matched.length())
-			msg = msg.insert(pos, str(arg))
+			msg = msg.insert(pos, str(args[arg]))
 	regex.compile("\\$\\{[0-9]+:[0-9]*\\}")
 	matches = regex.search_all(msg)
 	for m in matches:
@@ -101,42 +90,42 @@ func handle_counter(msg: String) -> String:
 	for m in matches:
 		var matched = m.strings[0]
 		var counter = matched.substr(8, matched.length() - 12)
-		if not counter in counters.keys():
-			counters[counter] = 0
-		counters[counter] += 1
+		if not counter in manager.counters.keys():
+			manager.counters[counter] = 0
+		manager.counters[counter] += 1
 		var pos = msg.find(matched)
 		msg.erase(pos, matched.length())
-		msg = msg.insert(pos, str(counters[counter]))
+		msg = msg.insert(pos, str(manager.counters[counter]))
 	regex.compile("\\$\\{count [a-zA-Z0-9]+ [0-9]+\\}")
 	matches = regex.search_all(msg)
 	for m in matches:
 		var matched = m.strings[0]
 		var counter = matched.substr(8, matched.length() - 8 - (matched.length() - matched.find_last(" ")))
 		var val = int(matched.substr(matched.find_last(" "), matched.length() - 2))
-		counters[counter] = val
+		manager.counters[counter] = val
 		var pos = msg.find(matched)
 		msg.erase(pos, matched.length())
-		msg = msg.insert(pos, str(counters[counter]))
+		msg = msg.insert(pos, str(manager.counters[counter]))
 	regex.compile("\\$\\{count [a-zA-Z0-9]+ (\\+|-)[0-9]+\\}")
 	matches = regex.search_all(msg)
 	for m in matches:
 		var matched = m.strings[0]
 		var counter = matched.substr(8, matched.length() - 8 - (matched.length() - matched.find_last(" ")))
 		var val = int(matched.substr(matched.find_last(" "), matched.length() - 2))
-		if not counter in counters.keys():
-			counters[counter] = 0
-		counters[counter] += val
+		if not counter in manager.counters.keys():
+			manager.counters[counter] = 0
+		manager.counters[counter] += val
 		var pos = msg.find(matched)
 		msg.erase(pos, matched.length())
-		msg = msg.insert(pos, str(counters[counter]))
+		msg = msg.insert(pos, str(manager.counters[counter]))
 	regex.compile("\\$\\{getcount [a-zA-Z0-9]+\\}")
 	matches = regex.search_all(msg)
 	for m in matches:
 		var matched = m.strings[0]
 		var counter = matched.substr(11, matched.length() - 12)
-		if not counter in counters.keys():
-			counters[counter] = 0
+		if not counter in manager.counters.keys():
+			manager.counters[counter] = 0
 		var pos = msg.find(matched)
 		msg.erase(pos, matched.length())
-		msg = msg.insert(pos, str(counters[counter]))
+		msg = msg.insert(pos, str(manager.counters[counter]))
 	return msg

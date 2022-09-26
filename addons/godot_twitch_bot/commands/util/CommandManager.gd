@@ -3,17 +3,19 @@ extends Reference
 
 var file := File.new()
 
-var commands := {}
+var channel : String
 
+var commands := {}
 var base_commands := {}
 
 var modules := {}
 
-var channel : String
+var counters := {}
 
 var formatter = _load("cmd://util/MessageFormater.gd").new()
 
 func _init(cnl: String) -> void:
+	formatter.manager = self
 	channel = cnl
 	load_data()
 
@@ -37,12 +39,12 @@ func get_response(cmd: String, message: Dictionary) -> String:
 func load_data() -> void:
 	_load_base_commands()
 	load_command_list("user://channels/" + channel + "/commands.json")
-	formatter.load_counters("user://channels/" + channel + "/counters.json")
+	load_counters("user://channels/" + channel + "/counters.json")
 
 
 func save_data() -> void:
 	save_command_list()
-	formatter.save_counters("user://channels/" + channel + "/counters.json")
+	save_counters("user://channels/" + channel + "/counters.json")
 
 
 func load_command_list(path: String):
@@ -99,6 +101,32 @@ func save_command_list(path: String = "") -> int:
 	dict["_active_commands"] = active
 	file.store_string(JSON.print(dict))
 	file.close()
+	return OK
+
+
+func save_counters(path: String) -> int:
+	var dir := Directory.new()
+	if not dir.dir_exists(path.get_base_dir()):
+		dir.make_dir_recursive(path.get_base_dir())
+	var err := file.open(path, File.WRITE)
+	if err:
+		push_error("Failed to save counters! Unable to open destination file (Error #" + str(err) + ")")
+		return err
+	file.store_string(JSON.print(counters))
+	file.close()
+	return OK
+
+
+func load_counters(path: String) -> int:
+	var err = file.open(path, File.READ)
+	if err:
+		save_counters(path)
+		file.open(path, File.READ)
+	var result := JSON.parse(file.get_as_text())
+	file.close()
+	if result.error:
+		push_error("Error loading counters: line " + str(result.error_line) + ": " + result.error_string)
+	counters = result.result
 	return OK
 
 
