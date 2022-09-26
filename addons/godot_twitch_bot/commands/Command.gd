@@ -55,4 +55,4 @@ func has_permission(user_type: String) -> int:
 
 
 func is_broadcaster(parsedMessage: Dictionary) -> bool:
-	return parsedMessage.has("tags") and "broadcaster" in parsedMessage.tags["badges"]
+	return parsedMessage.has("tags") and parsedMessage["tags"]["badges"] and "broadcaster" in parsedMessage.tags["badges"]
