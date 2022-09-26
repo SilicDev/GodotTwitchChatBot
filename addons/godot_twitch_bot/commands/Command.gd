@@ -16,6 +16,9 @@ export(Badge) var permission_level := Badge.NONE
 export(PoolStringArray) var aliases := PoolStringArray([])
 export(String, MULTILINE) var response := ""
 
+var timeout := 5
+var user_timeout := 15
+
 var active := true
 var matcher := RegEx.new()
 

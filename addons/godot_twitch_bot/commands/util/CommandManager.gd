@@ -69,6 +69,8 @@ func load_command_list(path: String):
 		res.permission_level = cmd_dict["permission"]
 		res.aliases = cmd_dict["aliases"]
 		res.response = cmd_dict["response"]
+		res.timeout = cmd_dict.get("timeout", 5)
+		res.user_timeout = cmd_dict.get("user_timeout", 15)
 		commands[cmd] = res
 	for cmd in commands:
 		if cmd in active:
@@ -97,6 +99,8 @@ func save_command_list(path: String = "") -> int:
 				"permission" : commands[cmd].permission_level,
 				"aliases" : commands[cmd].aliases,
 				"response" : commands[cmd].response,
+				"timeout" : commands[cmd].timeout,
+				"user_timeout" : commands[cmd].user_timeout,
 			}
 	dict["_active_commands"] = active
 	file.store_string(JSON.print(dict))
