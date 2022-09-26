@@ -48,8 +48,8 @@ func handle_args(msg: String, args: PoolStringArray) -> String:
 	var matches = regex.search_all(msg)
 	for m in matches:
 		var matched: String = m.strings[0]
-		var arg = int(matched.substr(2, matched.length() - 3))
-		if arg < args.size():
+		var arg = int(matched.substr(2, matched.length() - 3)) - 1
+		if arg < args.size() and arg >= 0:
 			var pos = msg.find(matched)
 			msg.erase(pos, matched.length())
 			msg = msg.insert(pos, str(arg))
@@ -57,23 +57,23 @@ func handle_args(msg: String, args: PoolStringArray) -> String:
 	matches = regex.search_all(msg)
 	for m in matches:
 		var matched: String = m.strings[0]
-		var arg = int(matched.substr(2, matched.length() - 2 - (matched.length() - matched.find(":"))))
+		var arg = int(matched.substr(2, matched.length() - 2 - (matched.length() - matched.find(":")))) - 1
 		var arg2 = matched.substr(matched.find(":"), matched.length() - 2)
 		var out = ""
 		var pos = msg.find(matched)
 		msg.erase(pos, matched.length())
 		if arg2.empty():
-			if arg < args.size():
+			if arg < args.size() and arg >= 0:
 				for i in range(arg, args.size()):
 					out += " " + args[i] 
 				out.substr(1)
 		else:
-			arg2 = int(arg2)
+			arg2 = int(arg2) - 1
 			if arg2 >= args.size():
 				for i in range(arg, args.size()):
 					out += " " + args[i] 
 				out.substr(1)
-			elif arg2 > arg:
+			elif arg2 > arg and arg >= 0 and arg2 > 0:
 				for i in range(arg, arg2):
 					out += " " + args[i] 
 				out.substr(1)
