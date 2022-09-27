@@ -125,19 +125,27 @@ func _process(delta: float) -> void:
 							pass
 						"PART":
 							if (parsedMessage.get("source", {}).get("nick", "") and c in connected_channels) or read_only:
-								push_warning("The stream must have banned (/ban) the bot!")
-								part_channel(commandDict.channel)
+								send("JOIN #" + c.to_lower())
 						"NOTICE":
-							# If the authentication failed, leave the channel.
-							# The server will close the connection.
-							if "Login authentication failed" == parameters:
-								push_error("Authentication failed; left " + str(channels))
-								for cnl in channels:
-									part_channel(cnl)
-							elif "You don’t have permission to perform that action" == parameters:
-								push_error("No permission. Check if the access token is still valid. Left " + str(channels))
-								for cnl in channels:
-									part_channel(cnl)
+							var msg_id = tags.get("msg-id", "")
+							if msg_id.empty():
+								# If the authentication failed, leave the channel.
+								# The server will close the connection.
+								if "Login authentication failed" == parameters or "Invalid NICK" == parameters:
+									push_error("Authentication failed; left " + str(channels))
+									for cnl in channels:
+										part_channel(cnl)
+							else:
+								match msg_id:
+									"msg_suspended":
+										push_error("No permission. Check if the access token is still valid. Left " + str(channels))
+										for cnl in channels:
+											part_channel(cnl)
+									# Failed to reconnect after receiving own part message
+									# The bot probably was banned
+									"msg_banned":
+										push_warning("The stream must have banned (/ban) the bot!")
+										part_channel(c)
 						"GLOBALUSERSTATE":
 							display_name = tags.get("display-name", "")
 							chat_color = tags.get("color", "#ffffff")
@@ -147,7 +155,6 @@ func _process(delta: float) -> void:
 							emit_signal("roomstate_received", tags, c)
 	
 	else:
-		print(connection.is_connected_to_host())
 		if connection.status == Connection.Status.DISCONNECTED and connected:
 			push_warning("Lost Connection")
 			connected = false
@@ -186,7 +193,7 @@ func join_channel(channel: String) -> void:
 
 
 func part_channel(channel: String) -> void:
-	var c := channel
+	var c := channel.to_lower()
 	if c.begins_with("#"):
 		c = c.substr(1)
 	send("PART #" + c)
@@ -197,7 +204,7 @@ func part_channel(channel: String) -> void:
 
 func chat(channel: String, msg: String) -> void:
 	if not read_only:
-		var c := channel
+		var c := channel.to_lower()
 		if c.begins_with("#"):
 			c = c.substr(1)
 		# TODO: check if roomstate allows message to be sent

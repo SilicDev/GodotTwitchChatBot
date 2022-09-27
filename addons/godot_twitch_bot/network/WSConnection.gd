@@ -6,6 +6,7 @@ var socket : WebSocketClient
 var host : String = "irc-ws.chat.twitch.tv"
 var port : int = 443
 
+
 func _init() -> void:
 	socket = WebSocketClient.new()
 	socket.verify_ssl = true
@@ -30,7 +31,6 @@ func update() -> void:
 	if socket.get_connection_status() != NetworkedMultiplayerPeer.CONNECTION_DISCONNECTED:
 		socket.poll()
 
-
 func disconnect_from_host() -> void:
 	socket.get_peer(1).close(1000, "Client disconnected")
 	status = Status.DISCONNECTED
@@ -40,7 +40,7 @@ func disconnect_from_host() -> void:
 func send(message: String) -> void:
 	if OS.is_debug_build():
 		if message.begins_with("PASS"):
-			print("< PASS oauth:", "*".repeat(message.length() - 11))
+			print("< PASS oauth:" + "*".repeat(message.length() - 11))
 		else:
 			print("< " + message)
 	socket.get_peer(1).put_packet((message + "\r\n").to_utf8())

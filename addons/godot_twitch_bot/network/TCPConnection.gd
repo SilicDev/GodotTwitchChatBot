@@ -42,7 +42,7 @@ func send(message: String) -> void:
 	if is_connected_to_host():
 		if OS.is_debug_build():
 			if message.begins_with("PASS"):
-				print("< PASS oauth:", "*".repeat(message.length() - 11))
+				print("< PASS oauth:" + "*".repeat(message.length() - 11))
 			else:
 				print("< " + message)
 		socket.put_data((message + "\r\n").to_utf8())
@@ -57,7 +57,7 @@ func receive() -> String:
 			var data := socket.get_data(socket.get_available_bytes())
 			if data[0]:
 				status = Status.ERROR
-				print(data[0], ": Error occured while receiving message")
+				push_error(str(data[0]) + ": Error occured while receiving message")
 			return PoolByteArray(data[1]).get_string_from_utf8()
 	else:
 		push_error("Must be connected to receive messages!")

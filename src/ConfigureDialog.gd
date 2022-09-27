@@ -30,7 +30,7 @@ func update_data() -> void:
 	var s := ""
 	for c in channels:
 		s += c + ", "
-	botChannelsList.text = s.substr(0, s.length() - 3)
+	botChannelsList.text = s.substr(0, s.length() - 2)
 	botJoinMessage.text = join_message
 	twitchClientID.text = clientID
 	
