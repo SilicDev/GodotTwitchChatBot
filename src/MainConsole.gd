@@ -144,6 +144,11 @@ func _on_Bot_userstate_received(tags, channel) -> void:
 	pass # Replace with function body.
 
 
+func _on_Bot_roomstate_received(tags, channel) -> void:
+	chats[channel].room_id = tags.get("room-id", "")
+	pass # Replace with function body.
+
+
 func _on_ban_user_requested(channel, id) -> void:
 	pass
 

@@ -16,6 +16,7 @@ onready var replyText := $VBoxContainer/HBoxContainer/VBox/HBox/Label
 var bot_color := ""
 var bot_name := ""
 var bot_id := ""
+var room_id := ""
 
 var reply_id := ""
 
@@ -67,6 +68,21 @@ func add_bot_message(message: String, reply_id := "") -> void:
 	msgPanel.sender_id = bot_id
 	msgPanel.modButtons.visible = false
 	msgPanel.replyContainer.visible = reply_id.empty()
+	msgPanel.parsedMessage = {
+		"tags" : {
+			"display-name": bot_name,
+			"user-id": bot_id,
+			"color": bot_color,
+			"room-id": room_id,
+		},
+		"source" : {
+			"nick" : bot_name,
+		},
+		"command" : {
+			"command" : "PRIVMSG",
+		},
+		"parameters" : message,
+	}
 	var reply = get_message_by_id(reply_id)
 	if reply:
 		msgPanel.reply.text = reply.parsedMessage.get("tags", {}).get("display-name", "Anonymous") + ": " + reply.parsedMessage.get("parameters", "")
