@@ -49,5 +49,5 @@ func _on_Delete_pressed() -> void:
 
 
 func _on_Reply_pressed() -> void:
-	emit_signal("reply_requested", id)
+	emit_signal("reply_requested", id if reply_id.empty() else reply_id)
 	pass # Replace with function body.
