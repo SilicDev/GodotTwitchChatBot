@@ -52,15 +52,21 @@ func _on_Bot_joined_channel(channel) -> void:
 		chat.connect("part_requested", self, "_on_Chat_part_requested")
 		chat.name = channel
 		chat.botLabel.text = bot.display_name
+		chat.bot_name = bot.display_name
 		chat.bot_color = bot.chat_color
+		chat.bot_id = bot.bot_id
 		chats[channel] = chat
-		chats[channel].chat.append_bbcode("[i]Joined channel.[/i]\n")
+		var label = Label.new()
+		label.text = "Joined channel."
+		chats[channel].chat.add_child(label)
 	pass # Replace with function body.
 
 
 func _on_Bot_parted_channel(channel) -> void:
 	if chats.has(channel):
-		chats[channel].chat.append_bbcode("[i]Parted channel.[/i]\n")
+		var label = Label.new()
+		label.text = "Parted channel."
+		chats[channel].chat.add_child(label)
 	pass # Replace with function body.
 
 
@@ -70,14 +76,14 @@ func _on_Bot_chat_message_received(message, channel) -> void:
 	pass # Replace with function body.
 
 
-func _on_Bot_chat_message_send(message, channel) -> void:
+func _on_Bot_chat_message_send(message, channel, reply_id = "") -> void:
 	if chats.has(channel):
-		chats[channel].add_bot_message(message)
+		chats[channel].add_bot_message(message, reply_id)
 	pass # Replace with function body.
 
 
-func _on_Chat_send_button_pressed(message, channel) -> void:
-	bot.chat(channel, message)
+func _on_Chat_send_button_pressed(message, channel, reply_id = "") -> void:
+	bot.chat(channel, message, reply_id)
 
 
 func _on_Chat_part_requested(channel) -> void:
@@ -130,3 +136,21 @@ func _on_ConfigureDialog_popup_hide() -> void:
 func _on_Config_pressed() -> void:
 	configMenu.popup_centered_minsize(Vector2(600, 400))
 	pass # Replace with function body.
+
+
+func _on_Bot_userstate_received(tags, channel) -> void:
+	chats[channel].bot_color = tags.get("color", "#ffffff")
+	chats[channel].bot_name = tags.get("display-name", "")
+	pass # Replace with function body.
+
+
+func _on_ban_user_requested(channel, id) -> void:
+	pass
+
+
+func _on_timeout_user_requested(channel, id, length) -> void:
+	pass
+
+
+func _on_delete_message_requested(channel, id) -> void:
+	pass

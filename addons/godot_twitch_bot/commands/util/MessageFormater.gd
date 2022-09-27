@@ -18,22 +18,6 @@ func format_message(msg: String, channel: String, message: Dictionary) -> String
 	return msg
 
 
-func handle_channel(msg: String, channel: String) -> String:
-	msg = msg.replace("${channel}", channel)
-	var regex = RegEx.new()
-	regex.compile("\\$\\{channel [a-zA-Z0-9_]+\\}")
-	var matches = regex.search_all(msg)
-	for m in matches:
-		var matched: String = m.strings[0]
-		var cnl = matched.substr(10, matched.length() - 11)
-		if cnl.begins_with("@"):
-			cnl = cnl.sub_str(1)
-		var pos = msg.find(matched)
-		msg.erase(pos, matched.length())
-		msg = msg.insert(pos, str(cnl.to_lower()))
-	return msg
-
-
 func handle_args(msg: String, args: PoolStringArray) -> String:
 	var regex = RegEx.new()
 	regex.compile("\\$\\{[0-9]+\\}")
@@ -44,7 +28,10 @@ func handle_args(msg: String, args: PoolStringArray) -> String:
 		if arg < args.size() and arg >= 0:
 			var pos = msg.find(matched)
 			msg.erase(pos, matched.length())
-			msg = msg.insert(pos, str(args[arg]))
+			var param = args[arg]
+			if param.begins_with("@"):
+				param = param.substr(1)
+			msg = msg.insert(pos, param)
 	regex.compile("\\$\\{[0-9]+:[0-9]*\\}")
 	matches = regex.search_all(msg)
 	for m in matches:
@@ -70,6 +57,22 @@ func handle_args(msg: String, args: PoolStringArray) -> String:
 					out += " " + args[i] 
 				out.substr(1)
 		msg = msg.insert(pos, out)
+	return msg
+
+
+func handle_channel(msg: String, channel: String) -> String:
+	msg = msg.replace("${channel}", channel)
+	var regex = RegEx.new()
+	regex.compile("\\$\\{channel (@)?[a-zA-Z0-9_]+\\}")
+	var matches = regex.search_all(msg)
+	for m in matches:
+		var matched: String = m.strings[0]
+		var cnl = matched.substr(10, matched.length() - 11)
+		if cnl.begins_with("@"):
+			cnl = cnl.substr(1)
+		var pos = msg.find(matched)
+		msg.erase(pos, matched.length())
+		msg = msg.insert(pos, str(cnl.to_lower()))
 	return msg
 
 

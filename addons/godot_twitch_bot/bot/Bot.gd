@@ -7,7 +7,7 @@ signal parted_channel(channel)
 signal connected()
 signal disconnected()
 signal chat_message_received(message, channel)
-signal chat_message_send(message, channel)
+signal chat_message_send(message, channel, reply_id)
 signal userstate_received(tags, channel)
 signal roomstate_received(tags, channel)
 signal command_fired(cmd, params)
@@ -33,6 +33,7 @@ var connection_method = ConnectionMethod.WEBSOCKET
 
 var display_name := ""
 var chat_color := ""
+var bot_id := ""
 
 var running = false
 var connected = false
@@ -149,6 +150,7 @@ func _process(delta: float) -> void:
 						"GLOBALUSERSTATE":
 							display_name = tags.get("display-name", "")
 							chat_color = tags.get("color", "#ffffff")
+							bot_id = tags.get("user-id", "")
 						"USERSTATE":
 							emit_signal("userstate_received", tags, c)
 						"ROOMSTATE":
@@ -202,14 +204,16 @@ func part_channel(channel: String) -> void:
 	emit_signal("parted_channel", c)
 
 
-func chat(channel: String, msg: String) -> void:
+func chat(channel: String, msg: String, reply_id: String = "") -> void:
 	if not read_only:
 		var c := channel.to_lower()
 		if c.begins_with("#"):
 			c = c.substr(1)
-		# TODO: check if roomstate allows message to be sent
-		send("PRIVMSG #" + c + " :" + msg)
-		emit_signal("chat_message_send", msg, c)
+		if not reply_id.empty():
+			send("@reply-parent-msg-id=" + reply_id + " PRIVMSG #" + c + " :" + msg)
+		else:
+			send("PRIVMSG #" + c + " :" + msg)
+		emit_signal("chat_message_send", msg, c, reply_id)
 
 
 func send(msg: String) -> void:

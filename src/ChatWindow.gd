@@ -3,15 +3,25 @@ extends PanelContainer
 signal send_button_pressed(msg, channel)
 signal part_requested(channel)
 
-onready var chat := $VBoxContainer/PanelContainer/RichTextLabel
-onready var messageInput := $VBoxContainer/HBoxContainer/LineEdit
+signal ban_user_requested(channel, id)
+signal timeout_user_requested(channel, id, length)
+signal delete_message_requested(channel, id)
+
+onready var chat := $VBoxContainer/PanelContainer/Scroll/VBox
+onready var messageInput := $VBoxContainer/HBoxContainer/VBox/LineEdit
 onready var botLabel := $VBoxContainer/HBoxContainer/Label
+onready var replyBox := $VBoxContainer/HBoxContainer/VBox/HBox
+onready var replyText := $VBoxContainer/HBoxContainer/VBox/HBox/Label
 
 var bot_color := ""
+var bot_name := ""
+var bot_id := ""
+
+var reply_id := ""
+
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	chat.bbcode_enabled = true
 	pass # Replace with function body.
 
 
@@ -21,21 +31,74 @@ func _ready() -> void:
 
 
 func add_message(message: Dictionary) -> void:
+	var msgPanel = load("res://src/ChatMessage.tscn").instance()
+	chat.add_child(msgPanel)
+	set_data(msgPanel, message)
+	msgPanel.connect("ban_user_requested", self, "_on_ban_user_requested")
+	msgPanel.connect("timeout_user_requested", self, "_on_timeout_user_requested")
+	msgPanel.connect("delete_message_requested", self, "_on_delete_message_requested")
+	msgPanel.connect("reply_requested", self, "_on_reply_requested")
+	pass
+
+
+func set_data(msgPanel, message: Dictionary) -> void:
 	var tags = message.get("tags", {})
-	chat.append_bbcode("[b][color=" + tags.get("color") + "]" + tags.get("display-name", "Anonymous") + "[/color][/b]: " + message.parameters + "\n")
-	pass
+	msgPanel.message.append_bbcode("[b][color=" + tags.get("color", "#ffffff") + "]" + tags.get("display-name", "Anonymous") + "[/color][/b]: " + message.parameters)
+	msgPanel.id = tags.get("id", "")
+	msgPanel.sender = tags.get("display-name", "Anonymous")
+	msgPanel.sender_id = tags.get("user-id", "")
+	msgPanel.reply.visible = tags.has("reply-parent-user-id")
+	msgPanel.reply_sender_id = tags.get("reply-parent-user-id", "")
+	msgPanel.reply_id = tags.get("reply-parent-msg-id", "")
+	if not msgPanel.reply_id.empty():
+		var reply = get_message_by_id(msgPanel.reply_id)
+		if reply:
+			msgPanel.reply.text = tags.get("reply-parent-display-name", "Anonymous") + ": " + reply.parsedMessage.get("parameters", "")
+	msgPanel.modButtons.visible = not (tags.get("display-name", "Anonymous").to_lower() == name or tags.get("mod", 0))
+	msgPanel.parsedMessage = message
+	yield(get_tree(),"idle_frame")
+	msgPanel.grab_focus()
 
 
-func add_bot_message(message: String) -> void:
+func add_bot_message(message: String, reply_id := "") -> void:
+	var msgPanel = load("res://src/ChatMessage.tscn").instance()
+	chat.add_child(msgPanel)
+	msgPanel.sender = bot_name
+	msgPanel.sender_id = bot_id
+	msgPanel.modButtons.visible = false
+	msgPanel.replyContainer.visible = reply_id.empty()
+	var reply = get_message_by_id(reply_id)
+	if reply:
+		msgPanel.reply.text = reply.parsedMessage.get("tags", {}).get("display-name", "Anonymous") + ": " + reply.parsedMessage.get("parameters", "")
 	if bot_color.empty():
-		chat.append_bbcode("[b]" + botLabel.text + "[/b]: " + message + "\n")
+		msgPanel.message.append_bbcode("[b]" + bot_name + "[/b]: " + message + "\n")
 	else:
-		chat.append_bbcode("[b][color=" + bot_color + "]" + botLabel.text + "[/color][/b]: " + message + "\n")
-	pass
+		msgPanel.message.append_bbcode("[b][color=" + bot_color + "]" + bot_name + "[/color][/b]: " + message)
+	yield(get_tree(),"idle_frame")
+	msgPanel.grab_focus()
+
+
+func get_message_by_id(msg_id: String):
+	for c in chat.get_children():
+		if c is PanelContainer:
+			if c.id == msg_id:
+				return c
+	return null
+
+
+func get_messages_by_user_id(user_id) -> Array:
+	var out = []
+	for c in chat.get_children():
+		if c is PanelContainer:
+			if c.sender_id == user_id:
+				out.append(c)
+	return out
 
 
 func _on_Send_pressed() -> void:
-	emit_signal("send_button_pressed", messageInput.text, name)
+	emit_signal("send_button_pressed", messageInput.text, name, reply_id)
+	reply_id = ""
+	replyBox.visible = false
 	messageInput.text = ""
 	pass # Replace with function body.
 
@@ -43,3 +106,33 @@ func _on_Send_pressed() -> void:
 func _on_Part_pressed() -> void:
 	emit_signal("part_requested", name)
 	pass # Replace with function body.
+
+
+func _on_EndReply_pressed() -> void:
+	replyBox.visible = false
+	reply_id = ""
+	pass # Replace with function body.
+
+
+func _on_ban_user_requested(id) -> void:
+	emit_signal("ban_user_requested", name, id)
+	pass
+
+
+func _on_timeout_user_requested(id, length) -> void:
+	emit_signal("timeout_user_requested", name, id, length)
+	pass
+
+
+func _on_delete_message_requested(id) -> void:
+	emit_signal("delete_message_requested", name, id)
+	pass
+
+
+func _on_reply_requested(id) -> void:
+	var reply = get_message_by_id(id)
+	if reply:
+		reply_id = id
+		replyBox.visible = true
+		replyText.text = reply.parsedMessage.get("tags", {}).get("display-name", "Anonymous") + ": " + reply.parsedMessage.get("parameters", "")
+	pass

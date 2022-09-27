@@ -18,15 +18,20 @@ margin_right = 1010.0
 margin_bottom = 558.0
 size_flags_vertical = 3
 
-[node name="RichTextLabel" type="RichTextLabel" parent="VBoxContainer/PanelContainer"]
+[node name="Scroll" type="ScrollContainer" parent="VBoxContainer/PanelContainer"]
 margin_left = 7.0
 margin_top = 7.0
 margin_right = 1003.0
 margin_bottom = 551.0
-focus_mode = 2
+follow_focus = true
+scroll_horizontal_enabled = false
+
+[node name="VBox" type="VBoxContainer" parent="VBoxContainer/PanelContainer/Scroll"]
+margin_right = 996.0
+margin_bottom = 544.0
+size_flags_horizontal = 3
 size_flags_vertical = 3
-scroll_following = true
-selection_enabled = true
+custom_constants/separation = 2
 
 [node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
 margin_top = 562.0
@@ -40,23 +45,57 @@ margin_bottom = 19.0
 rect_min_size = Vector2( 50, 0 )
 text = "Bot Name"
 
-[node name="LineEdit" type="LineEdit" parent="VBoxContainer/HBoxContainer"]
+[node name="VBox" type="VBoxContainer" parent="VBoxContainer/HBoxContainer"]
 margin_left = 68.0
 margin_right = 755.0
 margin_bottom = 24.0
 size_flags_horizontal = 3
+
+[node name="HBox" type="HBoxContainer" parent="VBoxContainer/HBoxContainer/VBox"]
+visible = false
+margin_right = 687.0
+margin_bottom = 20.0
+
+[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer/VBox/HBox"]
+margin_top = 3.0
+margin_right = 663.0
+margin_bottom = 17.0
+size_flags_horizontal = 3
+clip_text = true
+
+[node name="EndReply" type="Button" parent="VBoxContainer/HBoxContainer/VBox/HBox"]
+margin_left = 667.0
+margin_right = 687.0
+margin_bottom = 20.0
+text = "X"
+flat = true
+
+[node name="LineEdit" type="LineEdit" parent="VBoxContainer/HBoxContainer/VBox"]
+margin_right = 687.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
 placeholder_text = "Say as Bot"
 
-[node name="Send" type="Button" parent="VBoxContainer/HBoxContainer"]
+[node name="CenterContainer" type="CenterContainer" parent="VBoxContainer/HBoxContainer"]
 margin_left = 759.0
 margin_right = 802.0
 margin_bottom = 24.0
+
+[node name="Send" type="Button" parent="VBoxContainer/HBoxContainer/CenterContainer"]
+margin_top = 2.0
+margin_right = 43.0
+margin_bottom = 22.0
 text = "Send"
 
-[node name="Control" type="Control" parent="VBoxContainer/HBoxContainer"]
+[node name="CenterContainer2" type="CenterContainer" parent="VBoxContainer/HBoxContainer"]
 margin_left = 806.0
 margin_right = 906.0
 margin_bottom = 24.0
+
+[node name="Control" type="Control" parent="VBoxContainer/HBoxContainer/CenterContainer2"]
+margin_top = 12.0
+margin_right = 100.0
+margin_bottom = 12.0
 rect_min_size = Vector2( 100, 0 )
 
 [node name="VSeparator" type="VSeparator" parent="VBoxContainer/HBoxContainer"]
@@ -64,11 +103,17 @@ margin_left = 910.0
 margin_right = 914.0
 margin_bottom = 24.0
 
-[node name="Part" type="Button" parent="VBoxContainer/HBoxContainer"]
+[node name="CenterContainer3" type="CenterContainer" parent="VBoxContainer/HBoxContainer"]
 margin_left = 918.0
 margin_right = 1010.0
 margin_bottom = 24.0
+
+[node name="Part" type="Button" parent="VBoxContainer/HBoxContainer/CenterContainer3"]
+margin_top = 2.0
+margin_right = 92.0
+margin_bottom = 22.0
 text = "Part Channel"
 
-[connection signal="pressed" from="VBoxContainer/HBoxContainer/Send" to="." method="_on_Send_pressed"]
-[connection signal="pressed" from="VBoxContainer/HBoxContainer/Part" to="." method="_on_Part_pressed"]
+[connection signal="pressed" from="VBoxContainer/HBoxContainer/VBox/HBox/EndReply" to="." method="_on_EndReply_pressed"]
+[connection signal="pressed" from="VBoxContainer/HBoxContainer/CenterContainer/Send" to="." method="_on_Send_pressed"]
+[connection signal="pressed" from="VBoxContainer/HBoxContainer/CenterContainer3/Part" to="." method="_on_Part_pressed"]
