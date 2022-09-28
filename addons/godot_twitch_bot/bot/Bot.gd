@@ -53,7 +53,6 @@ var messageParser = load("res://addons/godot_twitch_bot/util/IRCMessageParser.gd
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	load_ini()
-	#connect_to_twitch()
 	running = true
 	pass # Replace with function body.
 
@@ -63,6 +62,7 @@ func _notification(what: int) -> void:
 		if connected:
 			disconnect_from_twitch()
 		save_ini()
+
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:

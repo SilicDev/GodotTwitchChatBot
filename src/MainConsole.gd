@@ -141,7 +141,7 @@ func _on_ConfigureDialog_popup_hide() -> void:
 
 
 func _on_Config_pressed() -> void:
-	configMenu.popup_centered_minsize(Vector2(600, 400))
+	configMenu.popup_centered(Vector2(600, 400))
 	pass # Replace with function body.
 
 
