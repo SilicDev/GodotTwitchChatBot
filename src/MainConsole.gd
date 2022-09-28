@@ -50,15 +50,17 @@ func _on_Bot_joined_channel(channel) -> void:
 		tabs.add_child(chat)
 		chat.connect("send_button_pressed", self, "_on_Chat_send_button_pressed")
 		chat.connect("part_requested", self, "_on_Chat_part_requested")
+		chat.connect("join_requested", self, "_on_Chat_join_requested")
 		chat.name = channel
 		chat.botLabel.text = bot.display_name
 		chat.bot_name = bot.display_name
 		chat.bot_color = bot.chat_color
 		chat.bot_id = bot.bot_id
 		chats[channel] = chat
-		var label = Label.new()
-		label.text = "Joined channel."
-		chats[channel].chat.add_child(label)
+	var label = Label.new()
+	label.text = "Joined channel."
+	chats[channel].chat.add_child(label)
+	chats[channel].partButton.text = "Part Channel"
 	pass # Replace with function body.
 
 
@@ -67,6 +69,7 @@ func _on_Bot_parted_channel(channel) -> void:
 		var label = Label.new()
 		label.text = "Parted channel."
 		chats[channel].chat.add_child(label)
+		chats[channel].partButton.text = "Rejoin"
 	pass # Replace with function body.
 
 
@@ -88,6 +91,10 @@ func _on_Chat_send_button_pressed(message, channel, reply_id = "") -> void:
 
 func _on_Chat_part_requested(channel) -> void:
 	bot.part_channel(channel)
+
+
+func _on_Chat_join_requested(channel) -> void:
+	bot.join_channel(channel)
 
 
 func _on_Bot_connected() -> void:

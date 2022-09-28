@@ -2,12 +2,14 @@ extends PanelContainer
 
 signal send_button_pressed(msg, channel)
 signal part_requested(channel)
+signal join_requested(channel)
 
 signal ban_user_requested(channel, id)
 signal timeout_user_requested(channel, id, length)
 signal delete_message_requested(channel, id)
 
 onready var chat := $VBoxContainer/PanelContainer/Scroll/VBox
+onready var partButton := $VBoxContainer/HBoxContainer/CenterContainer3/Part
 onready var messageInput := $VBoxContainer/HBoxContainer/VBox/LineEdit
 onready var botLabel := $VBoxContainer/HBoxContainer/Label
 onready var replyBox := $VBoxContainer/HBoxContainer/VBox/HBox
@@ -120,7 +122,12 @@ func _on_Send_pressed() -> void:
 
 
 func _on_Part_pressed() -> void:
-	emit_signal("part_requested", name)
+	if partButton.text == "Part Channel":
+		emit_signal("part_requested", name)
+		partButton.text = "Rejoin"
+	else:
+		emit_signal("join_requested", name)
+		partButton.text = "Part Channel"
 	pass # Replace with function body.
 
 
