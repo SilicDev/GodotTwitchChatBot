@@ -67,7 +67,8 @@ func load_command_list(path: String):
 		res.name = cmd_dict["name"]
 		res.regex = cmd_dict["regex"]
 		res.permission_level = cmd_dict["permission"]
-		res.aliases = cmd_dict["aliases"]
+		res.keywords = cmd_dict.get("keywords", PoolStringArray([]))
+		res.aliases = cmd_dict.get("aliases", PoolStringArray([]))
 		res.response = cmd_dict["response"]
 		res.timeout = cmd_dict.get("timeout", 5)
 		res.user_timeout = cmd_dict.get("user_timeout", 15)
@@ -97,6 +98,7 @@ func save_command_list(path: String = "") -> int:
 				"name" : commands[cmd].name,
 				"regex" :commands[cmd].regex,
 				"permission" : commands[cmd].permission_level,
+				"keywords" : commands[cmd].keywords,
 				"aliases" : commands[cmd].aliases,
 				"response" : commands[cmd].response,
 				"timeout" : commands[cmd].timeout,

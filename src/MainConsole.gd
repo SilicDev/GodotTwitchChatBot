@@ -61,6 +61,7 @@ func _on_Bot_joined_channel(channel) -> void:
 	label.text = "Joined channel."
 	chats[channel].chat.add_child(label)
 	chats[channel].partButton.text = "Part Channel"
+	chats[channel].commandManager = bot.commandManagers[channel]
 	pass # Replace with function body.
 
 

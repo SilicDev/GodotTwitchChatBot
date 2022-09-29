@@ -16,6 +16,8 @@ export(Badge) var permission_level := Badge.NONE
 export(PoolStringArray) var aliases := PoolStringArray([])
 export(String, MULTILINE) var response := ""
 
+var keywords := PoolStringArray([])
+
 var timeout := 5
 var user_timeout := 15
 
@@ -32,9 +34,13 @@ func should_fire(parsedMessage: Dictionary) -> bool:
 		var cmd = parsedMessage.get("command", {}).get("botCommand", "")
 		if cmd == name or cmd in aliases:
 			return true
+		var parameters = parsedMessage.get("parameters", "")
+		for keyword in keywords:
+			if keyword in parameters:
+				return true
 		if not regex.empty():
 			matcher.compile(regex)
-			if matcher.search(parsedMessage.get("parameters", "")):
+			if matcher.search(parameters):
 				return true
 	return false
 
