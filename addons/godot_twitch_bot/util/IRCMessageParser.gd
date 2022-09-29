@@ -142,7 +142,7 @@ static func parseCommand(rawCommandComponent):
 	var commandParts = rawCommandComponent.split(' ')
 
 	match commandParts[0]:
-		'JOIN', 'PART', 'NOTICE', 'CLEARCHAT', 'HOSTTARGET', 'PRIVMSG':
+		'JOIN', 'PART', 'NOTICE', 'CLEARCHAT', 'HOSTTARGET', 'PRIVMSG', 'CLEARMSG':
 			parsedCommand = {
 				"command": commandParts[0],
 				"channel": commandParts[1],
@@ -217,9 +217,9 @@ static func parseParameters(rawParametersComponent, command) -> Dictionary:
 	var paramsIdx = commandParts.find(' ')
 
 	if paramsIdx == -1: # no parameters
-		command.botCommand = commandParts.substr(0)
+		command.botCommand = commandParts.substr(0).to_lower()
 	else:
-		command.botCommand = commandParts.substr(0, paramsIdx)
+		command.botCommand = commandParts.substr(0, paramsIdx).to_lower()
 		command.botCommandParams = commandParts.substr(paramsIdx + 1).trim_suffix(" ").trim_suffix("\r\n");
 		# TODO: remove extra spaces in parameters string
 

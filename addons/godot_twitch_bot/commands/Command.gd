@@ -25,7 +25,7 @@ var active := true
 var matcher := RegEx.new()
 
 
-func get_response() -> String:
+func get_response(parsedMessage: Dictionary) -> String:
 	return response
 
 
@@ -59,4 +59,5 @@ func get_permission(parsedMessage: Dictionary) -> int:
 
 
 func is_broadcaster(parsedMessage: Dictionary) -> bool:
-	return "broadcaster" in parsedMessage.get("tags", {}).get("badges")
+	var badges = parsedMessage.get("tags", {}).get("badges", "")
+	return badges and "broadcaster" in parsedMessage.get("tags", {}).get("badges", "")
