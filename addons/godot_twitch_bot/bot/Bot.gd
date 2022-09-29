@@ -11,6 +11,8 @@ signal chat_message_send(message, channel, reply_id)
 signal userstate_received(tags, channel)
 signal roomstate_received(tags, channel)
 signal command_fired(cmd, params)
+signal chat_message_deleted(id, channel)
+signal user_messages_deleted(id, channel)
 signal pinged()
 
 
@@ -155,6 +157,12 @@ func _process(delta: float) -> void:
 							emit_signal("userstate_received", tags, c)
 						"ROOMSTATE":
 							emit_signal("roomstate_received", tags, c)
+						"CLEARMSG":
+							if tags.has("target-msg-id"):
+								emit_signal("chat_message_deleted", tags.get("target-msg-id"), c)
+						"CLEARCHAT":
+							if tags.has("target-user-id"):
+								emit_signal("user_messages_deleted", tags.get("target-user-id"), c)
 	
 	else:
 		if connection.status == Connection.Status.DISCONNECTED and connected:
