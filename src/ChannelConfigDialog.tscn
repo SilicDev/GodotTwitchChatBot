@@ -1,0 +1,103 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://src/ChannelConfigDialog.gd" type="Script" id=1]
+[ext_resource path="res://src/ConfigCommandsList.tscn" type="PackedScene" id=2]
+
+[node name="ChannelConfigDialog" type="PopupDialog"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 0
+size_flags_vertical = 0
+popup_exclusive = true
+script = ExtResource( 1 )
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="VBox" type="VBoxContainer" parent="PanelContainer"]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 1017.0
+margin_bottom = 593.0
+
+[node name="TabContainer" type="TabContainer" parent="PanelContainer/VBox"]
+margin_right = 1010.0
+margin_bottom = 562.0
+size_flags_vertical = 3
+tab_align = 0
+
+[node name="General" type="VBoxContainer" parent="PanelContainer/VBox/TabContainer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 32.0
+margin_right = -4.0
+margin_bottom = -4.0
+
+[node name="Title" type="Label" parent="PanelContainer/VBox/TabContainer/General"]
+margin_right = 1002.0
+margin_bottom = 14.0
+text = "General"
+align = 1
+
+[node name="HSeparator" type="HSeparator" parent="PanelContainer/VBox/TabContainer/General"]
+margin_top = 18.0
+margin_right = 1002.0
+margin_bottom = 22.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBox/TabContainer/General"]
+margin_top = 26.0
+margin_right = 1002.0
+margin_bottom = 50.0
+
+[node name="Label" type="Label" parent="PanelContainer/VBox/TabContainer/General/HBoxContainer"]
+margin_top = 5.0
+margin_right = 87.0
+margin_bottom = 19.0
+text = "Join Message:"
+align = 2
+
+[node name="JoinMessage" type="LineEdit" parent="PanelContainer/VBox/TabContainer/General/HBoxContainer"]
+margin_left = 91.0
+margin_right = 1002.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+placeholder_text = "Enter join message or leave empty for none"
+
+[node name="Commands" parent="PanelContainer/VBox/TabContainer" instance=ExtResource( 2 )]
+visible = false
+
+[node name="Timer" type="ScrollContainer" parent="PanelContainer/VBox/TabContainer"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 32.0
+margin_right = -4.0
+margin_bottom = -4.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/VBox/TabContainer/Timer"]
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBox"]
+margin_top = 566.0
+margin_right = 1010.0
+margin_bottom = 586.0
+custom_constants/separation = 100
+alignment = 1
+
+[node name="Save" type="Button" parent="PanelContainer/VBox/HBoxContainer"]
+margin_left = 407.0
+margin_right = 448.0
+margin_bottom = 20.0
+text = "Save"
+
+[node name="Cancel" type="Button" parent="PanelContainer/VBox/HBoxContainer"]
+margin_left = 548.0
+margin_right = 602.0
+margin_bottom = 20.0
+text = "Cancel"
+
+[connection signal="reload" from="PanelContainer/VBox/TabContainer/Commands" to="." method="_on_Commands_reload"]
+[connection signal="pressed" from="PanelContainer/VBox/HBoxContainer/Save" to="." method="_on_Hide_pressed" binds= [ true ]]
+[connection signal="pressed" from="PanelContainer/VBox/HBoxContainer/Cancel" to="." method="_on_Hide_pressed" binds= [ false ]]

@@ -3,7 +3,6 @@
 [ext_resource path="res://src/ConfigureDialog.gd" type="Script" id=1]
 
 [node name="ConfigureDialog" type="PopupDialog"]
-visible = true
 anchor_right = 1.0
 anchor_bottom = 1.0
 size_flags_horizontal = 0
@@ -56,6 +55,7 @@ hint_tooltip = "Allow the bot to connect anonymously.
 Won't take effect until the next reconnect."
 mouse_filter = 1
 text = "Read Only:"
+align = 2
 
 [node name="ReadOnly" type="CheckBox" parent="PanelContainer/VBoxContainer/ReadOnly"]
 margin_left = 154.0
@@ -79,6 +79,7 @@ hint_tooltip = "The name of the bot account.
 Won't take effect until the next reconnect."
 mouse_filter = 1
 text = "Bot Name:"
+align = 2
 
 [node name="Name" type="LineEdit" parent="PanelContainer/VBoxContainer/BotName"]
 margin_left = 154.0
@@ -103,6 +104,7 @@ hint_tooltip = "The authentification key for the bot account.
 Won't take effect until the next reconnect."
 mouse_filter = 1
 text = "OAuth Key:"
+align = 2
 
 [node name="Key" type="LineEdit" parent="PanelContainer/VBoxContainer/OAuth"]
 margin_left = 154.0
@@ -128,6 +130,7 @@ hint_tooltip = "The protocol the bot should use to connect to Twitch.
 Won't take effect until the next reconnect."
 mouse_filter = 1
 text = "Connection Protocol:"
+align = 2
 
 [node name="Protocol" type="OptionButton" parent="PanelContainer/VBoxContainer/Protocol"]
 margin_left = 154.0
@@ -154,6 +157,7 @@ hint_tooltip = "The protocol the bot should use to connect to Twitch.
 Won't take effect until the next reconnect."
 mouse_filter = 1
 text = "Channels:"
+align = 2
 
 [node name="List" type="LineEdit" parent="PanelContainer/VBoxContainer/Channels"]
 margin_left = 154.0
@@ -178,6 +182,7 @@ hint_tooltip = "The protocol the bot should use to connect to Twitch.
 Won't take effect until the next reconnect."
 mouse_filter = 1
 text = "Default Join Message:"
+align = 2
 
 [node name="Message" type="LineEdit" parent="PanelContainer/VBoxContainer/JoinMessage"]
 margin_left = 154.0
@@ -212,6 +217,7 @@ rect_min_size = Vector2( 150, 0 )
 hint_tooltip = "Required to manage your Stream Data and Moderation (WIP)"
 mouse_filter = 1
 text = "App Client ID:"
+align = 2
 
 [node name="ID" type="LineEdit" parent="PanelContainer/VBoxContainer/ClientID"]
 margin_left = 154.0

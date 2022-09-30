@@ -1,0 +1,181 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://src/ConfigCommandsList.gd" type="Script" id=1]
+
+[node name="Commands" type="TabContainer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 32.0
+margin_right = -4.0
+margin_bottom = -4.0
+script = ExtResource( 1 )
+
+[node name="Default" type="ScrollContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 32.0
+margin_right = -4.0
+margin_bottom = -4.0
+follow_focus = true
+scroll_horizontal_enabled = false
+
+[node name="VBox" type="VBoxContainer" parent="Default"]
+margin_right = 1008.0
+margin_bottom = 56.0
+size_flags_horizontal = 3
+
+[node name="Everyone" type="VBoxContainer" parent="Default/VBox"]
+margin_right = 1008.0
+margin_bottom = 26.0
+
+[node name="Label" type="Label" parent="Default/VBox/Everyone"]
+margin_right = 1008.0
+margin_bottom = 14.0
+text = "Everyone"
+align = 1
+
+[node name="HSeparator" type="HSeparator" parent="Default/VBox/Everyone"]
+margin_top = 18.0
+margin_right = 1008.0
+margin_bottom = 22.0
+
+[node name="Everyone" type="VBoxContainer" parent="Default/VBox/Everyone"]
+margin_top = 26.0
+margin_right = 1008.0
+margin_bottom = 26.0
+
+[node name="Moderator" type="VBoxContainer" parent="Default/VBox"]
+margin_top = 30.0
+margin_right = 1008.0
+margin_bottom = 56.0
+
+[node name="Label" type="Label" parent="Default/VBox/Moderator"]
+margin_right = 1008.0
+margin_bottom = 14.0
+text = "Moderator"
+align = 1
+
+[node name="HSeparator" type="HSeparator" parent="Default/VBox/Moderator"]
+margin_top = 18.0
+margin_right = 1008.0
+margin_bottom = 22.0
+
+[node name="Moderator" type="VBoxContainer" parent="Default/VBox/Moderator"]
+margin_top = 26.0
+margin_right = 1008.0
+margin_bottom = 26.0
+
+[node name="Custom" type="ScrollContainer" parent="."]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_top = 32.0
+margin_right = -4.0
+margin_bottom = -4.0
+follow_focus = true
+scroll_horizontal_enabled = false
+
+[node name="VBox" type="VBoxContainer" parent="Custom"]
+margin_right = 1008.0
+margin_bottom = 140.0
+size_flags_horizontal = 3
+
+[node name="Everyone" type="VBoxContainer" parent="Custom/VBox"]
+margin_right = 1008.0
+margin_bottom = 26.0
+
+[node name="Label" type="Label" parent="Custom/VBox/Everyone"]
+margin_right = 1008.0
+margin_bottom = 14.0
+text = "Everyone"
+align = 1
+
+[node name="HSeparator" type="HSeparator" parent="Custom/VBox/Everyone"]
+margin_top = 18.0
+margin_right = 1008.0
+margin_bottom = 22.0
+
+[node name="Everyone" type="VBoxContainer" parent="Custom/VBox/Everyone"]
+margin_top = 26.0
+margin_right = 1008.0
+margin_bottom = 26.0
+
+[node name="Subscriber" type="VBoxContainer" parent="Custom/VBox"]
+margin_top = 30.0
+margin_right = 1008.0
+margin_bottom = 56.0
+
+[node name="Label" type="Label" parent="Custom/VBox/Subscriber"]
+margin_right = 1008.0
+margin_bottom = 14.0
+text = "Subscriber"
+align = 1
+
+[node name="HSeparator" type="HSeparator" parent="Custom/VBox/Subscriber"]
+margin_top = 18.0
+margin_right = 1008.0
+margin_bottom = 22.0
+
+[node name="Subscriber" type="VBoxContainer" parent="Custom/VBox/Subscriber"]
+margin_top = 26.0
+margin_right = 1008.0
+margin_bottom = 26.0
+
+[node name="VIP" type="VBoxContainer" parent="Custom/VBox"]
+margin_top = 60.0
+margin_right = 1008.0
+margin_bottom = 86.0
+
+[node name="Label" type="Label" parent="Custom/VBox/VIP"]
+margin_right = 1008.0
+margin_bottom = 14.0
+text = "VIP"
+align = 1
+
+[node name="HSeparator" type="HSeparator" parent="Custom/VBox/VIP"]
+margin_top = 18.0
+margin_right = 1008.0
+margin_bottom = 22.0
+
+[node name="VIP" type="VBoxContainer" parent="Custom/VBox/VIP"]
+margin_top = 26.0
+margin_right = 1008.0
+margin_bottom = 26.0
+
+[node name="Moderator" type="VBoxContainer" parent="Custom/VBox"]
+margin_top = 90.0
+margin_right = 1008.0
+margin_bottom = 116.0
+
+[node name="Label" type="Label" parent="Custom/VBox/Moderator"]
+margin_right = 1008.0
+margin_bottom = 14.0
+text = "Moderator"
+align = 1
+
+[node name="HSeparator" type="HSeparator" parent="Custom/VBox/Moderator"]
+margin_top = 18.0
+margin_right = 1008.0
+margin_bottom = 22.0
+
+[node name="Moderator" type="VBoxContainer" parent="Custom/VBox/Moderator"]
+margin_top = 26.0
+margin_right = 1008.0
+margin_bottom = 26.0
+
+[node name="CenterContainer" type="CenterContainer" parent="Custom/VBox"]
+margin_top = 120.0
+margin_right = 1008.0
+margin_bottom = 140.0
+
+[node name="Reload" type="Button" parent="Custom/VBox/CenterContainer"]
+margin_left = 438.0
+margin_right = 569.0
+margin_bottom = 20.0
+size_flags_horizontal = 0
+text = "Reload Commands"
+
+[connection signal="pressed" from="Custom/VBox/CenterContainer/Reload" to="." method="_on_Reload_pressed"]

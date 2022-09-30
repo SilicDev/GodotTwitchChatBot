@@ -8,14 +8,6 @@ signal ban_user_requested(channel, id)
 signal timeout_user_requested(channel, id, length)
 signal delete_message_requested(channel, id)
 
-onready var chat := $VBoxContainer/PanelContainer/Scroll/VBox
-onready var scroll := $VBoxContainer/PanelContainer/Scroll
-onready var partButton := $VBoxContainer/HBoxContainer/CenterContainer3/Part
-onready var messageInput := $VBoxContainer/HBoxContainer/VBox/LineEdit
-onready var botLabel := $VBoxContainer/HBoxContainer/Label
-onready var replyBox := $VBoxContainer/HBoxContainer/VBox/HBox
-onready var replyText := $VBoxContainer/HBoxContainer/VBox/HBox/Label
-
 var bot_color := ""
 var bot_name := ""
 var bot_id := ""
@@ -26,6 +18,21 @@ var is_mod := false
 var reply_id := ""
 
 var lastBotMessage
+
+var commandManager
+
+var join_message := ""
+
+var config := ConfigFile.new()
+
+onready var chat := $VBoxContainer/PanelContainer/Scroll/VBox
+onready var scroll := $VBoxContainer/PanelContainer/Scroll
+onready var partButton := $VBoxContainer/HBoxContainer/CenterContainer3/Part
+onready var messageInput := $VBoxContainer/HBoxContainer/VBox/LineEdit
+onready var botLabel := $VBoxContainer/HBoxContainer/Label
+onready var replyBox := $VBoxContainer/HBoxContainer/VBox/HBox
+onready var replyText := $VBoxContainer/HBoxContainer/VBox/HBox/Label
+onready var configMenu := $ChannelConfigDialog
 
 
 # Called when the node enters the scene tree for the first time.
@@ -130,6 +137,29 @@ func get_messages_by_user_id(user_id) -> Array:
 	return out
 
 
+func load_ini() -> void:
+	var path := "user://channels/" + name.to_lower() + "/config.ini"
+	var err := config.load(path)
+	if err:
+		save_ini()
+		config.load(path)
+	join_message = config.get_value("general", "join_message", join_message)
+	config.clear()
+	pass
+
+
+func save_ini() -> void:
+	config.set_value("channels", "join_message", join_message)
+	var path = "user://channels/" + name.to_lower() + "/config.ini"
+	var file := File.new()
+	var dir := Directory.new()
+	if not dir.dir_exists(path.get_base_dir()):
+		dir.make_dir_recursive(path.get_base_dir())
+	config.save(path)
+	config.clear()
+	pass
+
+
 func _on_Send_pressed() -> void:
 	emit_signal("send_button_pressed", messageInput.text, name, reply_id)
 	reply_id = ""
@@ -176,3 +206,16 @@ func _on_reply_requested(id) -> void:
 		replyBox.visible = true
 		replyText.text = reply.parsedMessage.get("tags", {}).get("display-name", "Anonymous") + ": " + reply.parsedMessage.get("parameters", "")
 	pass
+
+
+func _on_Config_pressed() -> void:
+	configMenu.commandManager = commandManager
+	configMenu.popup_centered(Vector2(600, 400))
+	pass # Replace with function body.
+
+
+func _on_ChannelConfigDialog_popup_hide() -> void:
+	join_message = config.join_message
+	save_ini()
+	load_ini()
+	pass # Replace with function body.

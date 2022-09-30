@@ -22,9 +22,9 @@ enum ConnectionMethod {
 }
 
 
-export(PoolStringArray) var channels := PoolStringArray([])
-export(String) var bot_name := ""
-export(String, MULTILINE) var join_message := ""
+var channels := PoolStringArray([])
+var bot_name := ""
+var join_message := ""
 
 var connection : Connection
 
@@ -123,8 +123,6 @@ func _process(delta: float) -> void:
 								connected_channels.append(c)
 								commandManagers[c] = load("res://addons/godot_twitch_bot/commands/util/CommandManager.gd").new(c)
 								emit_signal("joined_channel", c)
-								if not join_message.empty():
-									chat(commandDict.channel, join_message)
 							pass
 						"PART":
 							if (parsedMessage.get("source", {}).get("nick", "") and c in connected_channels) or read_only:

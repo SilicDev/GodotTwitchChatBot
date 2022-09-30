@@ -1,5 +1,7 @@
 extends Panel
 
+var chats = {}
+
 
 onready var bot : TwitchBot = $Bot
 onready var connectButton := $MarginContainer/VBox/HBox/Connect
@@ -7,8 +9,6 @@ onready var channelName := $MarginContainer/VBox/HBox/HBox/LineEdit
 onready var joinButton := $MarginContainer/VBox/HBox/HBox/Join
 onready var tabs := $MarginContainer/VBox/TabContainer
 onready var configMenu := $ConfigureDialog
-
-var chats = {}
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -56,12 +56,16 @@ func _on_Bot_joined_channel(channel) -> void:
 		chat.bot_name = bot.display_name
 		chat.bot_color = bot.chat_color
 		chat.bot_id = bot.bot_id
+		chat.join_message = bot.join_message
 		chats[channel] = chat
 	var label = Label.new()
 	label.text = "Joined channel."
 	chats[channel].chat.add_child(label)
 	chats[channel].partButton.text = "Part Channel"
 	chats[channel].commandManager = bot.commandManagers[channel]
+	chats[channel].load_ini()
+	if not chats[channel].join_message.empty():
+		bot.chat(channel, chats[channel].join_message)
 	pass # Replace with function body.
 
 
@@ -69,6 +73,7 @@ func _on_Bot_parted_channel(channel) -> void:
 	if chats.has(channel):
 		var label = Label.new()
 		label.text = "Parted channel."
+		chats[channel].save_ini()
 		chats[channel].chat.add_child(label)
 		chats[channel].partButton.text = "Rejoin"
 	pass # Replace with function body.

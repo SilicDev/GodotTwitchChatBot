@@ -1,11 +1,11 @@
 extends PopupDialog
 
+var regex := RegEx.new()
+
 
 onready var regexInput := $PanelCon/VBox/HBox/Regex
 onready var testInput := $PanelCon/VBox/Test
 onready var output := $PanelCon/VBox/Output
-
-var regex := RegEx.new()
 
 
 # Called when the node enters the scene tree for the first time.
