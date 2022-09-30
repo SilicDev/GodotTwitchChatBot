@@ -17,6 +17,7 @@ var formatter = _load("cmd://util/MessageFormater.gd").new()
 func _init(cnl: String) -> void:
 	formatter.manager = self
 	channel = cnl
+	_load_base_commands()
 	load_data()
 
 
@@ -37,7 +38,6 @@ func get_response(cmd: String, message: Dictionary) -> String:
 
 
 func load_data() -> void:
-	_load_base_commands()
 	load_command_list("user://channels/" + channel + "/commands.json")
 	load_counters("user://channels/" + channel + "/counters.json")
 
@@ -137,53 +137,63 @@ func load_counters(path: String) -> int:
 
 
 func toggle_module(module: String, on_off: bool) -> bool:
+	load_data()
 	if module in modules.keys():
 		for cmd in modules[module].commands:
 			toggle_command(cmd, on_off)
+		save_data()
 		return true
 	push_warning("Module with this name doesn't exists!")
 	return false
 
 
 func toggle_command(cmd: String, on_off: bool) -> bool:
+	load_data()
 	cmd = cmd.to_lower()
 	if cmd in commands.keys():
 		commands[cmd].active = on_off
+		save_data()
 		return true
 	push_warning("Command with this name doesn't exists!")
 	return false
 
 
 func add_command(name: String, response: String) -> bool:
+	load_data()
 	name = name.to_lower()
 	if not name in commands.keys():
 		var cmd = Command.new()
 		cmd.name = name
 		cmd.response = response
 		commands[name] = cmd
+		save_data()
 		return true
 	push_warning("Command with this name already exists!")
 	return false
 
 
 func remove_command(name: String) -> bool:
+	load_data()
 	name = name.to_lower()
 	if name in commands.keys():
 		if name in base_commands:
 			commands[name].active = false
 		else:
 			commands.erase(name)
+		save_data()
 		return true
 	push_warning("Command with this name doesn't exists!")
 	return false
 
 
 func edit_command(name: String, response: String) -> bool:
+	load_data()
 	name = name.to_lower()
 	if name in commands.keys():
 		if name in base_commands:
 			return false
 		commands[name].response = response
+		save_data()
 		return true
 	push_warning("Command with this name doesn't exists!")
 	return false
