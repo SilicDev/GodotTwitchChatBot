@@ -25,6 +25,8 @@ var is_mod := false
 
 var reply_id := ""
 
+var lastBotMessage
+
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -93,6 +95,7 @@ func add_bot_message(message: String, reply_id := "") -> void:
 		"parameters" : message,
 	}
 	if not reply_id.empty():
+		msgPanel.reply_id = reply_id
 		msgPanel.parsedMessage.tags["reply-parent-msg-id"] = reply_id
 	var reply = get_message_by_id(reply_id)
 	if reply:
@@ -106,6 +109,7 @@ func add_bot_message(message: String, reply_id := "") -> void:
 	msgPanel.connect("timeout_user_requested", self, "_on_timeout_user_requested")
 	msgPanel.connect("delete_message_requested", self, "_on_delete_message_requested")
 	msgPanel.connect("reply_requested", self, "_on_reply_requested")
+	lastBotMessage = msgPanel
 	scroll.scroll_vertical += msgPanel.rect_size.y
 
 

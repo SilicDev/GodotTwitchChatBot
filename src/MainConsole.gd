@@ -150,6 +150,8 @@ func _on_Bot_userstate_received(tags, channel) -> void:
 	chats[channel].bot_color = tags.get("color", "#ffffff")
 	chats[channel].bot_name = tags.get("display-name", "")
 	chats[channel].is_mod = tags.get("mod", 0)
+	if chats[channel].lastBotMessage:
+		chats[channel].lastBotMessage.id = tags.get("id", "")
 	pass # Replace with function body.
 
 
