@@ -1,9 +1,4 @@
 extends Command
-enum Mode {
-	EDIT,
-	ADD,
-	REMOVE,
-}
 
 var manager
 var usage_hint := "!command add|edit|remove <command> msg"
@@ -18,11 +13,11 @@ func get_response(parsedMessage: Dictionary) -> String:
 	if parsedMessage.command.has("botCommandParams"):
 		params = parsedMessage.command.botCommandParams.split(" ")
 	if params.empty() or params.size() < 2:
-		return "${sender} usage of command \"" + name + "\": " + usage_hint
+		return parsedMessage.get("tags", {}).get("display-name", "") + " usage of command \"" + name + "\": " + usage_hint
 	
 	var cmd = params[1].to_lower()
 	if cmd in manager.base_commands.keys():
-		return "${sender} usage of command \"" + name + "\": " + usage_hint
+		return parsedMessage.get("tags", {}).get("display-name", "") + " usage of command \"" + name + "\": " + usage_hint
 	var cmd_response = ""
 	for i in range(2, params.size()):
 		cmd_response += params[i] + " "

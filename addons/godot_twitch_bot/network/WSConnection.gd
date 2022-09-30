@@ -43,7 +43,10 @@ func send(message: String) -> void:
 			print("< PASS oauth:" + "*".repeat(message.length() - 11))
 		else:
 			print("< " + message)
-	socket.get_peer(1).put_packet((message + "\r\n").to_utf8())
+	var err := socket.get_peer(1).put_packet((message + "\r\n").to_utf8())
+	if err:
+		push_error("Error occured while sending message: " + str(err))
+		status = Status.ERROR
 	pass
 
 

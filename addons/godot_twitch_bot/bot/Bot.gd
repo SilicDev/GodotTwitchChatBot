@@ -165,8 +165,13 @@ func _process(delta: float) -> void:
 								emit_signal("user_messages_deleted", tags.get("target-user-id"), c)
 	
 	else:
+		if connection.status == Connection.Status.ERROR:
+			push_warning("Lost Connection")
+			disconnect_from_twitch()
+			OS.request_attention()
 		if connection.status == Connection.Status.DISCONNECTED and connected:
 			push_warning("Lost Connection")
+			OS.request_attention()
 			connected = false
 	pass
 
