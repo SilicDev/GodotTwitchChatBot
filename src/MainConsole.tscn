@@ -79,6 +79,7 @@ tab_align = 0
 
 [node name="ConfigureDialog" parent="." instance=ExtResource( 3 )]
 
+[connection signal="chat_message_deleted" from="Bot" to="." method="_on_Bot_chat_message_deleted"]
 [connection signal="chat_message_received" from="Bot" to="." method="_on_Bot_chat_message_received"]
 [connection signal="chat_message_send" from="Bot" to="." method="_on_Bot_chat_message_send"]
 [connection signal="connected" from="Bot" to="." method="_on_Bot_connected"]
@@ -86,6 +87,7 @@ tab_align = 0
 [connection signal="joined_channel" from="Bot" to="." method="_on_Bot_joined_channel"]
 [connection signal="parted_channel" from="Bot" to="." method="_on_Bot_parted_channel"]
 [connection signal="roomstate_received" from="Bot" to="." method="_on_Bot_roomstate_received"]
+[connection signal="user_messages_deleted" from="Bot" to="." method="_on_Bot_user_messages_deleted"]
 [connection signal="userstate_received" from="Bot" to="." method="_on_Bot_userstate_received"]
 [connection signal="pressed" from="MarginContainer/VBox/HBox/Config" to="." method="_on_Config_pressed"]
 [connection signal="pressed" from="MarginContainer/VBox/HBox/Connect" to="." method="_on_Connect_pressed"]

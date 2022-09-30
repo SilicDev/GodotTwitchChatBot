@@ -149,11 +149,28 @@ func _on_Config_pressed() -> void:
 func _on_Bot_userstate_received(tags, channel) -> void:
 	chats[channel].bot_color = tags.get("color", "#ffffff")
 	chats[channel].bot_name = tags.get("display-name", "")
+	chats[channel].is_mod = tags.get("mod", 0)
 	pass # Replace with function body.
 
 
 func _on_Bot_roomstate_received(tags, channel) -> void:
 	chats[channel].room_id = tags.get("room-id", "")
+	pass # Replace with function body.
+
+
+func _on_Bot_chat_message_deleted(id, channel) -> void:
+	var message: Control = chats[channel].get_message_by_id(id)
+	if message:
+		message.call_deferred("free")
+		chats[channel].scroll.scroll_vertical -= message.rect_size.y
+	pass # Replace with function body.
+
+
+func _on_Bot_user_messages_deleted(id, channel) -> void:
+	var messages = chats[channel].get_messages_by_user_id(id)
+	for msg in messages:
+		msg.call_defferred("free")
+		chats[channel].scroll.scroll_vertical -= msg.rect_size.y
 	pass # Replace with function body.
 
 

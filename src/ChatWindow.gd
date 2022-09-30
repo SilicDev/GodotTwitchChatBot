@@ -9,6 +9,7 @@ signal timeout_user_requested(channel, id, length)
 signal delete_message_requested(channel, id)
 
 onready var chat := $VBoxContainer/PanelContainer/Scroll/VBox
+onready var scroll := $VBoxContainer/PanelContainer/Scroll
 onready var partButton := $VBoxContainer/HBoxContainer/CenterContainer3/Part
 onready var messageInput := $VBoxContainer/HBoxContainer/VBox/LineEdit
 onready var botLabel := $VBoxContainer/HBoxContainer/Label
@@ -19,6 +20,8 @@ var bot_color := ""
 var bot_name := ""
 var bot_id := ""
 var room_id := ""
+
+var is_mod := false
 
 var reply_id := ""
 
@@ -46,7 +49,10 @@ func add_message(message: Dictionary) -> void:
 
 func set_data(msgPanel, message: Dictionary) -> void:
 	var tags = message.get("tags", {})
-	msgPanel.message.append_bbcode("[b][color=" + tags.get("color", "#ffffff") + "]" + tags.get("display-name", "Anonymous") + "[/color][/b]: " + message.parameters)
+	if tags.color:
+		msgPanel.message.append_bbcode("[b][color=" + tags.get("color", "#ffffff") + "]" + tags.get("display-name", "Anonymous") + "[/color][/b]: " + message.parameters)
+	else:
+		msgPanel.message.append_bbcode("[b]" + tags.get("display-name", "Anonymous") + "[/b]: " + message.parameters)
 	msgPanel.id = tags.get("id", "")
 	msgPanel.sender = tags.get("display-name", "Anonymous")
 	msgPanel.sender_id = tags.get("user-id", "")
@@ -57,10 +63,10 @@ func set_data(msgPanel, message: Dictionary) -> void:
 		var reply = get_message_by_id(msgPanel.reply_id)
 		if reply:
 			msgPanel.reply.text = tags.get("reply-parent-display-name", "Anonymous") + ": " + reply.parsedMessage.get("parameters", "")
-	msgPanel.modButtons.visible = not (tags.get("display-name", "Anonymous").to_lower() == name or tags.get("mod", 0))
+	msgPanel.modButtons.visible = not (tags.get("display-name", "Anonymous").to_lower() == name or int(tags.get("mod", "0"))) and is_mod
 	msgPanel.parsedMessage = message
 	yield(get_tree(),"idle_frame")
-	msgPanel.grab_focus()
+	scroll.scroll_vertical += msgPanel.rect_size.y
 
 
 func add_bot_message(message: String, reply_id := "") -> void:
@@ -69,7 +75,8 @@ func add_bot_message(message: String, reply_id := "") -> void:
 	msgPanel.sender = bot_name
 	msgPanel.sender_id = bot_id
 	msgPanel.modButtons.visible = false
-	msgPanel.replyContainer.visible = reply_id.empty()
+	msgPanel.reply.visible = not reply_id.empty()
+	msgPanel.replyContainer.visible = not reply_id.empty()
 	msgPanel.parsedMessage = {
 		"tags" : {
 			"display-name": bot_name,
@@ -85,6 +92,8 @@ func add_bot_message(message: String, reply_id := "") -> void:
 		},
 		"parameters" : message,
 	}
+	if not reply_id.empty():
+		msgPanel.parsedMessage.tags["reply-parent-msg-id"] = reply_id
 	var reply = get_message_by_id(reply_id)
 	if reply:
 		msgPanel.reply.text = reply.parsedMessage.get("tags", {}).get("display-name", "Anonymous") + ": " + reply.parsedMessage.get("parameters", "")
@@ -93,7 +102,11 @@ func add_bot_message(message: String, reply_id := "") -> void:
 	else:
 		msgPanel.message.append_bbcode("[b][color=" + bot_color + "]" + bot_name + "[/color][/b]: " + message)
 	yield(get_tree(),"idle_frame")
-	msgPanel.grab_focus()
+	msgPanel.connect("ban_user_requested", self, "_on_ban_user_requested")
+	msgPanel.connect("timeout_user_requested", self, "_on_timeout_user_requested")
+	msgPanel.connect("delete_message_requested", self, "_on_delete_message_requested")
+	msgPanel.connect("reply_requested", self, "_on_reply_requested")
+	scroll.scroll_vertical += msgPanel.rect_size.y
 
 
 func get_message_by_id(msg_id: String):
