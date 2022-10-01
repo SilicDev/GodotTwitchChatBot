@@ -215,7 +215,7 @@ func _on_Config_pressed() -> void:
 
 
 func _on_ChannelConfigDialog_popup_hide() -> void:
-	join_message = config.join_message
+	join_message = configMenu.join_message
 	save_ini()
 	load_ini()
 	pass # Replace with function body.
