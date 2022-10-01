@@ -60,7 +60,7 @@ margin_top = 5.0
 margin_right = 863.0
 margin_bottom = 19.0
 rect_min_size = Vector2( 75, 0 )
-text = "Moderator"
+text = "None"
 align = 1
 
 [node name="Control" type="Control" parent="VBox/HBox"]
@@ -332,7 +332,10 @@ margin_top = 7.0
 margin_right = 1017.0
 margin_bottom = 593.0
 
+[connection signal="pressed" from="VBox/HBox/CenterContainer/Delete" to="." method="_on_Delete_pressed"]
 [connection signal="pressed" from="VBox/HBox/CenterContainer2/Edit" to="." method="_on_Edit_pressed"]
+[connection signal="text_changed" from="VBox/Tabs/Settings/HBox/CommandName" to="." method="_on_CommandName_text_changed"]
+[connection signal="item_selected" from="VBox/Tabs/Settings/HBox2/UserLevel" to="." method="_on_UserLevel_item_selected"]
 [connection signal="text_changed" from="VBox/Tabs/Settings/HBox3/Response" to="." method="_on_Response_text_changed"]
 [connection signal="text_changed" from="VBox/Tabs/Advanced/HBox4/RegEx" to="." method="_on_RegEx_text_changed"]
 [connection signal="pressed" from="VBox/Tabs/Advanced/HBox4/Test" to="." method="_on_Test_pressed"]

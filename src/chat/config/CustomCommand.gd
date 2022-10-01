@@ -55,17 +55,31 @@ func set_data(cmd: Command) -> void:
 	for a in cmd.aliases:
 		s += a + ", "
 	if s.length() > 1:
-		s = s.substr(2)
+		s = s.substr(0, s.length() - 2)
 	aliases.text = s
 	s = ""
 	for k in cmd.keywords:
 		s += k + ", "
 	if s.length() > 1:
-		s = s.substr(2)
+		s = s.substr(0, s.length() - 2)
 	keywords.text = s
 	regex.text = cmd.regex
 	regexRemaining.text = str(regex.max_length - regex.text.length())
 	oldResponse = responseInput.text
+
+
+func get_data() -> Command:
+	var cmd = Command.new()
+	cmd.active = active.pressed
+	cmd.name = commandName.text
+	cmd.permission_level = userLevel.selected
+	cmd.response = responseInput.text
+	cmd.timeout = cooldown.value
+	cmd.user_timeout = userCooldown.value
+	cmd.aliases = aliases.text.replace(" ", "").split(",")
+	cmd.keywords = keywords.text.replace(" ", "").split(",")
+	cmd.regex = regex.text
+	return cmd
 
 
 func _on_Test_pressed() -> void:
@@ -91,9 +105,25 @@ func _on_Response_text_changed() -> void:
 	else:
 		responseInputRemaining.text = str(500 - responseInput.text.length())
 		oldResponse = responseInput.text
+	responseLabel.text = responseInput.text
 	pass # Replace with function body.
 
 
 func _on_RegEx_text_changed(new_text: String) -> void:
 	regexRemaining.text = str(regex.max_length - regex.text.length())
+	pass # Replace with function body.
+
+
+func _on_Delete_pressed() -> void:
+	call_deferred("free")
+	pass # Replace with function body.
+
+
+func _on_CommandName_text_changed(new_text: String) -> void:
+	active.text = new_text
+	pass # Replace with function body.
+
+
+func _on_UserLevel_item_selected(index: int) -> void:
+	permissionLabel.text = Command.Badge.keys()[index].capitalize()
 	pass # Replace with function body.

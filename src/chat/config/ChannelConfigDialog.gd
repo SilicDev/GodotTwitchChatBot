@@ -61,6 +61,11 @@ func update_data() -> void:
 func _on_Hide_pressed(save: bool) -> void:
 	if save:
 		join_message = joinMessageInput.text
+		commandManager.commands = commandManager.base_commands.duplicate(true)
+		commandManager.commands.merge(commandLists.get_custom_commands())
+		var active: Dictionary = commandLists.get_active_base_commands()
+		for c in commandManager.base_commands.keys():
+			commandManager.commands[c].active = active.get(c, true)
 		pass
 	hide()
 	commandLists.clear()
