@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=2]
 
-[ext_resource path="res://src/ConfigCommandsList.gd" type="Script" id=1]
+[ext_resource path="res://src/chat/config/ConfigCommandsList.gd" type="Script" id=1]
 
 [node name="Commands" type="TabContainer"]
 anchor_right = 1.0
@@ -80,7 +80,7 @@ scroll_horizontal_enabled = false
 
 [node name="VBox" type="VBoxContainer" parent="Custom"]
 margin_right = 1008.0
-margin_bottom = 140.0
+margin_bottom = 170.0
 size_flags_horizontal = 3
 
 [node name="Everyone" type="VBoxContainer" parent="Custom/VBox"]
@@ -162,6 +162,27 @@ margin_right = 1008.0
 margin_bottom = 22.0
 
 [node name="Moderator" type="VBoxContainer" parent="Custom/VBox/Moderator"]
+margin_top = 26.0
+margin_right = 1008.0
+margin_bottom = 26.0
+
+[node name="Broadcaster" type="VBoxContainer" parent="Custom/VBox"]
+margin_top = 90.0
+margin_right = 1008.0
+margin_bottom = 116.0
+
+[node name="Label" type="Label" parent="Custom/VBox/Broadcaster"]
+margin_right = 1008.0
+margin_bottom = 14.0
+text = "Broadcaster"
+align = 1
+
+[node name="HSeparator" type="HSeparator" parent="Custom/VBox/Broadcaster"]
+margin_top = 18.0
+margin_right = 1008.0
+margin_bottom = 22.0
+
+[node name="Broadcaster" type="VBoxContainer" parent="Custom/VBox/Broadcaster"]
 margin_top = 26.0
 margin_right = 1008.0
 margin_bottom = 26.0

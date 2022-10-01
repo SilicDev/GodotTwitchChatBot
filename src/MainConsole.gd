@@ -46,7 +46,7 @@ func _on_LineEdit_text_changed(new_text: String) -> void:
 
 func _on_Bot_joined_channel(channel) -> void:
 	if not channel in chats.keys():
-		var chat = load("res://src/ChatWindow.tscn").instance()
+		var chat = load("res://src/chat/ChatWindow.tscn").instance()
 		tabs.add_child(chat)
 		chat.connect("send_button_pressed", self, "_on_Chat_send_button_pressed")
 		chat.connect("part_requested", self, "_on_Chat_part_requested")

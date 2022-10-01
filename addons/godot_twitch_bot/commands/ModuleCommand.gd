@@ -2,6 +2,7 @@ extends Command
 
 var manager
 var usage_hint := "!module on|off <module>"
+var example_reply := "Successfully enabled module \"quote\"!"
 
 func _init() -> void:
 	name = "module"

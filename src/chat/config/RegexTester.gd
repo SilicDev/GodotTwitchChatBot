@@ -10,7 +10,6 @@ onready var output := $PanelCon/VBox/Output
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	call_deferred("popup_centered", Vector2(400, 300))
 	pass # Replace with function body.
 
 

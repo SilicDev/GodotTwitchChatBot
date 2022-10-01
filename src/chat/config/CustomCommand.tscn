@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=2]
 
-[ext_resource path="res://src/CustomCommand.gd" type="Script" id=1]
-[ext_resource path="res://src/RegexTester.tscn" type="PackedScene" id=2]
+[ext_resource path="res://src/chat/config/CustomCommand.gd" type="Script" id=1]
+[ext_resource path="res://src/chat/config/RegexTester.tscn" type="PackedScene" id=2]
 
 [node name="CustomCommand" type="PanelContainer"]
 anchor_right = 1.0
@@ -34,6 +34,7 @@ margin_bottom = 19.0
 rect_min_size = Vector2( 200, 0 )
 size_flags_horizontal = 3
 autowrap = true
+max_lines_visible = 2
 
 [node name="Timeout" type="Label" parent="VBox/HBox"]
 visible = false
@@ -68,10 +69,15 @@ margin_right = 887.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 20, 0 )
 
-[node name="Delete" type="Button" parent="VBox/HBox"]
+[node name="CenterContainer" type="CenterContainer" parent="VBox/HBox"]
 margin_left = 891.0
 margin_right = 946.0
 margin_bottom = 24.0
+
+[node name="Delete" type="Button" parent="VBox/HBox/CenterContainer"]
+margin_top = 2.0
+margin_right = 55.0
+margin_bottom = 22.0
 text = "Delete"
 
 [node name="Control2" type="Control" parent="VBox/HBox"]
@@ -80,13 +86,19 @@ margin_right = 970.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 20, 0 )
 
-[node name="Edit" type="Button" parent="VBox/HBox"]
+[node name="CenterContainer2" type="CenterContainer" parent="VBox/HBox"]
 margin_left = 974.0
 margin_right = 1010.0
 margin_bottom = 24.0
+
+[node name="Edit" type="Button" parent="VBox/HBox/CenterContainer2"]
+margin_top = 2.0
+margin_right = 36.0
+margin_bottom = 22.0
 text = "Edit"
 
 [node name="Tabs" type="TabContainer" parent="VBox"]
+visible = false
 margin_top = 28.0
 margin_right = 1010.0
 margin_bottom = 586.0
@@ -148,6 +160,7 @@ selected = 0
 margin_top = 64.0
 margin_right = 1002.0
 margin_bottom = 92.0
+size_flags_vertical = 3
 
 [node name="Label" type="Label" parent="VBox/Tabs/Settings/HBox3"]
 margin_right = 150.0
@@ -163,6 +176,7 @@ margin_right = 973.0
 margin_bottom = 28.0
 rect_min_size = Vector2( 0, 28 )
 size_flags_horizontal = 3
+size_flags_vertical = 3
 smooth_scrolling = true
 wrap_enabled = true
 
@@ -192,6 +206,7 @@ margin_bottom = 24.0
 custom_constants/separation = 100
 
 [node name="HBox" type="HBoxContainer" parent="VBox/Tabs/Advanced/HBox"]
+visible = false
 margin_right = 451.0
 margin_bottom = 24.0
 size_flags_horizontal = 3
@@ -213,6 +228,7 @@ max_value = 1e+06
 suffix = "sec."
 
 [node name="HBox2" type="HBoxContainer" parent="VBox/Tabs/Advanced/HBox"]
+visible = false
 margin_left = 551.0
 margin_right = 1002.0
 margin_bottom = 24.0
@@ -251,7 +267,7 @@ margin_left = 104.0
 margin_right = 1002.0
 margin_bottom = 24.0
 size_flags_horizontal = 3
-placeholder_text = "Enter aliases for this command (comma-seperated)"
+placeholder_text = "Enter aliases for this command (comma-separated)"
 
 [node name="HBox3" type="HBoxContainer" parent="VBox/Tabs/Advanced"]
 margin_top = 72.0
@@ -271,7 +287,7 @@ margin_left = 104.0
 margin_right = 1002.0
 margin_bottom = 24.0
 size_flags_horizontal = 3
-placeholder_text = "Enter keywords for this command (comma-seperated)"
+placeholder_text = "Enter keywords for this command (comma-separated)"
 
 [node name="HBox4" type="HBoxContainer" parent="VBox/Tabs/Advanced"]
 margin_top = 108.0
@@ -291,6 +307,7 @@ margin_left = 104.0
 margin_right = 930.0
 margin_bottom = 24.0
 size_flags_horizontal = 3
+max_length = 100
 placeholder_text = "RegEx"
 
 [node name="Label2" type="Label" parent="VBox/Tabs/Advanced/HBox4"]
@@ -309,9 +326,14 @@ margin_bottom = 24.0
 text = "Test"
 
 [node name="RegexTester" parent="." instance=ExtResource( 2 )]
+visible = false
 margin_left = 7.0
 margin_top = 7.0
 margin_right = 1017.0
 margin_bottom = 593.0
 
+[connection signal="pressed" from="VBox/HBox/CenterContainer2/Edit" to="." method="_on_Edit_pressed"]
+[connection signal="text_changed" from="VBox/Tabs/Settings/HBox3/Response" to="." method="_on_Response_text_changed"]
+[connection signal="text_changed" from="VBox/Tabs/Advanced/HBox4/RegEx" to="." method="_on_RegEx_text_changed"]
 [connection signal="pressed" from="VBox/Tabs/Advanced/HBox4/Test" to="." method="_on_Test_pressed"]
+[connection signal="popup_hide" from="RegexTester" to="." method="_on_RegexTester_popup_hide"]

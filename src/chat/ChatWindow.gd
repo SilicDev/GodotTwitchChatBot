@@ -37,6 +37,7 @@ onready var configMenu := $ChannelConfigDialog
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	load_ini()
 	pass # Replace with function body.
 
 
@@ -46,7 +47,7 @@ func _ready() -> void:
 
 
 func add_message(message: Dictionary) -> void:
-	var msgPanel = load("res://src/ChatMessage.tscn").instance()
+	var msgPanel = load("res://src/chat/ChatMessage.tscn").instance()
 	chat.add_child(msgPanel)
 	set_data(msgPanel, message)
 	msgPanel.connect("ban_user_requested", self, "_on_ban_user_requested")
@@ -79,7 +80,7 @@ func set_data(msgPanel, message: Dictionary) -> void:
 
 
 func add_bot_message(message: String, reply_id := "") -> void:
-	var msgPanel = load("res://src/ChatMessage.tscn").instance()
+	var msgPanel = load("res://src/chat/ChatMessage.tscn").instance()
 	chat.add_child(msgPanel)
 	msgPanel.sender = bot_name
 	msgPanel.sender_id = bot_id
@@ -149,7 +150,7 @@ func load_ini() -> void:
 
 
 func save_ini() -> void:
-	config.set_value("channels", "join_message", join_message)
+	config.set_value("general", "join_message", join_message)
 	var path = "user://channels/" + name.to_lower() + "/config.ini"
 	var file := File.new()
 	var dir := Directory.new()
@@ -209,13 +210,22 @@ func _on_reply_requested(id) -> void:
 
 
 func _on_Config_pressed() -> void:
-	configMenu.commandManager = commandManager
 	configMenu.popup_centered(Vector2(600, 400))
+	pass # Replace with function body.
+
+
+func _on_ChannelConfigDialog_about_to_show() -> void:
+	load_ini()
+	configMenu.commandManager = commandManager
+	configMenu.join_message = join_message
+	configMenu.load_data()
 	pass # Replace with function body.
 
 
 func _on_ChannelConfigDialog_popup_hide() -> void:
 	join_message = configMenu.join_message
+	commandManager.save_data()
+	commandManager.load_data()
 	save_ini()
 	load_ini()
 	pass # Replace with function body.

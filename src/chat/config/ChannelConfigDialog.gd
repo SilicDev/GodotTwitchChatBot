@@ -1,0 +1,74 @@
+extends PopupDialog
+
+var commandManager
+
+var join_message := ""
+
+onready var joinMessageInput := $PanelContainer/VBox/TabContainer/General/HBoxContainer/JoinMessage
+onready var commandLists := $PanelContainer/VBox/TabContainer/Commands
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	pass # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+#func _process(delta: float) -> void:
+#	pass
+
+
+func load_data() -> void:
+	commandManager.load_data()
+	
+	update_data()
+	pass
+
+
+func update_data() -> void:
+	commandLists.clear()
+	joinMessageInput.text = join_message
+	
+	for c in commandManager.commands.keys():
+		var cmd : Command = commandManager.commands[c]
+		if c in commandManager.base_commands.keys():
+			var panel: PanelContainer = load("res://src/chat/config/DefaultCommand.tscn").instance()
+			if cmd.permission_level == Command.Badge.NONE:
+				commandLists.defaultEveryone.add_child(panel)
+			if cmd.permission_level == Command.Badge.MODERATOR:
+				commandLists.defaultModerator.add_child(panel)
+			panel.active.pressed = cmd.active
+			panel.active.text = c
+			if "usage_hint" in cmd:
+				panel.hint.text = cmd.usage_hint
+			if "example_reply" in cmd:
+				panel.example.text = cmd.example_reply
+		else:
+			var panel: PanelContainer = load("res://src/chat/config/CustomCommand.tscn").instance()
+			if cmd.permission_level == Command.Badge.NONE:
+				commandLists.customEveryone.add_child(panel)
+			if cmd.permission_level == Command.Badge.SUBSCRIBER:
+				commandLists.customSubscriber.add_child(panel)
+			if cmd.permission_level == Command.Badge.VIP:
+				commandLists.customVIP.add_child(panel)
+			if cmd.permission_level == Command.Badge.MODERATOR:
+				commandLists.customModerator.add_child(panel)
+			if cmd.permission_level == Command.Badge.BROADCASTER:
+				commandLists.customBroadcaster.add_child(panel)
+			panel.set_data(cmd)
+	pass
+
+
+func _on_Hide_pressed(save: bool) -> void:
+	if save:
+		join_message = joinMessageInput.text
+		pass
+	hide()
+	commandLists.clear()
+	pass # Replace with function body.
+
+
+func _on_Commands_reload() -> void:
+	commandManager.load_data()
+	
+	update_data()
+	pass # Replace with function body.

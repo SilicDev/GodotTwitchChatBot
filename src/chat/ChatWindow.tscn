@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=2]
 
-[ext_resource path="res://src/ChatWindow.gd" type="Script" id=1]
-[ext_resource path="res://src/ChannelConfigDialog.tscn" type="PackedScene" id=2]
+[ext_resource path="res://src/chat/ChatWindow.gd" type="Script" id=1]
+[ext_resource path="res://src/chat/config/ChannelConfigDialog.tscn" type="PackedScene" id=2]
 
 [node name="PanelContainer" type="PanelContainer"]
 anchor_right = 1.0
@@ -132,4 +132,5 @@ margin_bottom = 7.0
 [connection signal="pressed" from="VBoxContainer/HBoxContainer/CenterContainer/Send" to="." method="_on_Send_pressed"]
 [connection signal="pressed" from="VBoxContainer/HBoxContainer/CenterContainer2/Config" to="." method="_on_Config_pressed"]
 [connection signal="pressed" from="VBoxContainer/HBoxContainer/CenterContainer3/Part" to="." method="_on_Part_pressed"]
+[connection signal="about_to_show" from="ChannelConfigDialog" to="." method="_on_ChannelConfigDialog_about_to_show"]
 [connection signal="popup_hide" from="ChannelConfigDialog" to="." method="_on_ChannelConfigDialog_popup_hide"]

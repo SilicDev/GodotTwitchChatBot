@@ -2,6 +2,7 @@ extends Command
 
 var manager
 var usage_hint := "!command add|edit|remove <command> msg"
+var example_reply := "Successfully added command \"test\"!"
 
 func _init() -> void:
 	name = "command"
