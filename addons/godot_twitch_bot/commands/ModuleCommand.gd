@@ -1,5 +1,9 @@
 extends ScriptCommand
 
+
+var manager
+
+
 func _init() -> void:
 	usage_hint = "!module on|off <module>"
 	example_reply = "Successfully enabled module \"quote\"!"

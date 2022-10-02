@@ -1,5 +1,9 @@
 extends ScriptCommand
 
+
+var manager
+
+
 func _init() -> void:
 	usage_hint = "!command add|edit|remove <command> msg"
 	example_reply = "Successfully added command \"test\"!"

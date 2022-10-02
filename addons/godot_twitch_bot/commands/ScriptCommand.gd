@@ -1,7 +1,6 @@
 class_name ScriptCommand
 extends Command
 
-var manager
 var usage_hint := ""
 var example_reply := ""
 

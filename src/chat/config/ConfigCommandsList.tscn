@@ -198,8 +198,8 @@ margin_right = 1008.0
 margin_bottom = 140.0
 
 [node name="HBox" type="HBoxContainer" parent="Custom/VBox/CenterContainer"]
-margin_left = 354.0
-margin_right = 654.0
+margin_left = 241.0
+margin_right = 766.0
 margin_bottom = 20.0
 custom_constants/separation = 100
 
