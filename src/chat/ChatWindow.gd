@@ -210,7 +210,7 @@ func _on_reply_requested(id) -> void:
 
 
 func _on_Config_pressed() -> void:
-	configMenu.popup_centered(Vector2(600, 400))
+	configMenu.popup_centered(Vector2(800, 400))
 	pass # Replace with function body.
 
 

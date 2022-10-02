@@ -29,7 +29,7 @@ func update_data() -> void:
 	joinMessageInput.text = join_message
 	
 	for c in commandManager.commands.keys():
-		var cmd : Command = commandManager.commands[c]
+		var cmd = commandManager.commands[c]
 		if c in commandManager.base_commands.keys():
 			var panel: PanelContainer = load("res://src/chat/config/DefaultCommand.tscn").instance()
 			if cmd.permission_level == Command.Badge.NONE:
@@ -43,16 +43,20 @@ func update_data() -> void:
 			if "example_reply" in cmd:
 				panel.example.text = cmd.example_reply
 		else:
-			var panel: PanelContainer = load("res://src/chat/config/CustomCommand.tscn").instance()
+			var panel: PanelContainer
+			if "usage_hint" in cmd:
+				panel = load("res://src/chat/config/ScriptCommand.tscn").instance()
+			else:
+				panel = load("res://src/chat/config/CustomCommand.tscn").instance()
 			if cmd.permission_level == Command.Badge.NONE:
 				commandLists.customEveryone.add_child(panel)
-			if cmd.permission_level == Command.Badge.SUBSCRIBER:
+			elif cmd.permission_level == Command.Badge.SUBSCRIBER:
 				commandLists.customSubscriber.add_child(panel)
-			if cmd.permission_level == Command.Badge.VIP:
+			elif cmd.permission_level == Command.Badge.VIP:
 				commandLists.customVIP.add_child(panel)
-			if cmd.permission_level == Command.Badge.MODERATOR:
+			elif cmd.permission_level == Command.Badge.MODERATOR:
 				commandLists.customModerator.add_child(panel)
-			if cmd.permission_level == Command.Badge.BROADCASTER:
+			elif cmd.permission_level == Command.Badge.BROADCASTER:
 				commandLists.customBroadcaster.add_child(panel)
 			panel.set_data(cmd)
 	pass

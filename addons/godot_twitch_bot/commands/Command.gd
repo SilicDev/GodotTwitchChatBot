@@ -1,4 +1,3 @@
-tool
 class_name Command
 extends Resource
 
@@ -61,3 +60,17 @@ func get_permission(parsedMessage: Dictionary) -> int:
 func is_broadcaster(parsedMessage: Dictionary) -> bool:
 	var badges = parsedMessage.get("tags", {}).get("badges", "")
 	return badges and "broadcaster" in parsedMessage.get("tags", {}).get("badges", "")
+
+
+func get_save_dict() -> Dictionary:
+	return {
+			"name" : name,
+			"regex" :regex,
+			"permission" : permission_level,
+			"keywords" : keywords,
+			"aliases" : aliases,
+			"response" : response,
+			"timeout" : timeout,
+			"user_timeout" : user_timeout,
+			"type" : "default",
+	}

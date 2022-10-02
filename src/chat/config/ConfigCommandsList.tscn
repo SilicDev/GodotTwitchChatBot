@@ -211,6 +211,14 @@ margin_bottom = -100.0
 hint_tooltip = "Add a new command to the bot."
 text = "Add New"
 
+[node name="NewScripted" type="Button" parent="Custom/VBox/CenterContainer/HBox"]
+margin_left = -438.0
+margin_top = -120.0
+margin_right = -369.0
+margin_bottom = -100.0
+hint_tooltip = "Add a new command to the bot."
+text = "Add New Scripted"
+
 [node name="Reload" type="Button" parent="Custom/VBox/CenterContainer/HBox"]
 margin_left = -66.0
 margin_top = -10.0
@@ -223,4 +231,5 @@ size_flags_horizontal = 0
 text = "Reload Commands"
 
 [connection signal="pressed" from="Custom/VBox/CenterContainer/HBox/New" to="." method="_on_New_pressed"]
+[connection signal="pressed" from="Custom/VBox/CenterContainer/HBox/NewScripted" to="." method="_on_NewScripted_pressed"]
 [connection signal="pressed" from="Custom/VBox/CenterContainer/HBox/Reload" to="." method="_on_Reload_pressed"]

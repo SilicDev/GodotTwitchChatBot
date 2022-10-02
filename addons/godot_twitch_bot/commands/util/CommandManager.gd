@@ -63,13 +63,32 @@ func load_command_list(path: String):
 		if cmd == "_active_commands":
 			continue
 		var cmd_dict = dict[cmd]
-		var res := Command.new()
+		var res: Command
+		if cmd_dict.get("type", "default") == "scripted":
+			res = ScriptCommand.new()
+			var response = cmd_dict["response"]
+			# This is a mistake
+			var s:Script = res.get_script().duplicate()
+			var temp := ""
+			for line in response.split("\n"):
+				temp += "\t" + line + "\n"
+			s.source_code = s.source_code.replace("\t#${response}", temp)
+			var parseErr := s.reload()
+			if not parseErr:
+				res.set_script(s)
+				res.response = response
+			else:
+				res.response = cmd_dict["response"]
+			res.usage_hint = cmd_dict.get("usage_hint", "")
+			res.example_reply = cmd_dict.get("example_reply", "")
+		else:
+			res = Command.new()
+		res.response = cmd_dict["response"]
 		res.name = cmd_dict["name"]
 		res.regex = cmd_dict["regex"]
 		res.permission_level = cmd_dict["permission"]
 		res.keywords = cmd_dict.get("keywords", PoolStringArray([]))
 		res.aliases = cmd_dict.get("aliases", PoolStringArray([]))
-		res.response = cmd_dict["response"]
 		res.timeout = cmd_dict.get("timeout", 5)
 		res.user_timeout = cmd_dict.get("user_timeout", 15)
 		commands[cmd] = res
@@ -94,16 +113,7 @@ func save_command_list(path: String = "") -> int:
 	for cmd in commands:
 		active[cmd] = commands[cmd].active
 		if not cmd in base_commands:
-			dict[commands[cmd].name] = {
-				"name" : commands[cmd].name,
-				"regex" :commands[cmd].regex,
-				"permission" : commands[cmd].permission_level,
-				"keywords" : commands[cmd].keywords,
-				"aliases" : commands[cmd].aliases,
-				"response" : commands[cmd].response,
-				"timeout" : commands[cmd].timeout,
-				"user_timeout" : commands[cmd].user_timeout,
-			}
+			dict[commands[cmd].name] = commands[cmd].get_save_dict()
 	dict["_active_commands"] = active
 	file.store_string(JSON.print(dict))
 	file.close()

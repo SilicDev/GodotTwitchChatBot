@@ -89,6 +89,13 @@ func _on_Reload_pressed() -> void:
 
 func _on_New_pressed() -> void:
 	var panel: PanelContainer = load("res://src/chat/config/CustomCommand.tscn").instance()
-	customList.add_child_below_node(customBroadcaster, panel)
+	customList.add_child_below_node(customBroadcaster.get_parent(), panel)
+	new_commands.append(panel)
+	pass # Replace with function body.
+
+
+func _on_NewScripted_pressed() -> void:
+	var panel: PanelContainer = load("res://src/chat/config/ScriptCommand.tscn").instance()
+	customList.add_child_below_node(customBroadcaster.get_parent(), panel)
 	new_commands.append(panel)
 	pass # Replace with function body.

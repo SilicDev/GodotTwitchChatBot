@@ -1,9 +1,9 @@
 [gd_scene load_steps=3 format=2]
 
-[ext_resource path="res://src/chat/config/CustomCommand.gd" type="Script" id=1]
+[ext_resource path="res://src/chat/config/ScriptCommand.gd" type="Script" id=1]
 [ext_resource path="res://src/chat/config/RegexTester.tscn" type="PackedScene" id=2]
 
-[node name="CustomCommand" type="PanelContainer"]
+[node name="ScriptCommand" type="PanelContainer"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 size_flags_horizontal = 3
@@ -26,8 +26,18 @@ margin_bottom = 24.0
 rect_min_size = Vector2( 150, 0 )
 text = "CommandName"
 
-[node name="Response" type="Label" parent="VBox/HBox"]
+[node name="UsageHint" type="Label" parent="VBox/HBox"]
 margin_left = 154.0
+margin_top = 5.0
+margin_right = 467.0
+margin_bottom = 19.0
+rect_min_size = Vector2( 200, 0 )
+size_flags_horizontal = 3
+autowrap = true
+max_lines_visible = 2
+
+[node name="ExampleReply" type="Label" parent="VBox/HBox"]
+margin_left = 471.0
 margin_top = 5.0
 margin_right = 784.0
 margin_bottom = 19.0
@@ -38,9 +48,9 @@ max_lines_visible = 2
 
 [node name="Timeout" type="Label" parent="VBox/HBox"]
 visible = false
-margin_left = 580.0
+margin_left = 684.0
 margin_top = 5.0
-margin_right = 680.0
+margin_right = 784.0
 margin_bottom = 19.0
 rect_min_size = Vector2( 100, 0 )
 valign = 1
@@ -134,6 +144,46 @@ margin_right = 1002.0
 margin_bottom = 24.0
 size_flags_horizontal = 3
 
+[node name="HBox4" type="HBoxContainer" parent="VBox/Tabs/Settings"]
+margin_top = 34.0
+margin_right = 1002.0
+margin_bottom = 58.0
+
+[node name="Label" type="Label" parent="VBox/Tabs/Settings/HBox4"]
+margin_top = 5.0
+margin_right = 150.0
+margin_bottom = 19.0
+rect_min_size = Vector2( 150, 0 )
+text = "Usage Hint:"
+align = 2
+
+[node name="UsageHint" type="LineEdit" parent="VBox/Tabs/Settings/HBox4"]
+margin_left = 154.0
+margin_right = 1002.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+placeholder_text = "Enter usage hint"
+
+[node name="HBox5" type="HBoxContainer" parent="VBox/Tabs/Settings"]
+margin_top = 68.0
+margin_right = 1002.0
+margin_bottom = 92.0
+
+[node name="Label" type="Label" parent="VBox/Tabs/Settings/HBox5"]
+margin_top = 5.0
+margin_right = 150.0
+margin_bottom = 19.0
+rect_min_size = Vector2( 150, 0 )
+text = "Example Response:"
+align = 2
+
+[node name="ExampleReply" type="LineEdit" parent="VBox/Tabs/Settings/HBox5"]
+margin_left = 154.0
+margin_right = 1002.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+placeholder_text = "Enter example response"
+
 [node name="HBox2" type="HBoxContainer" parent="VBox/Tabs/Settings"]
 margin_top = 34.0
 margin_right = 1002.0
@@ -159,7 +209,7 @@ selected = 0
 [node name="HBox3" type="HBoxContainer" parent="VBox/Tabs/Settings"]
 margin_top = 64.0
 margin_right = 1002.0
-margin_bottom = 522.0
+margin_bottom = 92.0
 size_flags_vertical = 3
 
 [node name="Label" type="Label" parent="VBox/Tabs/Settings/HBox3"]
@@ -173,21 +223,17 @@ align = 2
 [node name="Response" type="TextEdit" parent="VBox/Tabs/Settings/HBox3"]
 margin_left = 154.0
 margin_right = 973.0
-margin_bottom = 458.0
-rect_min_size = Vector2( 0, 28 )
+margin_bottom = 28.0
+rect_min_size = Vector2( 0, 50 )
 size_flags_horizontal = 3
 size_flags_vertical = 3
+highlight_current_line = true
+syntax_highlighting = true
+show_line_numbers = true
+draw_tabs = true
+fold_gutter = true
 smooth_scrolling = true
 wrap_enabled = true
-
-[node name="Label2" type="Label" parent="VBox/Tabs/Settings/HBox3"]
-margin_left = 977.0
-margin_right = 1002.0
-margin_bottom = 458.0
-rect_min_size = Vector2( 25, 0 )
-size_flags_vertical = 3
-text = "500"
-valign = 2
 
 [node name="Advanced" type="VBoxContainer" parent="VBox/Tabs"]
 visible = false
@@ -336,7 +382,6 @@ margin_bottom = 593.0
 [connection signal="pressed" from="VBox/HBox/CenterContainer2/Edit" to="." method="_on_Edit_pressed"]
 [connection signal="text_changed" from="VBox/Tabs/Settings/HBox/CommandName" to="." method="_on_CommandName_text_changed"]
 [connection signal="item_selected" from="VBox/Tabs/Settings/HBox2/UserLevel" to="." method="_on_UserLevel_item_selected"]
-[connection signal="text_changed" from="VBox/Tabs/Settings/HBox3/Response" to="." method="_on_Response_text_changed"]
 [connection signal="text_changed" from="VBox/Tabs/Advanced/HBox4/RegEx" to="." method="_on_RegEx_text_changed"]
 [connection signal="pressed" from="VBox/Tabs/Advanced/HBox4/Test" to="." method="_on_Test_pressed"]
 [connection signal="popup_hide" from="RegexTester" to="." method="_on_RegexTester_popup_hide"]

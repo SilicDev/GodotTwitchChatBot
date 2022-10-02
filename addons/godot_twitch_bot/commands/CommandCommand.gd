@@ -1,10 +1,8 @@
-extends Command
-
-var manager
-var usage_hint := "!command add|edit|remove <command> msg"
-var example_reply := "Successfully added command \"test\"!"
+extends ScriptCommand
 
 func _init() -> void:
+	usage_hint = "!command add|edit|remove <command> msg"
+	example_reply = "Successfully added command \"test\"!"
 	name = "command"
 	permission_level = Command.Badge.MODERATOR
 

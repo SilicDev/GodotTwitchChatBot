@@ -1,10 +1,8 @@
-extends Command
-
-var manager
-var usage_hint := "!module on|off <module>"
-var example_reply := "Successfully enabled module \"quote\"!"
+extends ScriptCommand
 
 func _init() -> void:
+	usage_hint = "!module on|off <module>"
+	example_reply = "Successfully enabled module \"quote\"!"
 	name = "module"
 	permission_level = Command.Badge.MODERATOR
 
