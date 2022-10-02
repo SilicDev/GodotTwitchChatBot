@@ -218,6 +218,9 @@ func _load_base_commands() -> void:
 	moduleCmd.manager = self
 	base_commands["module"] = moduleCmd
 	
+	var quoteCmd = _load("cmd://QuoteCommand.gd").new()
+	base_commands["quote"] = quoteCmd
+	
 	for c in base_commands:
 		commands[c] = base_commands[c]
 
