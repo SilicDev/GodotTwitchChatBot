@@ -1,8 +1,10 @@
 class_name ScriptCommand
 extends Command
 
+
 var usage_hint := ""
 var example_reply := ""
+
 
 func get_response(parsedMessage: Dictionary) -> String:
 	#${response}

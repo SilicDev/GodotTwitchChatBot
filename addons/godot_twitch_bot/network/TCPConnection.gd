@@ -6,6 +6,7 @@ var socket : StreamPeerTCP
 var host : String = "irc.chat.twitch.tv"
 var port : int = 6667
 
+
 func _init() -> void:
 	socket = StreamPeerTCP.new()
 
@@ -27,7 +28,6 @@ func update() -> void:
 		status = Status.CONNECTED
 	elif status == Status.CONNECTED:
 		status == Status.DISCONNECTED
-	pass
 
 
 func disconnect_from_host() -> void:
@@ -46,9 +46,9 @@ func send(message: String) -> void:
 			else:
 				print("< " + message)
 		socket.put_data((message + "\r\n").to_utf8())
+	
 	else:
 		push_warning("Must be connected to send a message!")
-	pass
 
 
 func receive() -> String:
@@ -59,6 +59,7 @@ func receive() -> String:
 				status = Status.ERROR
 				push_error(str(data[0]) + ": Error occured while receiving message")
 			return PoolByteArray(data[1]).get_string_from_utf8()
+	
 	else:
 		push_error("Must be connected to receive messages!")
 	return ""

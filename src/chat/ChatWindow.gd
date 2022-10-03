@@ -1,5 +1,6 @@
 extends PanelContainer
 
+
 signal send_button_pressed(msg, channel)
 signal part_requested(channel)
 signal join_requested(channel)
@@ -8,6 +9,7 @@ signal ban_user_requested(channel, id)
 signal timeout_user_requested(channel, id, length)
 signal delete_message_requested(channel, id)
 
+
 var bot_color := ""
 var bot_name := ""
 var bot_id := ""
@@ -15,32 +17,35 @@ var room_id := ""
 
 var is_mod := false
 
-var reply_id := ""
+var join_message := ""
 
+var reply_id := ""
 var lastBotMessage
 
 var commandManager
 
-var join_message := ""
-
 var config := ConfigFile.new()
+
 
 onready var chat := $VBoxContainer/PanelContainer/Scroll/VBox
 onready var scroll := $VBoxContainer/PanelContainer/Scroll
-onready var partButton := $VBoxContainer/HBoxContainer/CenterContainer3/Part
-onready var messageInput := $VBoxContainer/HBoxContainer/VBox/LineEdit
+
 onready var botLabel := $VBoxContainer/HBoxContainer/Label
 onready var replyBox := $VBoxContainer/HBoxContainer/VBox/HBox
 onready var replyText := $VBoxContainer/HBoxContainer/VBox/HBox/Label
+onready var messageInput := $VBoxContainer/HBoxContainer/VBox/LineEdit
+
+onready var partButton := $VBoxContainer/HBoxContainer/CenterContainer3/Part
+
 onready var configMenu := $ChannelConfigDialog
 
 
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass # Replace with function body.
+## Called when the node enters the scene tree for the first time.
+#func _ready() -> void:
+#	pass 
 
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
+## Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta: float) -> void:
 #	pass
 
@@ -49,31 +54,40 @@ func add_message(message: Dictionary) -> void:
 	var msgPanel = load("res://src/chat/ChatMessage.tscn").instance()
 	chat.add_child(msgPanel)
 	set_data(msgPanel, message)
+	
 	msgPanel.connect("ban_user_requested", self, "_on_ban_user_requested")
 	msgPanel.connect("timeout_user_requested", self, "_on_timeout_user_requested")
 	msgPanel.connect("delete_message_requested", self, "_on_delete_message_requested")
 	msgPanel.connect("reply_requested", self, "_on_reply_requested")
-	pass
 
 
 func set_data(msgPanel, message: Dictionary) -> void:
 	var tags = message.get("tags", {})
-	if tags.color:
-		msgPanel.message.append_bbcode("[b][color=" + tags.get("color", "#ffffff") + "]" + tags.get("display-name", "Anonymous") + "[/color][/b]: " + message.parameters)
+	var display_name = tags.get("display-name", "Anonymous")
+	
+	if tags.has("color"):
+		var color = tags.get("color", "#ffffff")
+		msgPanel.message.append_bbcode("[b][color=" + color + "]" + display_name 
+				+ "[/color][/b]: " + message.parameters
+		)
 	else:
-		msgPanel.message.append_bbcode("[b]" + tags.get("display-name", "Anonymous") + "[/b]: " + message.parameters)
+		msgPanel.message.append_bbcode("[b]" + display_name + "[/b]: " + message.parameters)
+	
 	msgPanel.id = tags.get("id", "")
-	msgPanel.sender = tags.get("display-name", "Anonymous")
+	msgPanel.sender = display_name
 	msgPanel.sender_id = tags.get("user-id", "")
 	msgPanel.reply.visible = tags.has("reply-parent-user-id")
 	msgPanel.reply_sender_id = tags.get("reply-parent-user-id", "")
 	msgPanel.reply_id = tags.get("reply-parent-msg-id", "")
+	
 	if not msgPanel.reply_id.empty():
 		var reply = get_message_by_id(msgPanel.reply_id)
 		if reply:
-			msgPanel.reply.text = tags.get("reply-parent-display-name", "Anonymous") + ": " + reply.parsedMessage.get("parameters", "")
-	msgPanel.modButtons.visible = not (tags.get("display-name", "Anonymous").to_lower() == name or int(tags.get("mod", "0"))) and is_mod
+			msgPanel.reply.text = get_reply_message(reply)
+	
+	msgPanel.modButtons.visible = can_moderate(tags)
 	msgPanel.parsedMessage = message
+	
 	yield(get_tree(),"idle_frame")
 	scroll.scroll_vertical += msgPanel.rect_size.y
 
@@ -81,11 +95,13 @@ func set_data(msgPanel, message: Dictionary) -> void:
 func add_bot_message(message: String, reply_id := "") -> void:
 	var msgPanel = load("res://src/chat/ChatMessage.tscn").instance()
 	chat.add_child(msgPanel)
+	
 	msgPanel.sender = bot_name
 	msgPanel.sender_id = bot_id
 	msgPanel.modButtons.visible = false
 	msgPanel.reply.visible = not reply_id.empty()
 	msgPanel.replyContainer.visible = not reply_id.empty()
+	
 	msgPanel.parsedMessage = {
 		"tags" : {
 			"display-name": bot_name,
@@ -101,21 +117,29 @@ func add_bot_message(message: String, reply_id := "") -> void:
 		},
 		"parameters" : message,
 	}
+	
 	if not reply_id.empty():
 		msgPanel.reply_id = reply_id
 		msgPanel.parsedMessage.tags["reply-parent-msg-id"] = reply_id
+	
 	var reply = get_message_by_id(reply_id)
 	if reply:
-		msgPanel.reply.text = reply.parsedMessage.get("tags", {}).get("display-name", "Anonymous") + ": " + reply.parsedMessage.get("parameters", "")
+		msgPanel.reply.text = get_reply_message(reply)
+	
 	if bot_color.empty():
 		msgPanel.message.append_bbcode("[b]" + bot_name + "[/b]: " + message + "\n")
 	else:
-		msgPanel.message.append_bbcode("[b][color=" + bot_color + "]" + bot_name + "[/color][/b]: " + message)
+		msgPanel.message.append_bbcode("[b][color=" + bot_color + "]" + bot_name +
+				"[/color][/b]: " + message
+		)
+	
 	yield(get_tree(),"idle_frame")
+	
 	msgPanel.connect("ban_user_requested", self, "_on_ban_user_requested")
 	msgPanel.connect("timeout_user_requested", self, "_on_timeout_user_requested")
 	msgPanel.connect("delete_message_requested", self, "_on_delete_message_requested")
 	msgPanel.connect("reply_requested", self, "_on_reply_requested")
+	
 	lastBotMessage = msgPanel
 	scroll.scroll_vertical += msgPanel.rect_size.y
 
@@ -143,21 +167,33 @@ func load_ini() -> void:
 	if err:
 		save_ini()
 		config.load(path)
+	
 	join_message = config.get_value("general", "join_message", join_message)
 	config.clear()
-	pass
 
 
 func save_ini() -> void:
 	config.set_value("general", "join_message", join_message)
+	
 	var path = "user://channels/" + name.to_lower() + "/config.ini"
 	var file := File.new()
 	var dir := Directory.new()
 	if not dir.dir_exists(path.get_base_dir()):
 		dir.make_dir_recursive(path.get_base_dir())
+	
 	config.save(path)
 	config.clear()
-	pass
+
+
+func get_reply_message(reply) -> String:
+	var display_name = reply.parsedMessage.get("tags", {}).get("display-name", "Anonymous")
+	return display_name + ": " + reply.parsedMessage.get("parameters", "")
+
+
+func can_moderate(tags: Dictionary) -> bool:
+	var sender_is_self = tags.get("display-name", "Anonymous").to_lower() == name
+	var sender_is_mod = int(tags.get("mod", "0"))
+	return not (sender_is_self or sender_is_mod) and is_mod
 
 
 func _on_Send_pressed() -> void:
@@ -165,7 +201,6 @@ func _on_Send_pressed() -> void:
 	reply_id = ""
 	replyBox.visible = false
 	messageInput.text = ""
-	pass # Replace with function body.
 
 
 func _on_Part_pressed() -> void:
@@ -175,28 +210,23 @@ func _on_Part_pressed() -> void:
 	else:
 		emit_signal("join_requested", name)
 		partButton.text = "Part Channel"
-	pass # Replace with function body.
 
 
 func _on_EndReply_pressed() -> void:
 	replyBox.visible = false
 	reply_id = ""
-	pass # Replace with function body.
 
 
 func _on_ban_user_requested(id) -> void:
 	emit_signal("ban_user_requested", name, id)
-	pass
 
 
 func _on_timeout_user_requested(id, length) -> void:
 	emit_signal("timeout_user_requested", name, id, length)
-	pass
 
 
 func _on_delete_message_requested(id) -> void:
 	emit_signal("delete_message_requested", name, id)
-	pass
 
 
 func _on_reply_requested(id) -> void:
@@ -204,13 +234,12 @@ func _on_reply_requested(id) -> void:
 	if reply:
 		reply_id = id
 		replyBox.visible = true
-		replyText.text = reply.parsedMessage.get("tags", {}).get("display-name", "Anonymous") + ": " + reply.parsedMessage.get("parameters", "")
-	pass
+		var display_name = reply.parsedMessage.get("tags", {}).get("display-name", "Anonymous")
+		replyText.text = display_name + ": " + reply.parsedMessage.get("parameters", "")
 
 
 func _on_Config_pressed() -> void:
 	configMenu.popup_centered(Vector2(800, 400))
-	pass # Replace with function body.
 
 
 func _on_ChannelConfigDialog_about_to_show() -> void:
@@ -218,7 +247,6 @@ func _on_ChannelConfigDialog_about_to_show() -> void:
 	configMenu.commandManager = commandManager
 	configMenu.join_message = join_message
 	configMenu.load_data()
-	pass # Replace with function body.
 
 
 func _on_ChannelConfigDialog_popup_hide() -> void:
@@ -227,4 +255,3 @@ func _on_ChannelConfigDialog_popup_hide() -> void:
 	commandManager.load_data()
 	save_ini()
 	load_ini()
-	pass # Replace with function body.

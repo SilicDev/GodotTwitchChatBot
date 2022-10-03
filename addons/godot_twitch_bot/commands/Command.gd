@@ -2,8 +2,6 @@ class_name Command
 extends Resource
 
 
-export(String) var name := ""
-export(String, MULTILINE) var regex := ""
 enum Badge {
 	NONE,
 	SUBSCRIBER,
@@ -11,10 +9,14 @@ enum Badge {
 	MODERATOR,
 	BROADCASTER,
 }
-export(Badge) var permission_level := Badge.NONE
-export(PoolStringArray) var aliases := PoolStringArray([])
-export(String, MULTILINE) var response := ""
 
+
+var name := ""
+var regex := ""
+var permission_level: int = Badge.NONE
+var response := ""
+
+var aliases := PoolStringArray([])
 var keywords := PoolStringArray([])
 
 var timeout := 5
@@ -33,33 +35,40 @@ func should_fire(parsedMessage: Dictionary) -> bool:
 		var cmd = parsedMessage.get("command", {}).get("botCommand", "")
 		if cmd == name or cmd in aliases:
 			return true
+		
 		var parameters = parsedMessage.get("parameters", "")
 		for keyword in keywords:
 			if keyword in parameters:
 				return true
+		
 		if not regex.empty():
 			matcher.compile(regex)
 			if matcher.search(parameters):
 				return true
+		
 	return false
 
 
 func get_permission(parsedMessage: Dictionary) -> int:
 	if is_broadcaster(parsedMessage):
 		return Badge.BROADCASTER
+	
 	var tags = parsedMessage.get("tags", {})
 	if tags.get("mod", 0):
 		return Badge.MODERATOR
+	
 	if tags.has("vip"):
 		return Badge.VIP
+	
 	if tags.get("sub", 0):
 		return Badge.SUBSCRIBER
+	
 	return Badge.NONE
 
 
 func is_broadcaster(parsedMessage: Dictionary) -> bool:
 	var badges = parsedMessage.get("tags", {}).get("badges", "")
-	return badges and "broadcaster" in parsedMessage.get("tags", {}).get("badges", "")
+	return badges and "broadcaster" in badges
 
 
 func get_save_dict() -> Dictionary:

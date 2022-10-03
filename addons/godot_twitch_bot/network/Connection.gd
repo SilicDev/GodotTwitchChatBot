@@ -1,12 +1,14 @@
 class_name Connection
 extends Reference
 
+
 enum Status {
 	DISCONNECTED,
 	CONNECTING,
 	CONNECTED,
 	ERROR,
 }
+
 
 var status = Status.DISCONNECTED
 

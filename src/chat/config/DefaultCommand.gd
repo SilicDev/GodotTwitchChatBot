@@ -6,6 +6,6 @@ onready var hint = $HBoxContainer/UsageHint
 onready var example = $HBoxContainer/ExampleReply
 
 
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass # Replace with function body.
+## Called when the node enters the scene tree for the first time.
+#func _ready() -> void:
+#	pass

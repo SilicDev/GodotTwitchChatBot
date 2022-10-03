@@ -31,10 +31,10 @@ func update() -> void:
 	if socket.get_connection_status() != NetworkedMultiplayerPeer.CONNECTION_DISCONNECTED:
 		socket.poll()
 
+
 func disconnect_from_host() -> void:
 	socket.get_peer(1).close(1000, "Client disconnected")
 	status = Status.DISCONNECTED
-	pass
 
 
 func send(message: String) -> void:
@@ -43,17 +43,18 @@ func send(message: String) -> void:
 			print("< PASS oauth:" + "*".repeat(message.length() - 11))
 		else:
 			print("< " + message)
+	
 	var err := socket.get_peer(1).put_packet((message + "\r\n").to_utf8())
 	if err:
 		push_error("Error occured while sending message: " + str(err))
 		status = Status.ERROR
-	pass
 
 
 func receive() -> String:
 	if socket.get_peer(1).get_available_packet_count() != 0:
 		return socket.get_peer(1).get_packet().get_string_from_utf8()
 	return ""
+
 
 func has_message() -> bool:
 	socket.poll()

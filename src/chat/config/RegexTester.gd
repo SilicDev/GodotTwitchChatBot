@@ -8,12 +8,12 @@ onready var testInput := $PanelCon/VBox/Test
 onready var output := $PanelCon/VBox/Output
 
 
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass # Replace with function body.
+## Called when the node enters the scene tree for the first time.
+#func _ready() -> void:
+#	pass
 
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
+## Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta: float) -> void:
 #	pass
 
@@ -24,7 +24,6 @@ func test() -> void:
 		output.text = ""
 		for m in res:
 			output.text += m.strings[0] + "\n"
-	pass
 
 
 func _on_Regex_text_changed(new_text: String) -> void:
@@ -34,9 +33,7 @@ func _on_Regex_text_changed(new_text: String) -> void:
 	else:
 		regexInput.add_color_override("font_color", Color.white)
 		test()
-	pass # Replace with function body.
 
 
 func _on_Test_text_changed(_new_text: String) -> void:
 	test()
-	pass # Replace with function body.
