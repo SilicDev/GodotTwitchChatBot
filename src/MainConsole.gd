@@ -55,6 +55,10 @@ func _on_Bot_joined_channel(channel) -> void:
 		chat.connect("part_requested", self, "_on_Chat_part_requested")
 		chat.connect("join_requested", self, "_on_Chat_join_requested")
 		
+		chat.connect("ban_user_requested", self, "_on_Chat_ban_user_requested")
+		chat.connect("timeout_user_requested", self, "_on_Chat_timeout_user_requested")
+		chat.connect("delete_message_requested", self, "_on_Chat_delete_message_requested")
+		
 		chat.name = channel
 		
 		chat.botLabel.text = bot.display_name
@@ -185,13 +189,58 @@ func _on_Bot_user_messages_deleted(id, channel) -> void:
 		chats[channel].scroll.scroll_vertical -= msg.rect_size.y
 
 
-func _on_ban_user_requested(channel, id) -> void:
+func _on_Chat_ban_user_requested(channel, id) -> void:
+	var t = Thread.new()
+	var args = {
+		"broadcaster_id" : chats[channel].room_id,
+		"moderator_id" : bot.bot_id,
+		"user_id" : id,
+	}
+	t.start(self, "ban_user", args)
+
+
+func ban_user(arguments: Dictionary) -> void:
+	bot.api.ban_user(
+		arguments.get("broadcaster_id", ""), 
+		arguments.get("moderator_id", ""), 
+		arguments.get("user_id", "")
+	)
+
+
+func _on_Chat_timeout_user_requested(channel, id, length) -> void:
+	var t = Thread.new()
+	var args = {
+		"broadcaster_id" : chats[channel].room_id,
+		"moderator_id" : bot.bot_id,
+		"user_id" : id,
+		"duration": length
+	}
+	t.start(self, "timeout_user", args)
+
+
+func timeout_user(arguments: Dictionary) -> void:
+	bot.api.ban_user(
+		arguments.get("broadcaster_id", ""), 
+		arguments.get("moderator_id", ""), 
+		arguments.get("user_id", ""),
+		"", arguments.get("duration", 600)
+	)
+
+
+func _on_Chat_delete_message_requested(channel, id) -> void:
+	var t = Thread.new()
+	var args = {
+		"broadcaster_id" : chats[channel].room_id,
+		"moderator_id" : bot.bot_id,
+		"msg_id" : id,
+	}
+	t.start(self, "delete_message", args)
 	pass
 
 
-func _on_timeout_user_requested(channel, id, length) -> void:
-	pass
-
-
-func _on_delete_message_requested(channel, id) -> void:
-	pass
+func delete_message(arguments: Dictionary) -> void:
+	print(bot.api.delete_chat_messages(
+		arguments.get("broadcaster_id", ""), 
+		arguments.get("moderator_id", ""), 
+		arguments.get("msg_id", "")
+	))

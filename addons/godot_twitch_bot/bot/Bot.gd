@@ -48,11 +48,16 @@ var config := ConfigFile.new()
 
 var messageParser = load("res://addons/godot_twitch_bot/util/IRCMessageParser.gd")
 var commandManagerScript = load("res://addons/godot_twitch_bot/commands/util/CommandManager.gd")
+var api := preload("res://addons/godot_twitch_bot/util/TwitchAPI.gd").new()
 
 
 ## Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	load_ini()
+	api.headers = [
+		"Authorization: Bearer " + oauth,
+		"Client-Id: " + client_id,
+	]
 
 
 func _notification(what: int) -> void:

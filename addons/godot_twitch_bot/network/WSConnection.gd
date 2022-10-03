@@ -57,7 +57,6 @@ func receive() -> String:
 
 
 func has_message() -> bool:
-	socket.poll()
 	return socket.get_peer(1).get_available_packet_count() != 0
 
 

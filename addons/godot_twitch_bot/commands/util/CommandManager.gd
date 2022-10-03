@@ -95,8 +95,16 @@ func load_command_list(path: String):
 		res.name = cmd_dict.get("name", "")
 		res.regex = cmd_dict.get("regex", "")
 		res.permission_level = cmd_dict.get("permission", 0)
+		
+		# Fixes bug in should_fire always matching an empty string
 		res.keywords = cmd_dict.get("keywords", PoolStringArray([]))
+		if res.keywords.size() == 1 and res.keywords[0].empty():
+			res.keywords = PoolStringArray([])
+			
 		res.aliases = cmd_dict.get("aliases", PoolStringArray([]))
+		if res.aliases.size() == 1 and res.aliases[0].empty():
+			res.aliases = PoolStringArray([])
+		
 		res.timeout = cmd_dict.get("timeout", 5)
 		res.user_timeout = cmd_dict.get("user_timeout", 15)
 		commands[cmd] = res
