@@ -266,6 +266,14 @@ func _load_base_commands() -> void:
 	var quoteCmd = _load("cmd://QuoteCommand.gd").new()
 	base_commands["quote"] = quoteCmd
 	
+	var setgameCmd = _load("cmd://SetGameCommand.gd").new()
+	setgameCmd.manager = self
+	base_commands["setgame"] = setgameCmd
+	
+	var settitleCmd = _load("cmd://SetTitleCommand.gd").new()
+	settitleCmd.manager = self
+	base_commands["settitle"] = settitleCmd
+	
 	for c in base_commands:
 		commands[c] = base_commands[c]
 
