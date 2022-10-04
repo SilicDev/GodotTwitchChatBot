@@ -18,7 +18,7 @@ func get_response(parsedMessage: Dictionary) -> String:
 		return "Game \"" + params + "\" does not exist!"
 	var game_id = game.data[0].id
 	var result = manager.api.modify_channel_info(manager.channel_id, game_id)
-	var err = result.status
+	var err = int(result.status)
 	match err:
 		204:
 			return "Successfully changed game to \"" + params + "\"!"

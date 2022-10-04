@@ -14,7 +14,7 @@ func _init() -> void:
 func get_response(parsedMessage: Dictionary) -> String:
 	var params = parsedMessage.command.get("botCommandParams")
 	var result = manager.api.modify_channel_info(manager.channel_id, null, null, params)
-	var err = result.status
+	var err = int(result.status)
 	match err:
 		204:
 			return "Successfully changed title to \"" + params + "\"!"
@@ -29,6 +29,6 @@ func get_response(parsedMessage: Dictionary) -> String:
 			return "Failed to update stream title!"
 		
 		_:
-			return "Unknown error occured. Error code: " + err
+			return "Unknown error occured. Error code: " + str(err)
 	
 	return ""
