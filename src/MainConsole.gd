@@ -13,6 +13,7 @@ onready var tabs := $MarginContainer/VBox/TabContainer
 
 onready var configMenu := $ConfigureDialog
 
+var active_threads := []
 
 ## Called when the node enters the scene tree for the first time.
 #func _ready() -> void:
@@ -22,6 +23,41 @@ onready var configMenu := $ConfigureDialog
 ## Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta: float) -> void:
 #	pass
+
+
+func cleanup_threads() -> void:
+	var temp = PoolIntArray([])
+	for i in range(active_threads.size()):
+		if not active_threads[i].is_alive():
+			active_threads[i].wait_to_finish()
+			temp.append(i)
+	for i in temp:
+		active_threads.pop_at(i)
+
+
+func ban_user(arguments: Dictionary) -> void:
+	bot.api.ban_user(
+		arguments.get("broadcaster_id", ""), 
+		arguments.get("moderator_id", ""), 
+		arguments.get("user_id", "")
+	)
+
+
+func timeout_user(arguments: Dictionary) -> void:
+	bot.api.ban_user(
+		arguments.get("broadcaster_id", ""), 
+		arguments.get("moderator_id", ""), 
+		arguments.get("user_id", ""),
+		"", arguments.get("duration", 600)
+	)
+
+
+func delete_message(arguments: Dictionary) -> void:
+	bot.api.delete_chat_messages(
+		arguments.get("broadcaster_id", ""), 
+		arguments.get("moderator_id", ""), 
+		arguments.get("msg_id", "")
+	)
 
 
 func _on_Connect_pressed() -> void:
@@ -73,7 +109,12 @@ func _on_Bot_joined_channel(channel) -> void:
 	chats[channel].chat.add_child(label)
 	
 	chats[channel].partButton.text = "Part Channel"
+	
 	chats[channel].commandManager = bot.commandManagers[channel]
+	chats[channel].commandManager.api.headers = [
+		"Authorization: Bearer " + bot.oauth,
+		"Client-Id: " + bot.client_id,
+	]
 	
 	chats[channel].load_ini()
 	
@@ -121,6 +162,7 @@ func _on_Bot_disconnected() -> void:
 	joinButton.disabled = true
 	connectButton.disabled = false
 	connectButton.text = "Connect to Twitch"
+	cleanup_threads()
 
 
 func _on_ConfigureDialog_about_to_show() -> void:
@@ -173,6 +215,7 @@ func _on_Bot_userstate_received(tags, channel) -> void:
 
 func _on_Bot_roomstate_received(tags, channel) -> void:
 	chats[channel].room_id = tags.get("room-id", "")
+	chats[channel].commandManager.channel_id = chats[channel].room_id
 
 
 func _on_Bot_chat_message_deleted(id, channel) -> void:
@@ -190,6 +233,7 @@ func _on_Bot_user_messages_deleted(id, channel) -> void:
 
 
 func _on_Chat_ban_user_requested(channel, id) -> void:
+	cleanup_threads()
 	var t = Thread.new()
 	var args = {
 		"broadcaster_id" : chats[channel].room_id,
@@ -199,16 +243,10 @@ func _on_Chat_ban_user_requested(channel, id) -> void:
 	t.start(self, "ban_user", args)
 
 
-func ban_user(arguments: Dictionary) -> void:
-	bot.api.ban_user(
-		arguments.get("broadcaster_id", ""), 
-		arguments.get("moderator_id", ""), 
-		arguments.get("user_id", "")
-	)
-
-
 func _on_Chat_timeout_user_requested(channel, id, length) -> void:
+	cleanup_threads()
 	var t = Thread.new()
+	active_threads.append(t)
 	var args = {
 		"broadcaster_id" : chats[channel].room_id,
 		"moderator_id" : bot.bot_id,
@@ -218,29 +256,13 @@ func _on_Chat_timeout_user_requested(channel, id, length) -> void:
 	t.start(self, "timeout_user", args)
 
 
-func timeout_user(arguments: Dictionary) -> void:
-	bot.api.ban_user(
-		arguments.get("broadcaster_id", ""), 
-		arguments.get("moderator_id", ""), 
-		arguments.get("user_id", ""),
-		"", arguments.get("duration", 600)
-	)
-
-
 func _on_Chat_delete_message_requested(channel, id) -> void:
+	cleanup_threads()
 	var t = Thread.new()
+	active_threads.append(t)
 	var args = {
 		"broadcaster_id" : chats[channel].room_id,
 		"moderator_id" : bot.bot_id,
 		"msg_id" : id,
 	}
 	t.start(self, "delete_message", args)
-	pass
-
-
-func delete_message(arguments: Dictionary) -> void:
-	print(bot.api.delete_chat_messages(
-		arguments.get("broadcaster_id", ""), 
-		arguments.get("moderator_id", ""), 
-		arguments.get("msg_id", "")
-	))

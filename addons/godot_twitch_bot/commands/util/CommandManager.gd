@@ -4,6 +4,7 @@ extends Reference
 var file := File.new()
 
 var channel : String
+var channel_id : String
 
 var commands := {}
 var base_commands := {}
@@ -12,10 +13,12 @@ var modules := {}
 var counters := {}
 
 var formatter = _load("cmd://util/MessageFormater.gd").new()
+var api := TwitchAPI.new()
 
 
 func _init(cnl: String) -> void:
 	formatter.manager = self
+	formatter.api = api
 	channel = cnl
 	_load_base_commands()
 	load_data()

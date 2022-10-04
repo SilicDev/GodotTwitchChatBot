@@ -44,20 +44,17 @@ var request_membership := true
 var connected_channels := PoolStringArray([])
 var commandManagers := {}
 
+var active_threads := []
+
 var config := ConfigFile.new()
 
 var messageParser = load("res://addons/godot_twitch_bot/util/IRCMessageParser.gd")
 var commandManagerScript = load("res://addons/godot_twitch_bot/commands/util/CommandManager.gd")
-var api := preload("res://addons/godot_twitch_bot/util/TwitchAPI.gd").new()
 
 
 ## Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	load_ini()
-	api.headers = [
-		"Authorization: Bearer " + oauth,
-		"Client-Id: " + client_id,
-	]
 
 
 func _notification(what: int) -> void:
@@ -73,6 +70,8 @@ func _process(delta: float) -> void:
 	if not connection:
 		return
 	connection.update()
+	cleanup_threads()
+	
 	if connection.status == Connection.Status.CONNECTED:
 		
 		if not connected:
@@ -111,7 +110,13 @@ func _process(delta: float) -> void:
 					match commandDict.get("command", ""):
 						"PRIVMSG":
 							emit_signal("chat_message_received", parsedMessage, c)
-							trigger_commands(c, parsedMessage)
+							var data := {
+								"channel": c,
+								"message": parsedMessage,
+							}
+							var t = Thread.new()
+							active_threads.append(t)
+							t.start(self, "trigger_commands", data)
 						
 						"PING":
 							emit_signal("pinged")
@@ -127,6 +132,7 @@ func _process(delta: float) -> void:
 								print("joined " + commandDict.channel)
 								connected_channels.append(c)
 								commandManagers[c] = commandManagerScript.new(c)
+								
 								emit_signal("joined_channel", c)
 						
 						"PART":
@@ -272,7 +278,19 @@ func save_ini() -> void:
 	config.clear()
 
 
-func trigger_commands(channel: String, parsedMessage: Dictionary) -> void:
+func cleanup_threads() -> void:
+	var temp = PoolIntArray([])
+	for i in range(active_threads.size()):
+		if not active_threads[i].is_alive():
+			active_threads[i].wait_to_finish()
+			temp.append(i)
+	for i in temp:
+		active_threads.pop_at(i)
+
+
+func trigger_commands(data: Dictionary) -> void:
+	var channel: String = data.channel
+	var parsedMessage: Dictionary = data.message
 	var c := channel.to_lower()
 	if c.begins_with("#"):
 		c = c.substr(1)

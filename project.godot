@@ -24,6 +24,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://addons/godot_twitch_bot/commands/ScriptCommand.gd"
 }, {
+"base": "Reference",
+"class": "TwitchAPI",
+"language": "GDScript",
+"path": "res://addons/godot_twitch_bot/util/TwitchAPI.gd"
+}, {
 "base": "Node",
 "class": "TwitchBot",
 "language": "GDScript",
@@ -33,6 +38,7 @@ _global_script_class_icons={
 "Command": "",
 "Connection": "",
 "ScriptCommand": "",
+"TwitchAPI": "res://addons/godot_twitch_bot/assets/icon.png",
 "TwitchBot": "res://addons/godot_twitch_bot/assets/icon.png"
 }
 

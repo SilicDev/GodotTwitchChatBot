@@ -1,3 +1,4 @@
+class_name TwitchAPI, "res://addons/godot_twitch_bot/assets/icon.png"
 extends Reference
 ## For details see https://dev.twitch.tv/docs/api/reference
 ## This is not meant to be an extensive API, and before using any call
@@ -11,6 +12,7 @@ var base_headers := [
 	"User-Agent: Pirulo/1.0 (Godot)",
 	"Accept: application/json",
 ]
+var mutex := Mutex.new()
 
 
 func _init() -> void:
@@ -33,7 +35,7 @@ func start_commercial(broadcaster_id: String, length: int) -> Dictionary:
 		"broadcaster_id": broadcaster_id,
 		"length": length,
 	}
-	var err := client.request(
+	var err := _request(
 			HTTPClient.METHOD_POST, 
 			"/helix/channels/commercial",
 			headers + base_headers + ["Content-Type: application/json"], 
@@ -56,10 +58,13 @@ func start_commercial(broadcaster_id: String, length: int) -> Dictionary:
 
 
 ## Get Channel Info
-func get_channel_info(broadcaster_id: String) -> Dictionary:
-	var err := client.request(
+func get_channel_info(broadcaster_ids: PoolStringArray) -> Dictionary:
+	var url = "/helix/channels?broadcaster_id=" + broadcaster_ids[0]
+	for i in range(1, broadcaster_ids.size()):
+		url += "&broadcaster_id=" + broadcaster_ids[i]
+	var err := _request(
 			HTTPClient.METHOD_GET, 
-			"/helix/channels?broadcaster_id=" + broadcaster_id, 
+			url, 
 			headers + base_headers
 	)
 	if not err:
@@ -87,7 +92,7 @@ func modify_channel_info(
 		data["delay"] = int(delay)
 	if data.empty():
 		return ERR_INVALID_PARAMETER
-	var err := client.request(
+	var err := _request(
 			HTTPClient.METHOD_PATCH, 
 			"/helix/channels?broadcaster_id=" + broadcaster_id, 
 			headers + base_headers, 
@@ -129,7 +134,7 @@ func modify_channel_info(
 
 ## Get Channel Emotes
 func get_channel_emotes(broadcaster_id: String) -> Dictionary:
-	var err := client.request(
+	var err := _request(
 			HTTPClient.METHOD_GET, 
 			"/helix/chat/emotes?broadcaster_id=" + broadcaster_id, 
 			headers + base_headers
@@ -141,7 +146,7 @@ func get_channel_emotes(broadcaster_id: String) -> Dictionary:
 
 ## Get Global Emotes
 func get_global_emotes() -> Dictionary:
-	var err := client.request(
+	var err := _request(
 			HTTPClient.METHOD_GET, 
 			"/helix/chat/emotes/global", 
 			headers + base_headers
@@ -153,7 +158,7 @@ func get_global_emotes() -> Dictionary:
 
 ## Get Emote Sets
 func get_emote_set(broadcaster_id: String) -> Dictionary:
-	var err := client.request(
+	var err := _request(
 			HTTPClient.METHOD_GET, 
 			"/helix/chat/emotes?broadcaster_id=" + broadcaster_id, 
 			headers + base_headers
@@ -165,7 +170,7 @@ func get_emote_set(broadcaster_id: String) -> Dictionary:
 
 ## Get Channel Chat Badges
 func get_channel_chat_badges(broadcaster_id: String) -> Dictionary:
-	var err := client.request(
+	var err := _request(
 			HTTPClient.METHOD_GET, 
 			"/helix/chat/badges?broadcaster_id=" + broadcaster_id, 
 			headers + base_headers
@@ -177,7 +182,7 @@ func get_channel_chat_badges(broadcaster_id: String) -> Dictionary:
 
 ## Get Global Chat Badges
 func get_global_chat_badges() -> Dictionary:
-	var err := client.request(
+	var err := _request(
 			HTTPClient.METHOD_GET, 
 			"/helix/chat/badges/global", 
 			headers + base_headers
@@ -192,7 +197,7 @@ func get_global_chat_badges() -> Dictionary:
 func get_chat_settings(broadcaster_id: String, mod_id: String = "") -> Dictionary:
 	var url = "/helix/chat/settings?broadcaster_id=" + broadcaster_id + \
 			("&moderator_id=" + mod_id) if not mod_id.empty() else ""
-	var err := client.request(HTTPClient.METHOD_GET, url, headers)
+	var err := _request(HTTPClient.METHOD_GET, url, headers)
 	if not err:
 		return JSON.parse(_get_response()).result
 	return {}
@@ -208,7 +213,7 @@ func update_chat_settings(
 	var url = "/helix/chat/settings?broadcaster_id=" + broadcaster_id + \
 			("&moderator_id=" + mod_id) if not mod_id.empty() else ""
 	var h := headers + ["Content-Type: application/json"]
-	var err := client.request(HTTPClient.METHOD_GET, url, h, JSON.print(settings))
+	var err := _request(HTTPClient.METHOD_GET, url, h, JSON.print(settings))
 	if not err:
 		return JSON.parse(_get_response()).result
 	return {}
@@ -226,7 +231,7 @@ func send_chat_announcement(
 			"&moderator_id=" + mod_id
 	var h := headers + ["Content-Type: application/json"]
 	var data := {"message":message,"color":color}
-	var err := client.request(HTTPClient.METHOD_POST, url, h, JSON.print(data))
+	var err := _request(HTTPClient.METHOD_POST, url, h, JSON.print(data))
 	var response = _get_response()
 	if not response.empty():
 		return JSON.parse(response).result
@@ -235,7 +240,7 @@ func send_chat_announcement(
 
 ## Get User Chat Color
 func get_user_chat_color(user_id: String) -> Dictionary:
-	var err := client.request(
+	var err := _request(
 			HTTPClient.METHOD_GET, 
 			"/helix/chat/color?user_id=" + user_id, 
 			headers + base_headers
@@ -248,7 +253,7 @@ func get_user_chat_color(user_id: String) -> Dictionary:
 ## Update User Chat Color
 ## requires: token scope user:manage:chat_color
 func update_user_chat_color(user_id: String, color: String) -> Dictionary:
-	var err := client.request(
+	var err := _request(
 			HTTPClient.METHOD_PUT, 
 			"/helix/chat/color?user_id=" + user_id + "&color=" + color.http_escape(), 
 			headers + base_headers
@@ -261,7 +266,7 @@ func update_user_chat_color(user_id: String, color: String) -> Dictionary:
 ## Create Clip
 ## requires: token scope clips:edit
 func create_clip(broadcaster_id: String, delay := false) -> Dictionary:
-	var err := client.request(
+	var err := _request(
 			HTTPClient.METHOD_PUT, 
 			"/helix/chat/clips?broadcaster_id=" + broadcaster_id + "&has_delay=" + str(delay), 
 			headers + base_headers
@@ -291,7 +296,7 @@ func get_clips_by_broadcaster(
 		optional_query += "&ended_at=" + ended_at
 	if first:
 		optional_query += "&first=" + str(first)
-	var err := client.request(
+	var err := _request(
 			HTTPClient.METHOD_GET, 
 			"/helix/chat/clips?broadcaster_id=" + id + optional_query, 
 			headers + base_headers
@@ -321,7 +326,7 @@ func get_clips_by_game(
 		optional_query += "&ended_at=" + ended_at
 	if first:
 		optional_query += "&first=" + str(first)
-	var err := client.request(
+	var err := _request(
 			HTTPClient.METHOD_GET, 
 			"/helix/chat/clips?game_id=" + id + optional_query, 
 			headers + base_headers
@@ -348,7 +353,7 @@ func get_clips_by_ids(
 	var url = "/helix/chat/clips?id=" + ids[0]
 	for i in range(1, ids.size()):
 		url += "&id=" + ids[i]
-	var err := client.request(HTTPClient.METHOD_GET, url + optional_query, headers + base_headers)
+	var err := _request(HTTPClient.METHOD_GET, url + optional_query, headers + base_headers)
 	if not err:
 		return JSON.parse(_get_response()).result
 	return {}
@@ -385,7 +390,7 @@ func get_extension_live_channels(extension_id: String, after := "", first := 20)
 		optional_query += "&after=" + after
 	if first:
 		optional_query += "&first=" + str(first)
-	var err := client.request(
+	var err := _request(
 			HTTPClient.METHOD_GET, 
 			"/helix/extensions/live?extension_id=" + extension_id + optional_query, 
 			headers + base_headers
@@ -409,7 +414,7 @@ func get_extension_live_channels(extension_id: String, after := "", first := 20)
 
 ## Get Released Extensions
 func get_released_extensions(extension_id: String, extension_version := "") -> Dictionary:
-	var err := client.request(
+	var err := _request(
 			HTTPClient.METHOD_GET, 
 			"/helix/extensions/released?extension_id=" + extension_id + 
 					("&extension_version=" + extension_version) if extension_version else "", 
@@ -473,7 +478,7 @@ func ban_user(
 	if reason:
 		data.data["reason"] = reason
 	var h := headers + base_headers + ["Content-Type: application/json"]
-	var err := client.request(
+	var err := _request(
 			HTTPClient.METHOD_POST, 
 			"/helix/moderation/bans?broadcaster_id=" + broadcaster_id + "&moderator_id=" + moderator_id, 
 			h,
@@ -491,7 +496,7 @@ func unban_user(
 		moderator_id: String, 
 		user_id: String
 ):
-	var err := client.request(
+	var err := _request(
 			HTTPClient.METHOD_DELETE, 
 			"/helix/moderation/bans?broadcaster_id=" + broadcaster_id + "&moderator_id=" + 
 					moderator_id + "&user_id=" + user_id, 
@@ -515,7 +520,7 @@ func unban_user(
 ## Delete Chat Messages
 ## requires: token scope moderator:manage:chat_messages
 func delete_chat_messages(broadcaster_id: String, moderator_id: String, message_id := "") -> Dictionary:
-	var err := client.request(
+	var err := _request(
 			HTTPClient.METHOD_DELETE, 
 			"/helix/moderation/chat?broadcaster_id=" + broadcaster_id + "&moderator_id=" + 
 					moderator_id + ("&message_id=" + message_id) if message_id else "", 
@@ -571,7 +576,7 @@ func delete_chat_messages(broadcaster_id: String, moderator_id: String, message_
 
 ## Get Channel Stream Schedule
 func get_channel_stream_schedule(broadcaster_id: String) -> Dictionary:
-	var err := client.request(
+	var err := _request(
 			HTTPClient.METHOD_GET, 
 			"/helix/schedule?broadcaster_id=" + broadcaster_id, 
 			headers + base_headers
@@ -583,7 +588,7 @@ func get_channel_stream_schedule(broadcaster_id: String) -> Dictionary:
 
 ## Get Channel iCalendar
 func get_channel_icalendar(broadcaster_id: String) -> String:
-	var err := client.request(
+	var err := _request(
 			HTTPClient.METHOD_GET, 
 			"/helix/schedule/icalendar?broadcaster_id=" + broadcaster_id, 
 			base_headers
@@ -638,7 +643,7 @@ func get_channel_icalendar(broadcaster_id: String) -> String:
 ## Get Stream Tags
 ## Does not include custom tags
 func get_stream_tags(broadcaster_id: String) -> Dictionary:
-	var err := client.request(
+	var err := _request(
 			HTTPClient.METHOD_GET, 
 			"/helix/streams/tags?broadcaster_id=" + broadcaster_id, 
 			headers + base_headers
@@ -653,7 +658,7 @@ func get_stream_tags(broadcaster_id: String) -> Dictionary:
 ## requires: token scope channel:manage:broadcast
 func replace_stream_tags(broadcaster_id: String, tag_ids: PoolStringArray) -> Dictionary:
 	var h := headers + base_headers + ["Content-Type: application/json"]
-	var err := client.request(
+	var err := _request(
 			HTTPClient.METHOD_PUT, 
 			"/helix/streams/tags?broadcaster_id=" + broadcaster_id, 
 			h,
@@ -666,7 +671,7 @@ func replace_stream_tags(broadcaster_id: String, tag_ids: PoolStringArray) -> Di
 
 ## Get Channel Teams
 func get_channel_teams(broadcaster_id: String) -> Dictionary:
-	var err := client.request(
+	var err := _request(
 			HTTPClient.METHOD_GET, 
 			"/helix/teams/channel?broadcaster_id=" + broadcaster_id, 
 			headers + base_headers
@@ -678,7 +683,7 @@ func get_channel_teams(broadcaster_id: String) -> Dictionary:
 
 ## Get Teams
 func get_teams_by_name(name: String) -> Dictionary:
-	var err := client.request(
+	var err := _request(
 			HTTPClient.METHOD_GET, 
 			"/helix/teams?name=" + name, 
 			headers + base_headers
@@ -690,7 +695,7 @@ func get_teams_by_name(name: String) -> Dictionary:
 
 ## Get Teams
 func get_teams_by_id(id: String) -> Dictionary:
-	var err := client.request(
+	var err := _request(
 			HTTPClient.METHOD_GET, 
 			"/helix/teams?id=" + id, 
 			headers + base_headers
@@ -706,7 +711,7 @@ func get_users_by_name(user_names: PoolStringArray) -> Dictionary:
 	var url = "/helix/users?login=" + user_names[0]
 	for i in range(1, user_names.size()):
 		url += "&login=" + user_names[i]
-	var err := client.request(HTTPClient.METHOD_GET, url, headers + base_headers)
+	var err := _request(HTTPClient.METHOD_GET, url, headers + base_headers)
 	if not err:
 		return JSON.parse(_get_response()).result
 	return {}
@@ -718,7 +723,7 @@ func get_users_by_id(ids: PoolStringArray) -> Dictionary:
 	var url = "/helix/users?id=" + ids[0]
 	for i in range(1, ids.size()):
 		url += "&id=" + ids[i]
-	var err := client.request(HTTPClient.METHOD_GET, url, headers + base_headers)
+	var err := _request(HTTPClient.METHOD_GET, url, headers + base_headers)
 	if not err:
 		return JSON.parse(_get_response()).result
 	return {}
@@ -736,7 +741,7 @@ func get_users(user_names: PoolStringArray, ids: PoolStringArray) -> Dictionary:
 		url += "&login=" + user_names[i]
 	for i in range(1, ids.size()):
 		url += "&id=" + ids[i]
-	var err := client.request(HTTPClient.METHOD_GET, url, headers + base_headers)
+	var err := _request(HTTPClient.METHOD_GET, url, headers + base_headers)
 	if not err:
 		return JSON.parse(_get_response()).result
 	return {}
@@ -746,7 +751,7 @@ func get_users(user_names: PoolStringArray, ids: PoolStringArray) -> Dictionary:
 ## requires: token scope user:edit
 ## might require: token scope user:read:email
 func update_user(description: String) -> Dictionary:
-	var err := client.request(
+	var err := _request(
 			HTTPClient.METHOD_PUT, 
 			"/helix/users?description=" + description, 
 			headers + base_headers
@@ -763,7 +768,7 @@ func get_users_follows_from(from_id : String, after := "", first := 20) -> Dicti
 		optional_query += "&after=" + after
 	if first:
 		optional_query += "&first=" + str(first)
-	var err := client.request(
+	var err := _request(
 			HTTPClient.METHOD_GET, 
 			"/helix/users/follows?from_id=" + from_id + optional_query, 
 			headers + base_headers
@@ -780,7 +785,7 @@ func get_users_follows_to(to_id : String, after := "", first := 20) -> Dictionar
 		optional_query += "&after=" + after
 	if first:
 		optional_query += "&first=" + str(first)
-	var err := client.request(
+	var err := _request(
 			HTTPClient.METHOD_GET, 
 			"/helix/users/follows?to_id=" + to_id + optional_query, 
 			headers + base_headers
@@ -792,7 +797,7 @@ func get_users_follows_to(to_id : String, after := "", first := 20) -> Dictionar
 
 ## Get Users Follows
 func get_users_follows_from_to(from_id : String, to_id : String) -> Dictionary:
-	var err := client.request(
+	var err := _request(
 			HTTPClient.METHOD_GET, 
 			"/helix/users/follows?from_id=" + from_id + "&to_id=" + to_id, 
 			headers + base_headers
@@ -829,7 +834,7 @@ func get_users_follows_from_to(from_id : String, to_id : String) -> Dictionary:
 ## requires: token scope user:manage:whispers, verified phone number
 func send_whisper(from_id : String, to_id : String, message: String) -> Dictionary:
 	var h := headers + base_headers + ["Content-Type: application/json"]
-	var err := client.request(
+	var err := _request(
 			HTTPClient.METHOD_POST, 
 			"/helix/whispers?from_user_id=" + from_id + "&to_user_id=" + to_id, 
 			h,
@@ -840,9 +845,14 @@ func send_whisper(from_id : String, to_id : String, message: String) -> Dictiona
 	return {}
 
 
-## Helper function
-func _get_response() -> String:
+## Helper functions
+func _request(method: int, url: String, request_headers: PoolStringArray, body := "") -> int:
+	mutex.lock()
 	print("Requesting...")
+	return client.request(method, url, request_headers, body)
+
+
+func _get_response() -> String:
 	while client.get_status() == HTTPClient.STATUS_REQUESTING:
 		# Keep polling for as long as the request is being processed.
 		client.poll()
@@ -875,5 +885,7 @@ func _get_response() -> String:
 		# Done!
 		
 		var message = rb.get_string_from_utf8()
+		mutex.unlock()
 		return message
+	mutex.unlock()
 	return "{}"
