@@ -92,15 +92,15 @@ func set_data(msgPanel, message: Dictionary) -> void:
 	scroll.scroll_vertical += msgPanel.rect_size.y
 
 
-func add_bot_message(message: String, reply_id := "") -> void:
+func add_bot_message(message: String, msg_reply_id := "") -> void:
 	var msgPanel = load("res://src/chat/ChatMessage.tscn").instance()
 	chat.add_child(msgPanel)
 	
 	msgPanel.sender = bot_name
 	msgPanel.sender_id = bot_id
 	msgPanel.modButtons.visible = false
-	msgPanel.reply.visible = not reply_id.empty()
-	msgPanel.replyContainer.visible = not reply_id.empty()
+	msgPanel.reply.visible = not msg_reply_id.empty()
+	msgPanel.replyContainer.visible = not msg_reply_id.empty()
 	
 	msgPanel.parsedMessage = {
 		"tags" : {
@@ -118,11 +118,11 @@ func add_bot_message(message: String, reply_id := "") -> void:
 		"parameters" : message,
 	}
 	
-	if not reply_id.empty():
-		msgPanel.reply_id = reply_id
-		msgPanel.parsedMessage.tags["reply-parent-msg-id"] = reply_id
+	if not msg_reply_id.empty():
+		msgPanel.reply_id = msg_reply_id
+		msgPanel.parsedMessage.tags["reply-parent-msg-id"] = msg_reply_id
 	
-	var reply = get_message_by_id(reply_id)
+	var reply = get_message_by_id(msg_reply_id)
 	if reply:
 		msgPanel.reply.text = get_reply_message(reply)
 	
@@ -166,7 +166,9 @@ func load_ini() -> void:
 	var err := config.load(path)
 	if err:
 		save_ini()
-		config.load(path)
+		err = config.load(path)
+		if err:
+			push_error("Failed to load channel config!")
 	
 	join_message = config.get_value("general", "join_message", join_message)
 	config.clear()
@@ -176,12 +178,15 @@ func save_ini() -> void:
 	config.set_value("general", "join_message", join_message)
 	
 	var path = "user://channels/" + name.to_lower() + "/config.ini"
-	var file := File.new()
 	var dir := Directory.new()
 	if not dir.dir_exists(path.get_base_dir()):
-		dir.make_dir_recursive(path.get_base_dir())
+		var err := dir.make_dir_recursive(path.get_base_dir())
+		if err:
+			push_error("Unable to create channel save directory")
 	
-	config.save(path)
+	var err := config.save(path)
+	if err:
+		push_error("Failed to save channel config!")
 	config.clear()
 
 

@@ -6,6 +6,9 @@ var usage_hint := ""
 var example_reply := ""
 
 
+# Fixes error messages when reloading script with injected code
+# warning-ignore-all:unused_argument
+# warning-ignore-all:unreachable_code
 func get_response(parsedMessage: Dictionary) -> String:
 	#${response}
 	return response

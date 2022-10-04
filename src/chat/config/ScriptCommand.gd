@@ -111,7 +111,7 @@ func _on_Edit_pressed() -> void:
 	tabs.visible = not tabs.visible
 
 
-func _on_RegEx_text_changed(new_text: String) -> void:
+func _on_RegEx_text_changed(_new_text: String) -> void:
 	regexRemaining.text = str(regex.max_length - regex.text.length())
 
 

@@ -118,7 +118,7 @@ func _on_Response_text_changed() -> void:
 	responseLabel.text = responseInput.text
 
 
-func _on_RegEx_text_changed(new_text: String) -> void:
+func _on_RegEx_text_changed(_new_text: String) -> void:
 	regexRemaining.text = str(regex.max_length - regex.text.length())
 
 
