@@ -16,14 +16,17 @@ func get_response(parsedMessage: Dictionary) -> String:
 	var result = manager.api.modify_channel_info(manager.channel_id, null, null, params)
 	var err = result.status
 	match err:
+		204:
+			return "Successfully changed title to \"" + params + "\"!"
+		
 		400:
 			return "${sender} usage of command \"" + name + "\": " + usage_hint
 		
+		401:
+			return "${channel} has not allowed the bot to edit the stream information."
+		
 		500:
 			return "Failed to update stream title!"
-		
-		204:
-			return "Successfully changed title to \"" + params + "\"!"
 		
 		_:
 			return "Unknown error occured. Error code: " + err

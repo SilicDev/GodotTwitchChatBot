@@ -337,4 +337,4 @@ func parse_notice(tags: Dictionary, parameters: String, channel: String):
 
 
 func is_sender_self(parsedMessage: Dictionary) -> bool:
-	return parsedMessage.get("source", {}).get("nick", "")
+	return parsedMessage.get("source", {}).get("nick", "") == bot_name

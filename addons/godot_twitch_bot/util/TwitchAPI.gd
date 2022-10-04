@@ -90,10 +90,11 @@ func modify_channel_info(
 		data["title"] = title
 	if delay >= 0:
 		data["delay"] = delay
+	var h := headers + base_headers + ["Content-Type: application/json"]
 	var err := _request(
 			HTTPClient.METHOD_PATCH, 
 			"/helix/channels?broadcaster_id=" + broadcaster_id, 
-			headers + base_headers, 
+			h, 
 			JSON.print(data)
 	)
 	if not err:
@@ -189,7 +190,7 @@ func get_global_chat_badges() -> Dictionary:
 func get_chat_settings(broadcaster_id: String, mod_id: String = "") -> Dictionary:
 	var url = "/helix/chat/settings?broadcaster_id=" + broadcaster_id + \
 			("&moderator_id=" + mod_id) if not mod_id.empty() else ""
-	var err := _request(HTTPClient.METHOD_GET, url, headers)
+	var err := _request(HTTPClient.METHOD_GET, url, headers + base_headers)
 	if not err:
 		return _get_response()
 	return {}
@@ -204,7 +205,7 @@ func update_chat_settings(
 ) -> Dictionary:
 	var url = "/helix/chat/settings?broadcaster_id=" + broadcaster_id + \
 			("&moderator_id=" + mod_id) if not mod_id.empty() else ""
-	var h := headers + ["Content-Type: application/json"]
+	var h := headers + base_headers + ["Content-Type: application/json"]
 	var err := _request(HTTPClient.METHOD_GET, url, h, JSON.print(settings))
 	if not err:
 		return _get_response()
@@ -221,7 +222,7 @@ func send_chat_announcement(
 ) -> Dictionary:
 	var url = "/helix/chat/announcements?broadcaster_id=" + broadcaster_id + \
 			"&moderator_id=" + mod_id
-	var h := headers + ["Content-Type: application/json"]
+	var h := headers + base_headers + ["Content-Type: application/json"]
 	var data := {"message":message,"color":color}
 	var err := _request(HTTPClient.METHOD_POST, url, h, JSON.print(data))
 	var response = _get_response()
@@ -891,8 +892,9 @@ func _get_response() -> Dictionary:
 			yield(Engine.get_main_loop(), "idle_frame")
 		else:
 			OS.delay_msec(500)
-			
+	
 	if client.has_response():
+		var status = client.get_response_code()
 		# If there is a response...
 		
 		var rb = PoolByteArray() # Array that will hold the data.
@@ -913,15 +915,15 @@ func _get_response() -> Dictionary:
 		# Done!
 		
 		var message = rb.get_string_from_utf8()
-		var result = JSON.parse(_get_response())
+		var result = JSON.parse(message)
 		if not result.error:
 			if not "status" in result.result.keys():
-				result.result["status"] = client.get_response_code()
+				result.result["status"] = status
 			mutex.unlock()
 			return result.result
 		var data = {
 			"message": message,
-			"status" : client.get_response_code(),
+			"status" : status,
 		}
 		mutex.unlock()
 		return data
