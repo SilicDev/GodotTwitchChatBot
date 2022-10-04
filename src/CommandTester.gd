@@ -19,10 +19,10 @@ func _ready() -> void:
 	])
 	var manager = ManagerMock.new()
 	## Create new command object
-	var cmd = preload("res://addons/godot_twitch_bot/commands/SetTitleCommand.gd").new()
+	var cmd: Command #= preload("res://addons/godot_twitch_bot/commands/YourCommand.gd").new()
 	## Add manager if requested
 	if "manager" in cmd:
-		cmd.manager = ManagerMock.new()
+		cmd.manager = manager
 	## Create message
 	var msg = create_mock_message("!settitle params")
 	## test command
