@@ -1,7 +1,7 @@
 extends PopupDialog
 
 
-var commandManager
+var channel
 
 var join_message := ""
 
@@ -21,7 +21,7 @@ onready var commandLists := $PanelContainer/VBox/TabContainer/Commands
 
 
 func load_data() -> void:
-	commandManager.load_data()
+	channel.commands.load_data()
 	
 	update_data()
 
@@ -30,10 +30,10 @@ func update_data() -> void:
 	commandLists.clear()
 	joinMessageInput.text = join_message
 	
-	for c in commandManager.commands.keys():
-		var cmd = commandManager.commands[c]
+	for c in channel.commands.commands.keys():
+		var cmd = channel.commands.commands[c]
 		
-		if c in commandManager.base_commands.keys():
+		if c in channel.commands.base_commands.keys():
 			var panel: PanelContainer = load("res://src/chat/config/DefaultCommand.tscn").instance()
 			
 			if cmd.permission_level == Command.Badge.NONE:
@@ -79,16 +79,16 @@ func update_data() -> void:
 func _on_Hide_pressed(save: bool) -> void:
 	if save:
 		join_message = joinMessageInput.text
-		commandManager.commands = commandManager.base_commands.duplicate(true)
-		commandManager.commands.merge(commandLists.get_custom_commands())
+		channel.commands.commands = channel.commands.base_commands.duplicate(true)
+		channel.commands.commands.merge(commandLists.get_custom_commands())
 		var active: Dictionary = commandLists.get_active_base_commands()
-		for c in commandManager.base_commands.keys():
-			commandManager.commands[c].active = active.get(c, true)
+		for c in channel.commands.base_commands.keys():
+			channel.commands.commands[c].active = active.get(c, true)
 	hide()
 	commandLists.clear()
 
 
 func _on_Commands_reload() -> void:
-	commandManager.load_data()
+	channel.commands.load_data()
 	
 	update_data()

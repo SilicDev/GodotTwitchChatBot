@@ -73,14 +73,14 @@ func _on_Connect_pressed() -> void:
 
 
 func _on_Join_pressed() -> void:
-	if not channelName.text.empty() and not channelName.text in bot.connected_channels:
+	if not channelName.text.empty() and not bot.is_connected_to_channel(channelName.text):
 		bot.join_channel(channelName.text)
 		joinButton.disabled = true
 		channelName.text = ""
 
 
 func _on_LineEdit_text_changed(new_text: String) -> void:
-	var invalid_channel := (new_text.empty() or new_text.to_lower() in bot.connected_channels)
+	var invalid_channel := (new_text.empty() or bot.is_connected_to_channel(new_text))
 	joinButton.disabled = not bot.connected or invalid_channel
 
 
@@ -112,8 +112,8 @@ func _on_Bot_joined_channel(channel) -> void:
 	
 	chats[channel].partButton.text = "Part Channel"
 	
-	chats[channel].commandManager = bot.commandManagers[channel]
-	chats[channel].commandManager.api.headers = [
+	chats[channel].channelInstance = bot.channels[channel]
+	chats[channel].channelInstance.api.headers = [
 		"Authorization: Bearer " + bot.oauth,
 		"Client-Id: " + bot.client_id,
 	]
@@ -217,7 +217,7 @@ func _on_Bot_userstate_received(tags, channel) -> void:
 
 func _on_Bot_roomstate_received(tags, channel) -> void:
 	chats[channel].room_id = tags.get("room-id", "")
-	chats[channel].commandManager.channel_id = chats[channel].room_id
+	chats[channel].channelInstance.channel_id = chats[channel].room_id
 
 
 func _on_Bot_chat_message_deleted(id, channel) -> void:

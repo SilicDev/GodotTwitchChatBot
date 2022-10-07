@@ -23,6 +23,8 @@ var timeout := 5
 var user_timeout := 15
 
 var active := true
+
+var last_sent := Time.get_ticks_msec()
 var matcher := RegEx.new()
 
 

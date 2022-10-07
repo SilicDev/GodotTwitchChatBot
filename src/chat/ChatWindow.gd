@@ -22,7 +22,7 @@ var join_message := ""
 var reply_id := ""
 var lastBotMessage
 
-var commandManager
+var channelInstance
 
 var config := ConfigFile.new()
 
@@ -249,14 +249,14 @@ func _on_Config_pressed() -> void:
 
 func _on_ChannelConfigDialog_about_to_show() -> void:
 	load_ini()
-	configMenu.commandManager = commandManager
+	configMenu.channel = channelInstance
 	configMenu.join_message = join_message
 	configMenu.load_data()
 
 
 func _on_ChannelConfigDialog_popup_hide() -> void:
 	join_message = configMenu.join_message
-	commandManager.save_data()
-	commandManager.load_data()
+	channelInstance.save_data()
+	channelInstance.load_data()
 	save_ini()
 	load_ini()

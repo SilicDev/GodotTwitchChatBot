@@ -1,12 +1,13 @@
 extends Reference
 
-var manager
+var channel: String
+var channel_id: String
+
+var counterManager
 var api : TwitchAPI
 
-var file := File.new()
 
-
-func format_message(msg: String, channel: String, message: Dictionary) -> String:
+func format_message(msg: String, message: Dictionary) -> String:
 	var params := PoolStringArray()
 	if message.command.has("botCommandParams"):
 		params = message.get("command", {}).get("botCommandParams", "").split(" ")
@@ -95,7 +96,7 @@ func handle_channel(msg: String, channel: String) -> String:
 
 func handle_game(msg: String) -> String:
 	if "${game}" in msg:
-		var result = api.get_channel_info([manager.channel_id])
+		var result = api.get_channel_info([channel_id])
 		var own_game_name = result.data[0].game_name
 		if own_game_name.empty():
 			own_game_name = "[No Game found]"
@@ -138,12 +139,12 @@ func handle_counter(msg: String) -> String:
 	for m in matches:
 		var matched = m.strings[0]
 		var counter = matched.substr(8, matched.length() - 12)
-		if not counter in manager.counters.keys():
-			manager.counters[counter] = 0
-		manager.counters[counter] += 1
+		if not counter in counterManager.counters.keys():
+			counterManager.counters[counter] = 0
+		counterManager.counters[counter] += 1
 		var pos = msg.find(matched)
 		msg.erase(pos, matched.length())
-		msg = msg.insert(pos, str(manager.counters[counter]))
+		msg = msg.insert(pos, str(counterManager.counters[counter]))
 	
 	regex.compile("\\$\\{count [a-zA-Z0-9]+ [0-9]+\\}")
 	matches = regex.search_all(msg)
@@ -152,10 +153,10 @@ func handle_counter(msg: String) -> String:
 		var length := matched.length()
 		var counter = matched.substr(8, length - 8 - (length - matched.find_last(" ")))
 		var val = int(matched.substr(matched.find_last(" "), length - 2))
-		manager.counters[counter] = val
+		counterManager.counters[counter] = val
 		var pos = msg.find(matched)
 		msg.erase(pos, length)
-		msg = msg.insert(pos, str(manager.counters[counter]))
+		msg = msg.insert(pos, str(counterManager.counters[counter]))
 	
 	regex.compile("\\$\\{count [a-zA-Z0-9]+ (\\+|-)[0-9]+\\}")
 	matches = regex.search_all(msg)
@@ -165,13 +166,13 @@ func handle_counter(msg: String) -> String:
 		var counter = matched.substr(8, length - 8 - (length - matched.find_last(" ")))
 		var val = int(matched.substr(matched.find_last(" "), length - 2))
 		
-		if not counter in manager.counters.keys():
-			manager.counters[counter] = 0
+		if not counter in counterManager.counters.keys():
+			counterManager.counters[counter] = 0
 		
-		manager.counters[counter] += val
+		counterManager.counters[counter] += val
 		var pos = msg.find(matched)
 		msg.erase(pos, length)
-		msg = msg.insert(pos, str(manager.counters[counter]))
+		msg = msg.insert(pos, str(counterManager.counters[counter]))
 	
 	regex.compile("\\$\\{getcount [a-zA-Z0-9]+\\}")
 	matches = regex.search_all(msg)
@@ -179,11 +180,11 @@ func handle_counter(msg: String) -> String:
 		var matched = m.strings[0]
 		var counter = matched.substr(11, matched.length() - 12)
 		
-		if not counter in manager.counters.keys():
-			manager.counters[counter] = 0
+		if not counter in counterManager.counters.keys():
+			counterManager.counters[counter] = 0
 		
 		var pos = msg.find(matched)
 		msg.erase(pos, matched.length())
-		msg = msg.insert(pos, str(manager.counters[counter]))
+		msg = msg.insert(pos, str(counterManager.counters[counter]))
 	
 	return msg

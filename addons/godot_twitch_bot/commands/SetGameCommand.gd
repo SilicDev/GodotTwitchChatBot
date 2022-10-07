@@ -1,7 +1,7 @@
 extends ScriptCommand
 
 
-var manager
+var api
 
 
 func _init() -> void:
@@ -13,11 +13,11 @@ func _init() -> void:
 
 func get_response(parsedMessage: Dictionary) -> String:
 	var params = parsedMessage.command.get("botCommandParams")
-	var game = manager.api.get_games_by_name([params])
+	var game = api.get_games_by_name([params])
 	if game.data.empty():
 		return "Game \"" + params + "\" does not exist!"
 	var game_id = game.data[0].id
-	var result = manager.api.modify_channel_info(manager.channel_id, game_id)
+	var result = api.modify_channel_info(parsedMessage.tags.get("room-id", ""), game_id)
 	var err = int(result.status)
 	match err:
 		204:

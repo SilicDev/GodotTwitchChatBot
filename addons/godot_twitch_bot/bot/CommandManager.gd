@@ -3,25 +3,14 @@ extends Reference
 
 var file := File.new()
 
-var channel : String
-var channel_id : String
+var channel_path : String
 
 var commands := {}
 var base_commands := {}
 
 var modules := {}
-var counters := {}
 
-var formatter = _load("cmd://util/MessageFormater.gd").new()
-var api := TwitchAPI.new()
-
-
-func _init(cnl: String) -> void:
-	formatter.manager = self
-	formatter.api = api
-	channel = cnl
-	_load_base_commands()
-	load_data()
+var formatter
 
 
 func test_commands(message: Dictionary) -> String:
@@ -35,19 +24,18 @@ func get_response(cmd: String, message: Dictionary) -> String:
 	if cmd in commands.keys():
 		var msg : String = commands[cmd].get_response(message)
 		if not ("no_formatting" in commands[cmd] and commands[cmd].no_formatting):
-			msg = formatter.format_message(msg, channel, message)
+			msg = formatter.format_message(msg, message)
 		return msg
 	return ""
 
 
-func load_data() -> void:
-	load_command_list("user://channels/" + channel + "/commands.json")
-	load_counters("user://channels/" + channel + "/counters.json")
+func load_data(base_path := channel_path) -> void:
+	_load_base_commands()
+	load_command_list(base_path + "/commands.json")
 
 
-func save_data() -> void:
-	save_command_list()
-	save_counters("user://channels/" + channel + "/counters.json")
+func save_data(base_path := channel_path) -> void:
+	save_command_list(base_path + "/commands.json")
 
 
 func load_command_list(path: String):
@@ -118,9 +106,7 @@ func load_command_list(path: String):
 	return OK
 
 
-func save_command_list(path: String = "") -> int:
-	if path.empty():
-		path = "user://channels/" + channel + "/commands.json"
+func save_command_list(path: String) -> int:
 	
 	var dir := Directory.new()
 	if not dir.dir_exists(path.get_base_dir()):
@@ -142,40 +128,6 @@ func save_command_list(path: String = "") -> int:
 	dict["_active_commands"] = active
 	file.store_string(JSON.print(dict))
 	file.close()
-	return OK
-
-
-func save_counters(path: String) -> int:
-	var dir := Directory.new()
-	if not dir.dir_exists(path.get_base_dir()):
-		dir.make_dir_recursive(path.get_base_dir())
-	
-	var err := file.open(path, File.WRITE)
-	if err:
-		push_error("Failed to save counters! Unable to open destination file (Error #" + 
-				str(err) + ")"
-		)
-		return err
-	
-	file.store_string(JSON.print(counters))
-	file.close()
-	return OK
-
-
-func load_counters(path: String) -> int:
-	var err = file.open(path, File.READ)
-	if err:
-		save_counters(path)
-		file.open(path, File.READ)
-	
-	var result := JSON.parse(file.get_as_text())
-	file.close()
-	if result.error:
-		push_error("Error loading counters: line " + str(result.error_line) + 
-				": " + result.error_string
-		)
-	
-	counters = result.result
 	return OK
 
 
@@ -267,11 +219,11 @@ func _load_base_commands() -> void:
 	base_commands["quote"] = quoteCmd
 	
 	var setgameCmd = _load("cmd://SetGameCommand.gd").new()
-	setgameCmd.manager = self
+	setgameCmd.api = formatter.api
 	base_commands["setgame"] = setgameCmd
 	
 	var settitleCmd = _load("cmd://SetTitleCommand.gd").new()
-	settitleCmd.manager = self
+	settitleCmd.api = formatter.api
 	base_commands["settitle"] = settitleCmd
 	
 	for c in base_commands:
@@ -281,8 +233,3 @@ func _load_base_commands() -> void:
 func _load(path: String) -> Resource:
 	path = path.replace("cmd://", "res://addons/godot_twitch_bot/commands/")
 	return load(path)
-
-
-class Module:
-	var commands := PoolStringArray([])
-	var active := true

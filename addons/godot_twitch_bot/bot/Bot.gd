@@ -4,15 +4,20 @@ extends Node
 
 signal joined_channel(channel)
 signal parted_channel(channel)
-signal connected()
-signal disconnected()
+
 signal chat_message_received(message, channel)
 signal chat_message_send(message, channel, reply_id)
+
 signal userstate_received(tags, channel)
 signal roomstate_received(tags, channel)
-signal command_fired(cmd, params)
+
+signal command_fired(cmd, params, channel)
+
 signal chat_message_deleted(id, channel)
 signal user_messages_deleted(id, channel)
+
+signal connected()
+signal disconnected()
 signal pinged()
 
 
@@ -22,7 +27,6 @@ enum ConnectionMethod {
 }
 
 
-var channels := PoolStringArray([])
 var bot_name := ""
 var join_message := ""
 
@@ -41,15 +45,15 @@ var connected = false
 var read_only := false
 var request_membership := true
 
-var connected_channels := PoolStringArray([])
-var commandManagers := {}
+var default_channels := []
+var channels := {}
 
 var active_threads := []
 
 var config := ConfigFile.new()
 
-var messageParser = load("res://addons/godot_twitch_bot/util/IRCMessageParser.gd")
-var commandManagerScript = load("res://addons/godot_twitch_bot/commands/util/CommandManager.gd")
+var messageParser = preload("res://addons/godot_twitch_bot/util/IRCMessageParser.gd")
+var channelManagerScript = preload("res://addons/godot_twitch_bot/bot/Channel.gd")
 
 
 ## Called when the node enters the scene tree for the first time.
@@ -70,7 +74,6 @@ func _process(delta: float) -> void:
 	if not connection:
 		return
 	connection.update()
-	cleanup_threads()
 	
 	if connection.status == Connection.Status.CONNECTED:
 		
@@ -110,13 +113,7 @@ func _process(delta: float) -> void:
 					match commandDict.get("command", ""):
 						"PRIVMSG":
 							emit_signal("chat_message_received", parsedMessage, c)
-							var data := {
-								"channel": c,
-								"message": parsedMessage,
-							}
-							var t = Thread.new()
-							active_threads.append(t)
-							t.start(self, "trigger_commands", data)
+							channels[c].handle_message(parsedMessage)
 						
 						"PING":
 							emit_signal("pinged")
@@ -124,19 +121,19 @@ func _process(delta: float) -> void:
 						
 						"001":
 							print("Successfully authorized!")
-							for cnl in channels:
+							for cnl in default_channels:
 								join_channel(cnl)
 						
 						"JOIN":
 							if is_sender_self(parsedMessage) or read_only:
 								print("joined " + commandDict.channel)
-								connected_channels.append(c)
-								commandManagers[c] = commandManagerScript.new(c)
-								
+								channels[c] = channelManagerScript.new(c)
+								channels[c].connect("command_fired", self, "_on_Channel_command_fired")
+								channels[c].connected = true
 								emit_signal("joined_channel", c)
 						
 						"PART":
-							if (is_sender_self(parsedMessage) and c in connected_channels) \
+							if (is_sender_self(parsedMessage) and channels[c].connected) \
 									or read_only:
 								send("JOIN #" + c.to_lower())
 						
@@ -161,7 +158,19 @@ func _process(delta: float) -> void:
 						"CLEARCHAT":
 							if tags.has("target-user-id"):
 								emit_signal("user_messages_deleted", tags.get("target-user-id"), c)
-	
+		for c in channels.keys():
+			if channels[c].connected and not channels[c].message_queue.empty():
+				var data = channels[c].message_queue.pop_front()
+				if data is String:
+					chat(c, data)
+				
+				elif data is Array:
+					if data.size() == 1:
+						chat(c, data[0])
+					
+					elif data.size() == 2:
+						chat(c, data[0], data[1])
+		
 	else:
 		if connection.status == Connection.Status.ERROR:
 			push_warning("Lost Connection")
@@ -194,7 +203,7 @@ func connect_to_twitch() -> int:
 
 
 func disconnect_from_twitch() -> void:
-	for c in connected_channels:
+	for c in channels.keys():
 		part_channel(c)
 	connection.disconnect_from_host()
 	connected = false
@@ -203,8 +212,11 @@ func disconnect_from_twitch() -> void:
 
 
 func join_channel(channel: String) -> void:
-	if not channel in connected_channels:
-		send("JOIN #" + channel.to_lower())
+	var c := channel.to_lower()
+	if c.begins_with("#"):
+		c = c.substr(1)
+	if not channels.has(c) or not channels[c].connected:
+		send("JOIN #" + c)
 
 
 func part_channel(channel: String) -> void:
@@ -212,8 +224,8 @@ func part_channel(channel: String) -> void:
 	if c.begins_with("#"):
 		c = c.substr(1)
 	send("PART #" + c)
-	commandManagers[c].save_data()
-	connected_channels.remove(connected_channels.find(c))
+	channels[c].save_data()
+	channels[c].connected = false
 	emit_signal("parted_channel", c)
 
 
@@ -252,7 +264,7 @@ func load_ini() -> void:
 		connection_method = ConnectionMethod.WEBSOCKET
 	
 	read_only = config.get_value("auth", "read_only", false)
-	channels = config.get_value("channels", "channels", [])
+	default_channels = config.get_value("channels", "channels", [])
 	join_message = config.get_value("channels", "join_message", "")
 	client_id = config.get_value("twitch", "client_id", "")
 	
@@ -264,7 +276,7 @@ func save_ini() -> void:
 	config.set_value("auth", "oauth", oauth)
 	config.set_value("auth", "protocol", ConnectionMethod.keys()[connection_method])
 	config.set_value("auth", "read_only", read_only)
-	config.set_value("channels", "channels", Array(channels))
+	config.set_value("channels", "channels", channels.keys())
 	config.set_value("channels", "join_message", join_message)
 	config.set_value("twitch", "client_id", client_id)
 	
@@ -278,32 +290,13 @@ func save_ini() -> void:
 	config.clear()
 
 
-func cleanup_threads() -> void:
-	var temp = PoolIntArray([])
-	for i in range(active_threads.size()):
-		if not active_threads[i].is_alive():
-			active_threads[i].wait_to_finish()
-			temp.append(i)
-	for i in temp:
-		active_threads.pop_at(i)
-
-
-func trigger_commands(data: Dictionary) -> void:
-	var channel: String = data.channel
-	var parsedMessage: Dictionary = data.message
+func is_connected_to_channel(channel: String) -> bool:
 	var c := channel.to_lower()
 	if c.begins_with("#"):
 		c = c.substr(1)
-	
-	var commandDict = parsedMessage.command
-	if c in commandManagers.keys():
-		var cmd : String = commandManagers[c].test_commands(parsedMessage)
-		if not cmd.empty():
-			var resp : String = commandManagers[c].get_response(cmd, parsedMessage)
-			var params : PoolStringArray = commandDict.get("botCommandParams", "").split(" ")
-			emit_signal("command_fired", cmd, params)
-			if not resp.empty():
-				chat(c, resp)
+	if not c in channels.keys():
+		return false
+	return channels[c].connected
 
 
 func parse_notice(tags: Dictionary, parameters: String, channel: String):
@@ -338,3 +331,7 @@ func parse_notice(tags: Dictionary, parameters: String, channel: String):
 
 func is_sender_self(parsedMessage: Dictionary) -> bool:
 	return parsedMessage.get("source", {}).get("nick", "") == bot_name
+
+
+func _on_Channel_command_fired(cmd, parsedMessage, channel) -> void:
+	emit_signal("command_fired", cmd, parsedMessage, channel)
