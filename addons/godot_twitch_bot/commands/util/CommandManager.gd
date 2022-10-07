@@ -34,7 +34,7 @@ func test_commands(message: Dictionary) -> String:
 func get_response(cmd: String, message: Dictionary) -> String:
 	if cmd in commands.keys():
 		var msg : String = commands[cmd].get_response(message)
-		if cmd != "command":
+		if not ("no_formatting" in commands[cmd] and commands[cmd].no_formatting):
 			msg = formatter.format_message(msg, channel, message)
 		return msg
 	return ""

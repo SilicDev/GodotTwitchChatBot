@@ -1,6 +1,9 @@
 extends ScriptCommand
 
 
+var no_formating := true
+
+
 func _init() -> void:
 	usage_hint = "!quote [add|edit|remove|ID] [number] quote"
 	example_reply = "Successfully added quote #42 \"May Kappa rest in peace Sadge\"!"
@@ -12,6 +15,7 @@ func get_response(parsedMessage: Dictionary) -> String:
 	var params := PoolStringArray()
 	if parsedMessage.command.has("botCommandParams"):
 		params = parsedMessage.command.botCommandParams.split(" ")
+	var sender = parsedMessage.get("tags", {}).get("display-name", "")
 	var channel = parsedMessage.command.channel
 	
 	var quoteDict := get_quotes(channel)
@@ -21,7 +25,7 @@ func get_response(parsedMessage: Dictionary) -> String:
 			var quoteID = quoteDict.keys()[randi() % quoteDict.keys().size()]
 			return "Quote #" + quoteID + ": " + quoteDict[quoteID]
 		else:
-			return "${sender} usage of command \"" + name + "\": " + usage_hint
+			return sender + " usage of command \"" + name + "\": " + usage_hint
 	
 	match params[0].to_lower():
 		"edit":
@@ -33,7 +37,7 @@ func get_response(parsedMessage: Dictionary) -> String:
 			if quoteID in quoteDict:
 				quoteDict[quoteID] = quote
 				save_quotes(channel, quoteDict)
-				return "${sender}, successfully edited quote #" + quoteID + ": " + quoteDict[quoteID]
+				return sender + ", successfully edited quote #" + quoteID + ": " + quoteDict[quoteID]
 			
 			return "Quote with ID #" + quoteID + " doesn't exist!"
 		
@@ -52,14 +56,14 @@ func get_response(parsedMessage: Dictionary) -> String:
 			var ID = str(nextID)
 			quoteDict[ID] = quote
 			save_quotes(channel, quoteDict)
-			return "${sender}, successfully added quote #" + ID + ": " + quoteDict[ID]
+			return sender + ", successfully added quote #" + ID + ": " + quoteDict[ID]
 		
 		"remove":
 			var quoteID = params[1].replace("#", "")
 			var res = quoteDict.erase(quoteID)
 			save_quotes(channel, quoteDict)
 			if res:
-				return "${sender}, successfully removed quote #" + quoteID + "!"
+				return sender + ", successfully removed quote #" + quoteID + "!"
 			else:
 				return "Quote with ID #" + quoteID + " doesn't exist!"
 		

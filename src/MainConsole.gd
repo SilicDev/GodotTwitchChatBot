@@ -1,6 +1,9 @@
 extends Panel
 
+
 var chats = {}
+
+var active_threads := []
 
 
 onready var bot : TwitchBot = $Bot
@@ -13,7 +16,6 @@ onready var tabs := $MarginContainer/VBox/TabContainer
 
 onready var configMenu := $ConfigureDialog
 
-var active_threads := []
 
 ## Called when the node enters the scene tree for the first time.
 #func _ready() -> void:

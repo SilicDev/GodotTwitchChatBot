@@ -2,6 +2,7 @@ extends ScriptCommand
 
 
 var manager
+var no_formating := true
 
 
 func _init() -> void:
