@@ -47,11 +47,12 @@ func get_response(parsedMessage: Dictionary) -> String:
 				quote += params[i] + " "
 			quote = quote.substr(0, quote.length() - 1)
 			
-			var nextID = 1
-			while str(nextID) in quoteDict.keys():
-				nextID += 1
-				if nextID < 0:
-					return "Quote capacity reached!"
+			var nextID = quoteDict.get("size", quoteDict.keys().size() - 1)
+			#var nextID = 1
+			#while str(nextID) in quoteDict.keys():
+				#nextID += 1
+				#if nextID < 0:
+					#return "Quote capacity reached!"
 			
 			var ID = str(nextID)
 			quoteDict[ID] = quote
@@ -90,6 +91,8 @@ func get_quotes(channel: String) -> Dictionary:
 	var res := JSON.parse(file.get_as_text())
 	file.close()
 	if not res.error:
+		if not res.result.has("size"):
+			res.result.size = res.result.keys().size()
 		return res.result
 	return {}
 
