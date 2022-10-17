@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/icon.png-47c15e1eda43768bd29cca58d89a69db.stex"
+path="res://.import/icon128.png-685803e8cc9f891e6bb0fc6d558517db.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/godot_twitch_bot/assets/icon.png"
-dest_files=[ "res://.import/icon.png-47c15e1eda43768bd29cca58d89a69db.stex" ]
+source_file="res://assets/icon/icon128.png"
+dest_files=[ "res://.import/icon128.png-685803e8cc9f891e6bb0fc6d558517db.stex" ]
 
 [params]
 

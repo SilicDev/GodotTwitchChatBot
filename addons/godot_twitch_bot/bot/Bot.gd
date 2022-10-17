@@ -127,8 +127,9 @@ func _process(delta: float) -> void:
 						"JOIN":
 							if is_sender_self(parsedMessage) or read_only:
 								print("joined " + commandDict.channel)
-								channels[c] = channelManagerScript.new(c)
-								channels[c].connect("command_fired", self, "_on_Channel_command_fired")
+								if not c in channels.keys():
+									channels[c] = channelManagerScript.new(c)
+									channels[c].connect("command_fired", self, "_on_Channel_command_fired")
 								channels[c].connected = true
 								emit_signal("joined_channel", c)
 						
@@ -176,10 +177,12 @@ func _process(delta: float) -> void:
 			push_warning("Lost Connection")
 			disconnect_from_twitch()
 			OS.request_attention()
+			OS.move_window_to_foreground()
 		
 		if connection.status == Connection.Status.DISCONNECTED and connected:
 			push_warning("Lost Connection")
 			OS.request_attention()
+			OS.move_window_to_foreground()
 			connected = false
 
 

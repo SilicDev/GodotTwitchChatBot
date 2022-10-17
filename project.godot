@@ -49,6 +49,7 @@ run/main_scene="res://src/MainConsole.tscn"
 config/use_custom_user_dir=true
 config/custom_user_dir_name="GodotTwitchBot"
 config/icon="res://icon.png"
+config/windows_native_icon="res://assets/icon/icon.ico"
 
 [editor_plugins]
 
