@@ -173,7 +173,7 @@ func _on_ConfigureDialog_about_to_show() -> void:
 	configMenu.oauth = bot.oauth
 	configMenu.protocol = bot.connection_method
 	
-	configMenu.channels = bot.channels
+	configMenu.channels = bot.default_channels
 	configMenu.join_message = bot.join_message
 	
 	configMenu.clientID = bot.client_id
@@ -187,7 +187,7 @@ func _on_ConfigureDialog_popup_hide() -> void:
 	config.set_value("auth", "protocol", bot.ConnectionMethod.keys()[configMenu.protocol])
 	config.set_value("auth", "read_only", configMenu.read_only)
 	
-	bot.channels = configMenu.channels
+	bot.default_channels = configMenu.channels
 	config.set_value("channels", "channels", Array(configMenu.channels))
 	
 	bot.join_message = configMenu.join_message

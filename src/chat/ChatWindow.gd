@@ -67,6 +67,8 @@ func set_data(msgPanel, message: Dictionary) -> void:
 	
 	if tags.has("color"):
 		var color = tags.get("color", "#ffffff")
+		if color == null:
+			color = "#ffffff"
 		msgPanel.message.append_bbcode("[b][color=" + color + "]" + display_name 
 				+ "[/color][/b]: " + message.parameters
 		)
