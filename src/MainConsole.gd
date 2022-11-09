@@ -31,8 +31,10 @@ func cleanup_threads() -> void:
 	var temp = PoolIntArray([])
 	for i in range(active_threads.size()):
 		if not active_threads[i].is_alive():
-			active_threads[i].wait_to_finish()
+			print(active_threads[i].get_id(), ": ", active_threads[i].wait_to_finish())
 			temp.append(i)
+	temp.sort()
+	temp.invert()
 	for i in temp:
 		active_threads.pop_at(i)
 
@@ -117,6 +119,9 @@ func _on_Bot_joined_channel(channel) -> void:
 		"Authorization: Bearer " + bot.oauth,
 		"Client-Id: " + bot.client_id,
 	]
+	var t = Thread.new()
+	active_threads.append(t)
+	t.start(chats[channel].channelInstance.api, "connect_to_twitch")
 	
 	chats[channel].load_ini()
 	
@@ -125,15 +130,18 @@ func _on_Bot_joined_channel(channel) -> void:
 
 
 func _on_Bot_parted_channel(channel) -> void:
+	cleanup_threads()
 	if chats.has(channel):
 		var label = Label.new()
 		label.text = "Parted channel."
 		chats[channel].save_ini()
 		chats[channel].chat.add_child(label)
 		chats[channel].partButton.text = "Rejoin"
+		chats[channel].channelInstance.api.disconnect_from_twitch()
 
 
 func _on_Bot_chat_message_received(message, channel) -> void:
+	cleanup_threads()
 	if chats.has(channel):
 		chats[channel].add_message(message)
 
@@ -230,7 +238,7 @@ func _on_Bot_chat_message_deleted(id, channel) -> void:
 func _on_Bot_user_messages_deleted(id, channel) -> void:
 	var messages = chats[channel].get_messages_by_user_id(id)
 	for msg in messages:
-		msg.call_defferred("free")
+		msg.call_deferred("free")
 		chats[channel].scroll.scroll_vertical -= msg.rect_size.y
 
 

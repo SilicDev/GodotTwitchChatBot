@@ -154,11 +154,12 @@ func get_message_by_id(msg_id: String):
 	return null
 
 
+## Deletes all messagess of the specified user or all messages if [code]user_id == null[/code]
 func get_messages_by_user_id(user_id) -> Array:
 	var out = []
 	for c in chat.get_children():
 		if c is PanelContainer:
-			if c.sender_id == user_id:
+			if c.sender_id == user_id or not user_id:
 				out.append(c)
 	return out
 

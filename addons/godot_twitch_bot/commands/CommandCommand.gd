@@ -23,6 +23,8 @@ func get_response(parsedMessage: Dictionary) -> String:
 		return sender + " usage of command \"" + name + "\": " + usage_hint
 	
 	var cmd = params[1].to_lower()
+	if cmd.begins_with("!"):
+		cmd = cmd.substr(1)
 	if cmd in manager.base_commands.keys():
 		return sender + " usage of command \"" + name + "\": " + usage_hint
 	

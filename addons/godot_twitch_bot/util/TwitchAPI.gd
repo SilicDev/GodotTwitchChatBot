@@ -15,8 +15,10 @@ var base_headers := [
 var mutex := Mutex.new()
 
 
-func _init() -> void:
+func connect_to_twitch(args = null) -> bool:
 	var err := client.connect_to_host("https://api.twitch.tv")
+	if err:
+		return false
 	print("Connecting...")
 	while (client.get_status() == HTTPClient.STATUS_CONNECTING or 
 			client.get_status() == HTTPClient.STATUS_RESOLVING):
@@ -26,7 +28,10 @@ func _init() -> void:
 			OS.delay_msec(500)
 		else:
 			yield(Engine.get_main_loop(), "idle_frame")
+	return true
 
+func disconnect_from_twitch() -> void:
+	client.close()
 
 ## Start Commercial
 ## requires: token scope channel:edit:commercial

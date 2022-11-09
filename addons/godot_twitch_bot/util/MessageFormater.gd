@@ -109,7 +109,8 @@ func handle_game(msg: String) -> String:
 		var cnl = matched.substr(7, matched.length() - 8).to_lower()
 		if cnl.begins_with("@"):
 			cnl = cnl.substr(1)
-		var cnl_id = api.get_users_by_name([cnl]).data[0].id
+		var channel = api.get_users_by_name([cnl])
+		var cnl_id = channel.data[0].id
 		var pos = msg.find(matched)
 		msg.erase(pos, matched.length())
 		var game_name = api.get_channel_info([cnl_id]).data[0].game_name
@@ -138,7 +139,7 @@ func handle_counter(msg: String) -> String:
 	var matches = regex.search_all(msg)
 	for m in matches:
 		var matched = m.strings[0]
-		var counter = matched.substr(8, matched.length() - 12)
+		var counter = matched.substr(8, matched.length() - 9)
 		if not counter in counterManager.counters.keys():
 			counterManager.counters[counter] = 0
 		counterManager.counters[counter] += 1

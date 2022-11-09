@@ -47,7 +47,7 @@ func get_response(parsedMessage: Dictionary) -> String:
 				quote += params[i] + " "
 			quote = quote.substr(0, quote.length() - 1)
 			
-			var nextID = quoteDict.get("size", quoteDict.keys().size() - 1)
+			var nextID = quoteDict.get("size", quoteDict.keys().size()) + 1
 			#var nextID = 1
 			#while str(nextID) in quoteDict.keys():
 				#nextID += 1

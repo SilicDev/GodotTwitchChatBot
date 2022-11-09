@@ -159,6 +159,8 @@ func _process(delta: float) -> void:
 						"CLEARCHAT":
 							if tags.has("target-user-id"):
 								emit_signal("user_messages_deleted", tags.get("target-user-id"), c)
+							else:
+								emit_signal("chat_message_deleted", null, c)
 		for c in channels.keys():
 			if channels[c].connected and not channels[c].message_queue.empty():
 				var data = channels[c].message_queue.pop_front()
