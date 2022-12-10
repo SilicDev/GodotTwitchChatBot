@@ -882,6 +882,9 @@ func send_whisper(from_id : String, to_id : String, message: String) -> Dictiona
 ## Helper functions
 func _request(method: int, url: String, request_headers: PoolStringArray, body := "") -> int:
 	mutex.lock()
+	if not client.get_status() != HTTPClient.STATUS_CONNECTED:
+		disconnect_from_twitch()
+		connect_to_twitch()
 	print("Requesting...")
 	return client.request(method, url, request_headers, body)
 
