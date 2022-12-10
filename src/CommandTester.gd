@@ -17,7 +17,7 @@ func _ready() -> void:
 		"Authorization: Bearer " + oauth,
 		"Client-Id: " + client_id,
 	])
-	var manager = ManagerMock.new()
+	var manager = ManagerMock.new(test)
 	## Create new command object
 	var cmd: Command #= preload("res://addons/godot_twitch_bot/commands/YourCommand.gd").new()
 	## Add manager if requested
@@ -27,7 +27,7 @@ func _ready() -> void:
 	var msg = create_mock_message("!settitle params")
 	## test command
 	if cmd.should_fire(msg):
-		print(manager.formatter.format_message(cmd.get_response(msg), "broadcaster", msg))
+		print(manager.formatter.format_message(cmd.get_response(msg), msg))
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -56,8 +56,9 @@ func create_mock_message(
 ## Simplified interface of the CommandManager class
 class ManagerMock:
 	var channel_id := ""
-	var api := TwitchAPI.new()
-	var formatter = load("res://addons/godot_twitch_bot/commands/util/MessageFormater.gd").new()
+	var counters := {}
+	var formatter = load("res://addons/godot_twitch_bot/util/MessageFormater.gd").new()
 	
-	func _init() -> void:
-		formatter.manager = self
+	func _init(api) -> void:
+		formatter.counterManager = self
+		formatter.api = api
