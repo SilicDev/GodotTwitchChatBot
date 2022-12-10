@@ -2,6 +2,7 @@ extends ScriptCommand
 
 
 var no_formating := true
+var rng = RandomNumberGenerator.new()
 
 
 func _init() -> void:
@@ -9,6 +10,7 @@ func _init() -> void:
 	example_reply = "Successfully added quote #42 \"May Kappa rest in peace Sadge\"!"
 	name = "quote"
 	permission_level = Command.Badge.NONE
+	rng.randomize()
 
 
 func get_response(parsedMessage: Dictionary) -> String:
@@ -22,7 +24,7 @@ func get_response(parsedMessage: Dictionary) -> String:
 	
 	if params.empty():
 		if quoteDict.keys().size() > 0:
-			var quoteID = quoteDict.keys()[randi() % quoteDict.keys().size()]
+			var quoteID = quoteDict.keys()[rng.randi() % quoteDict.keys().size()]
 			return "Quote #" + quoteID + ": " + quoteDict[quoteID]
 		else:
 			return sender + " usage of command \"" + name + "\": " + usage_hint
@@ -56,6 +58,7 @@ func get_response(parsedMessage: Dictionary) -> String:
 			
 			var ID = str(nextID)
 			quoteDict[ID] = quote
+			quoteDict["size"] = nextID
 			save_quotes(channel, quoteDict)
 			return sender + ", successfully added quote #" + ID + ": " + quoteDict[ID]
 		
