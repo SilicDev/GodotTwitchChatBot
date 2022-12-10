@@ -149,7 +149,7 @@ func add_bot_message(message: String, msg_reply_id := "") -> void:
 func get_message_by_id(msg_id: String):
 	for c in chat.get_children():
 		if c is PanelContainer:
-			if c.id == msg_id:
+			if c.id == msg_id || not msg_id:
 				return c
 	return null
 

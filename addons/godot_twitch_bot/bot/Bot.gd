@@ -160,7 +160,7 @@ func _process(delta: float) -> void:
 							if tags.has("target-user-id"):
 								emit_signal("user_messages_deleted", tags.get("target-user-id"), c)
 							else:
-								emit_signal("chat_message_deleted", null, c)
+								emit_signal("chat_message_deleted", "", c)
 		for c in channels.keys():
 			if channels[c].connected and not channels[c].message_queue.empty():
 				var data = channels[c].message_queue.pop_front()
@@ -304,12 +304,14 @@ func is_connected_to_channel(channel: String) -> bool:
 	return channels[c].connected
 
 
-func parse_notice(tags: Dictionary, parameters: String, channel: String):
+func parse_notice(tags, parameters: String, channel: String):
 	var c := channel.to_lower()
 	if c.begins_with("#"):
 		c = c.substr(1)
 	
-	var msg_id = tags.get("msg-id", "")
+	var msg_id = ""
+	if tags:
+		msg_id = tags.get("msg-id", "")
 	if msg_id.empty():
 		## If the authentication failed, leave the channel.
 		## The server will close the connection.
