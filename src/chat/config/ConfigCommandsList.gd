@@ -7,16 +7,16 @@ signal reload()
 var new_commands := []
 
 
-onready var defaultEveryone := $Default/VBox/Everyone/Everyone
-onready var defaultModerator := $Default/VBox/Moderator/Moderator
+@onready var defaultEveryone := $Default/VBox/Everyone/Everyone
+@onready var defaultModerator := $Default/VBox/Moderator/Moderator
 
-onready var customList := $Custom/VBox
+@onready var customList := $Custom/VBox
 
-onready var customEveryone := $Custom/VBox/Everyone/Everyone
-onready var customSubscriber := $Custom/VBox/Subscriber/Subscriber
-onready var customVIP := $Custom/VBox/VIP/VIP
-onready var customModerator := $Custom/VBox/Moderator/Moderator
-onready var customBroadcaster := $Custom/VBox/Broadcaster/Broadcaster
+@onready var customEveryone := $Custom/VBox/Everyone/Everyone
+@onready var customSubscriber := $Custom/VBox/Subscriber/Subscriber
+@onready var customVIP := $Custom/VBox/VIP/VIP
+@onready var customModerator := $Custom/VBox/Moderator/Moderator
+@onready var customBroadcaster := $Custom/VBox/Broadcaster/Broadcaster
 
 
 ## Called when the node enters the scene tree for the first time.
@@ -64,13 +64,13 @@ func get_custom_commands() -> Dictionary:
 	for list in arr:
 		for c in list.get_children():
 			var cmd = c.get_data()
-			if not cmd.name.empty() and not cmd.name in dict:
+			if not cmd.name.is_empty() and not cmd.name in dict:
 				dict[cmd.name] = cmd
 	
 	for c in new_commands:
 		if is_instance_valid(c):
 			var cmd = c.get_data()
-			if not cmd.name.empty() and not cmd.name in dict:
+			if not cmd.name.is_empty() and not cmd.name in dict:
 				dict[cmd.name] = cmd
 	
 	return dict
@@ -85,7 +85,7 @@ func get_active_base_commands() -> Dictionary:
 	
 	for list in arr:
 		for c in list.get_children():
-			dict[c.active.text] = c.active.pressed
+			dict[c.active.text] = c.active.button_pressed
 	
 	return dict
 
@@ -95,12 +95,12 @@ func _on_Reload_pressed() -> void:
 
 
 func _on_New_pressed() -> void:
-	var panel: PanelContainer = load("res://src/chat/config/CustomCommand.tscn").instance()
-	customList.add_child_below_node(customBroadcaster.get_parent(), panel)
+	var panel: PanelContainer = load("res://src/chat/config/CustomCommand.tscn").instantiate()
+	customBroadcaster.add_sibling(panel, true)
 	new_commands.append(panel)
 
 
 func _on_NewScripted_pressed() -> void:
-	var panel: PanelContainer = load("res://src/chat/config/ScriptCommand.tscn").instance()
-	customList.add_child_below_node(customBroadcaster.get_parent(), panel)
+	var panel: PanelContainer = load("res://src/chat/config/ScriptCommand.tscn").instantiate()
+	customBroadcaster.add_sibling(panel, true)
 	new_commands.append(panel)

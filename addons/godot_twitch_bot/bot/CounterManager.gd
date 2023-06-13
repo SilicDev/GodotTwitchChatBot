@@ -1,7 +1,7 @@
-extends Reference
+extends RefCounted
 
 
-var file := File.new()
+var file : FileAccess
 
 var channel_path : String
 
@@ -17,34 +17,38 @@ func save_data(base_path := channel_path) -> void:
 
 
 func load_counters(path: String) -> int:
-	var err = file.open(path, File.READ)
+	file = FileAccess.open(path, FileAccess.READ)
+	var err := FileAccess.get_open_error()
 	if err:
 		save_counters(path)
-		file.open(path, File.READ)
+		file = FileAccess.open(path, FileAccess.READ)
 	
-	var result := JSON.parse(file.get_as_text())
+	var test_json_conv = JSON.new()
+	err = test_json_conv.parse(file.get_as_text())
+	var result := test_json_conv.get_data()
 	file.close()
-	if result.error:
-		push_error("Error loading counters: line " + str(result.error_line) + 
-				": " + result.error_string
+	if err:
+		push_error("Error loading counters: line " + str(test_json_conv.get_error_line()) + 
+				": " + test_json_conv.get_error_message()
 		)
 	
-	counters = result.result
+	counters = result
 	return OK
 
 
 func save_counters(path: String) -> int:
-	var dir := Directory.new()
+	var dir := DirAccess.open("user://")
 	if not dir.dir_exists(path.get_base_dir()):
 		dir.make_dir_recursive(path.get_base_dir())
 	
-	var err := file.open(path, File.WRITE)
+	file = FileAccess.open(path, FileAccess.WRITE)
+	var err := FileAccess.get_open_error()
 	if err:
 		push_error("Failed to save counters! Unable to open destination file (Error #" + 
 				str(err) + ")"
 		)
 		return err
 	
-	file.store_string(JSON.print(counters))
+	file.store_string(JSON.stringify(counters))
 	file.close()
 	return OK

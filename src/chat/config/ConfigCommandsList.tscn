@@ -1,233 +1,153 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=2 format=3 uid="uid://btlcr7s6xvuuw"]
 
-[ext_resource path="res://src/chat/config/ConfigCommandsList.gd" type="Script" id=1]
+[ext_resource type="Script" path="res://src/chat/config/ConfigCommandsList.gd" id="1"]
 
 [node name="Commands" type="TabContainer"]
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = 4.0
-margin_top = 32.0
-margin_right = -4.0
-margin_bottom = -4.0
-script = ExtResource( 1 )
+offset_left = 4.0
+offset_top = 32.0
+offset_right = -4.0
+offset_bottom = -4.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1")
 
 [node name="Default" type="ScrollContainer" parent="."]
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = 4.0
-margin_top = 32.0
-margin_right = -4.0
-margin_bottom = -4.0
+layout_mode = 2
 follow_focus = true
-scroll_horizontal_enabled = false
 
 [node name="VBox" type="VBoxContainer" parent="Default"]
-margin_right = 1008.0
-margin_bottom = 56.0
+layout_mode = 2
 size_flags_horizontal = 3
 
 [node name="Everyone" type="VBoxContainer" parent="Default/VBox"]
-margin_right = 1008.0
-margin_bottom = 26.0
+layout_mode = 2
 
 [node name="Label" type="Label" parent="Default/VBox/Everyone"]
-margin_right = 1008.0
-margin_bottom = 14.0
+layout_mode = 2
 text = "Everyone"
-align = 1
 
 [node name="HSeparator" type="HSeparator" parent="Default/VBox/Everyone"]
-margin_top = 18.0
-margin_right = 1008.0
-margin_bottom = 22.0
+layout_mode = 2
 
 [node name="Everyone" type="VBoxContainer" parent="Default/VBox/Everyone"]
-margin_top = 26.0
-margin_right = 1008.0
-margin_bottom = 26.0
+layout_mode = 2
 
 [node name="Moderator" type="VBoxContainer" parent="Default/VBox"]
-margin_top = 30.0
-margin_right = 1008.0
-margin_bottom = 56.0
+layout_mode = 2
 
 [node name="Label" type="Label" parent="Default/VBox/Moderator"]
-margin_right = 1008.0
-margin_bottom = 14.0
+layout_mode = 2
 text = "Moderator"
-align = 1
 
 [node name="HSeparator" type="HSeparator" parent="Default/VBox/Moderator"]
-margin_top = 18.0
-margin_right = 1008.0
-margin_bottom = 22.0
+layout_mode = 2
 
 [node name="Moderator" type="VBoxContainer" parent="Default/VBox/Moderator"]
-margin_top = 26.0
-margin_right = 1008.0
-margin_bottom = 26.0
+layout_mode = 2
 
 [node name="Custom" type="ScrollContainer" parent="."]
 visible = false
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = 4.0
-margin_top = 32.0
-margin_right = -4.0
-margin_bottom = -4.0
+layout_mode = 2
 follow_focus = true
-scroll_horizontal_enabled = false
 
 [node name="VBox" type="VBoxContainer" parent="Custom"]
-margin_right = 1008.0
-margin_bottom = 188.0
+layout_mode = 2
 size_flags_horizontal = 3
 
 [node name="Label" type="Label" parent="Custom/VBox"]
-margin_right = 40.0
-margin_bottom = 14.0
+layout_mode = 2
 text = "Commands will be resorted by permission on reload."
 
 [node name="Everyone" type="VBoxContainer" parent="Custom/VBox"]
-margin_right = 1008.0
-margin_bottom = 26.0
+layout_mode = 2
 
 [node name="Label" type="Label" parent="Custom/VBox/Everyone"]
-margin_right = 1008.0
-margin_bottom = 14.0
+layout_mode = 2
 text = "Everyone"
-align = 1
 
 [node name="HSeparator" type="HSeparator" parent="Custom/VBox/Everyone"]
-margin_top = 18.0
-margin_right = 1008.0
-margin_bottom = 22.0
+layout_mode = 2
 
 [node name="Everyone" type="VBoxContainer" parent="Custom/VBox/Everyone"]
-margin_top = 26.0
-margin_right = 1008.0
-margin_bottom = 26.0
+layout_mode = 2
 
 [node name="Subscriber" type="VBoxContainer" parent="Custom/VBox"]
-margin_top = 30.0
-margin_right = 1008.0
-margin_bottom = 56.0
+layout_mode = 2
 
 [node name="Label" type="Label" parent="Custom/VBox/Subscriber"]
-margin_right = 1008.0
-margin_bottom = 14.0
+layout_mode = 2
 text = "Subscriber"
-align = 1
 
 [node name="HSeparator" type="HSeparator" parent="Custom/VBox/Subscriber"]
-margin_top = 18.0
-margin_right = 1008.0
-margin_bottom = 22.0
+layout_mode = 2
 
 [node name="Subscriber" type="VBoxContainer" parent="Custom/VBox/Subscriber"]
-margin_top = 26.0
-margin_right = 1008.0
-margin_bottom = 26.0
+layout_mode = 2
 
 [node name="VIP" type="VBoxContainer" parent="Custom/VBox"]
-margin_top = 60.0
-margin_right = 1008.0
-margin_bottom = 86.0
+layout_mode = 2
 
 [node name="Label" type="Label" parent="Custom/VBox/VIP"]
-margin_right = 1008.0
-margin_bottom = 14.0
+layout_mode = 2
 text = "VIP"
-align = 1
 
 [node name="HSeparator" type="HSeparator" parent="Custom/VBox/VIP"]
-margin_top = 18.0
-margin_right = 1008.0
-margin_bottom = 22.0
+layout_mode = 2
 
 [node name="VIP" type="VBoxContainer" parent="Custom/VBox/VIP"]
-margin_top = 26.0
-margin_right = 1008.0
-margin_bottom = 26.0
+layout_mode = 2
 
 [node name="Moderator" type="VBoxContainer" parent="Custom/VBox"]
-margin_top = 90.0
-margin_right = 1008.0
-margin_bottom = 116.0
+layout_mode = 2
 
 [node name="Label" type="Label" parent="Custom/VBox/Moderator"]
-margin_right = 1008.0
-margin_bottom = 14.0
+layout_mode = 2
 text = "Moderator"
-align = 1
 
 [node name="HSeparator" type="HSeparator" parent="Custom/VBox/Moderator"]
-margin_top = 18.0
-margin_right = 1008.0
-margin_bottom = 22.0
+layout_mode = 2
 
 [node name="Moderator" type="VBoxContainer" parent="Custom/VBox/Moderator"]
-margin_top = 26.0
-margin_right = 1008.0
-margin_bottom = 26.0
+layout_mode = 2
 
 [node name="Broadcaster" type="VBoxContainer" parent="Custom/VBox"]
-margin_top = 90.0
-margin_right = 1008.0
-margin_bottom = 116.0
+layout_mode = 2
 
 [node name="Label" type="Label" parent="Custom/VBox/Broadcaster"]
-margin_right = 1008.0
-margin_bottom = 14.0
+layout_mode = 2
 text = "Broadcaster"
-align = 1
 
 [node name="HSeparator" type="HSeparator" parent="Custom/VBox/Broadcaster"]
-margin_top = 18.0
-margin_right = 1008.0
-margin_bottom = 22.0
+layout_mode = 2
 
 [node name="Broadcaster" type="VBoxContainer" parent="Custom/VBox/Broadcaster"]
-margin_top = 26.0
-margin_right = 1008.0
-margin_bottom = 26.0
+layout_mode = 2
 
 [node name="CenterContainer" type="CenterContainer" parent="Custom/VBox"]
-margin_top = 120.0
-margin_right = 1008.0
-margin_bottom = 140.0
+layout_mode = 2
 
 [node name="HBox" type="HBoxContainer" parent="Custom/VBox/CenterContainer"]
-margin_left = 241.0
-margin_right = 766.0
-margin_bottom = 20.0
-custom_constants/separation = 100
+layout_mode = 2
 
 [node name="New" type="Button" parent="Custom/VBox/CenterContainer/HBox"]
-margin_left = -438.0
-margin_top = -120.0
-margin_right = -369.0
-margin_bottom = -100.0
-hint_tooltip = "Add a new command to the bot."
+layout_mode = 2
+tooltip_text = "Add a new command to the bot."
 text = "Add New"
 
 [node name="NewScripted" type="Button" parent="Custom/VBox/CenterContainer/HBox"]
-margin_left = -438.0
-margin_top = -120.0
-margin_right = -369.0
-margin_bottom = -100.0
-hint_tooltip = "Add a new command to the bot."
+layout_mode = 2
+tooltip_text = "Add a new command to the bot."
 text = "Add New Scripted"
 
 [node name="Reload" type="Button" parent="Custom/VBox/CenterContainer/HBox"]
-margin_left = -66.0
-margin_top = -10.0
-margin_right = 65.0
-margin_bottom = 10.0
-hint_tooltip = "Forces the bot to reload the commands from disk.
+layout_mode = 2
+size_flags_horizontal = 0
+tooltip_text = "Forces the bot to reload the commands from disk.
 
 WARNING: Current edits won't be saved!"
-size_flags_horizontal = 0
 text = "Reload Commands"
 
 [connection signal="pressed" from="Custom/VBox/CenterContainer/HBox/New" to="." method="_on_New_pressed"]

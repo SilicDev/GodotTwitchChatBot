@@ -1,11 +1,11 @@
-extends PopupDialog
+extends Popup
 
 var regex := RegEx.new()
 
 
-onready var regexInput := $PanelCon/VBox/HBox/Regex
-onready var testInput := $PanelCon/VBox/Test
-onready var output := $PanelCon/VBox/Output
+@onready var regexInput := $PanelCon/VBox/HBox/Regex
+@onready var testInput := $PanelCon/VBox/Test
+@onready var output := $PanelCon/VBox/Output
 
 
 ## Called when the node enters the scene tree for the first time.
@@ -29,9 +29,9 @@ func test() -> void:
 func _on_Regex_text_changed(new_text: String) -> void:
 	var err := regex.compile(new_text)
 	if err:
-		regexInput.add_color_override("font_color", Color.red)
+		regexInput.add_theme_color_override("font_color", Color.RED)
 	else:
-		regexInput.add_color_override("font_color", Color.white)
+		regexInput.add_theme_color_override("font_color", Color.WHITE)
 		test()
 
 

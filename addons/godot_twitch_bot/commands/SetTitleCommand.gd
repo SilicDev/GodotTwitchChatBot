@@ -4,11 +4,12 @@ extends ScriptCommand
 var api
 
 
-func _init() -> void:
+func _init():
 	usage_hint = "!settitle title"
 	example_reply = "Successfully changed title to \"Playing Super Mario Odyssey for the first time!\"!"
 	name = "settitle"
 	permission_level = Command.Badge.MODERATOR
+	timeout = 10
 
 
 func get_response(parsedMessage: Dictionary) -> String:

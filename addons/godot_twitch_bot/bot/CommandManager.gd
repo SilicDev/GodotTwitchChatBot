@@ -1,7 +1,7 @@
-extends Reference
+extends RefCounted
 
 
-var file := File.new()
+var file : FileAccess
 
 var channel_path : String
 
@@ -39,19 +39,22 @@ func save_data(base_path := channel_path) -> void:
 
 
 func load_command_list(path: String):
-	var err = file.open(path, File.READ)
+	file = FileAccess.open(path, FileAccess.READ)
+	var err := FileAccess.get_open_error() 
 	if err:
 		save_command_list(path)
-		file.open(path, File.READ)
-	
-	var result := JSON.parse(file.get_as_text())
+		file = FileAccess.open(path, FileAccess.READ)
+	var test_json_conv = JSON.new()
+	err = test_json_conv.parse(file.get_as_text())
+	var result := test_json_conv.get_data()
 	file.close()
-	if result.error:
-		push_error("Error loading commands: line " + str(result.error_line) + ": " + result.error_string)
-		return result.error
+	if err:
+		push_error("Error loading commands: line " + str(test_json_conv.get_error_line()) + ": " 
+				+ test_json_conv.get_error_message())
+		return err
 	
-	var dict = result.result
-	var active = result.result._active_commands
+	var dict = result
+	var active = result._active_commands
 	for cmd in dict:
 		if cmd == "_active_commands":
 			continue
@@ -88,13 +91,13 @@ func load_command_list(path: String):
 		res.permission_level = cmd_dict.get("permission", 0)
 		
 		# Fixes bug in should_fire always matching an empty string
-		res.keywords = cmd_dict.get("keywords", PoolStringArray([]))
-		if res.keywords.size() == 1 and res.keywords[0].empty():
-			res.keywords = PoolStringArray([])
+		res.keywords = cmd_dict.get("keywords", PackedStringArray([]))
+		if res.keywords.size() == 1 and res.keywords[0].is_empty():
+			res.keywords = PackedStringArray([])
 			
-		res.aliases = cmd_dict.get("aliases", PoolStringArray([]))
-		if res.aliases.size() == 1 and res.aliases[0].empty():
-			res.aliases = PoolStringArray([])
+		res.aliases = cmd_dict.get("aliases", PackedStringArray([]))
+		if res.aliases.size() == 1 and res.aliases[0].is_empty():
+			res.aliases = PackedStringArray([])
 		
 		res.timeout = cmd_dict.get("timeout", 5)
 		res.user_timeout = cmd_dict.get("user_timeout", 15)
@@ -108,11 +111,12 @@ func load_command_list(path: String):
 
 func save_command_list(path: String) -> int:
 	
-	var dir := Directory.new()
+	var dir := DirAccess.open(path.get_base_dir())
 	if not dir.dir_exists(path.get_base_dir()):
 		dir.make_dir_recursive(path.get_base_dir())
 	
-	var err := file.open(path, File.WRITE)
+	file = FileAccess.open(path, FileAccess.WRITE)
+	var err := FileAccess.get_open_error() 
 	if err:
 		push_error("Failed to save commands! Unable to open destination file (Error #" + str(err) + ")")
 		return err
@@ -126,7 +130,7 @@ func save_command_list(path: String) -> int:
 			dict[commands[cmd].name] = commands[cmd].get_save_dict()
 	
 	dict["_active_commands"] = active
-	file.store_string(JSON.print(dict))
+	file.store_string(JSON.stringify(dict))
 	file.close()
 	return OK
 
@@ -210,6 +214,10 @@ func _load_base_commands() -> void:
 	var commandCmd = _load("cmd://CommandCommand.gd").new()
 	commandCmd.manager = self
 	base_commands["command"] = commandCmd
+	
+	var commandsCmd = _load("cmd://CommandsCommand.gd").new()
+	commandsCmd.manager = self
+	base_commands["commands"] = commandsCmd
 	
 	var moduleCmd = _load("cmd://ModuleCommand.gd").new()
 	moduleCmd.manager = self

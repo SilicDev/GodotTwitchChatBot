@@ -1,4 +1,4 @@
-extends Reference
+extends RefCounted
 
 
 static func parse_message(message: String):
@@ -49,7 +49,7 @@ static func parse_message(message: String):
 	# Only parse the rest of the components if it's a command
 	# we care about; we ignore some messages.
 	
-	if not parsedMessage.command:  # Is null if it's a message we don't care about.
+	if parsedMessage.command == null:  # Is null if it's a message we don't care about.
 		return null
 	else:
 		if rawTagsComponent:  # The IRC message contains tags.
@@ -74,8 +74,8 @@ static func parseTags(tags) -> Dictionary:
 		'flags': null,
 	}
 
-	var dictParsedTags = {}  # Holds the parsed list of tags.
-							 # The key is the tag's name (e.g., color).
+	var dictParsedTags = {} # Holds the parsed list of tags.
+							# The key is the tag's name (e.g., color).
 	var parsedTags = tags.split(';');
 
 	for tag in parsedTags:
@@ -100,8 +100,8 @@ static func parseTags(tags) -> Dictionary:
 				# emotes=25:0-4,12-16/1902:6-10
 
 				if tagValue:
-					var dictEmotes = {}  # Holds a list of emote objects.
-										 # The key is the emote's ID.
+					var dictEmotes = {} # Holds a list of emote objects.
+										# The key is the emote's ID.
 					var emotes = tagValue.split('/')
 					for emote in emotes:
 						var emoteParts = emote.split(':')
@@ -191,7 +191,7 @@ static func parseCommand(rawCommandComponent):
 			#print("numeric message: " + commandParts[0])
 			return null
 		_:
-			if not commandParts[0].empty():
+			if not commandParts[0].is_empty():
 				push_warning("\nUnexpected command: " + commandParts[0] + "\n")
 			return null
 
@@ -200,7 +200,7 @@ static func parseCommand(rawCommandComponent):
 
 # Parses the source (nick and host) components of the IRC message.
 static func parseSource(rawSourceComponent):
-	if not rawSourceComponent:  # Not all messages contain a source
+	if rawSourceComponent == null or rawSourceComponent.is_empty():  # Not all messages contain a source
 		return null
 	else:
 		var sourceParts = rawSourceComponent.split('!')

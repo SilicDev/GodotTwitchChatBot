@@ -5,21 +5,22 @@ var manager
 var no_formating := true
 
 
-func _init() -> void:
+func _init():
 	usage_hint = "!command add|edit|remove <command> msg"
 	example_reply = "Successfully added command \"test\"!"
 	name = "command"
 	permission_level = Command.Badge.MODERATOR
+	timeout = 10
 
 
 func get_response(parsedMessage: Dictionary) -> String:
-	var params := PoolStringArray()
+	var params := PackedStringArray()
 	if parsedMessage.command.has("botCommandParams"):
 		params = parsedMessage.command.botCommandParams.split(" ")
 	
 	var sender = parsedMessage.get("tags", {}).get("display-name", "")
 	
-	if params.empty() or params.size() < 2:
+	if params.is_empty() or params.size() < 2:
 		return sender + " usage of command \"" + name + "\": " + usage_hint
 	
 	var cmd = params[1].to_lower()

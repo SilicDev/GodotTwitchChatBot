@@ -11,377 +11,377 @@ size_flags_vertical = 0
 script = ExtResource( 1 )
 
 [node name="VBox" type="VBoxContainer" parent="."]
-margin_left = 7.0
-margin_top = 7.0
-margin_right = 1017.0
-margin_bottom = 593.0
+offset_left = 7.0
+offset_top = 7.0
+offset_right = 1017.0
+offset_bottom = 593.0
 
 [node name="HBox" type="HBoxContainer" parent="VBox"]
-margin_right = 1010.0
-margin_bottom = 24.0
+offset_right = 1010.0
+offset_bottom = 24.0
 
 [node name="CheckBox" type="CheckBox" parent="VBox/HBox"]
-margin_right = 150.0
-margin_bottom = 24.0
-rect_min_size = Vector2( 150, 0 )
+offset_right = 150.0
+offset_bottom = 24.0
+custom_minimum_size = Vector2( 150, 0 )
 text = "CommandName"
 
 [node name="UsageHint" type="Label" parent="VBox/HBox"]
-margin_left = 154.0
-margin_top = 5.0
-margin_right = 467.0
-margin_bottom = 19.0
-rect_min_size = Vector2( 200, 0 )
+offset_left = 154.0
+offset_top = 5.0
+offset_right = 467.0
+offset_bottom = 19.0
+custom_minimum_size = Vector2( 200, 0 )
 size_flags_horizontal = 3
 autowrap = true
 max_lines_visible = 2
 
 [node name="ExampleReply" type="Label" parent="VBox/HBox"]
-margin_left = 471.0
-margin_top = 5.0
-margin_right = 784.0
-margin_bottom = 19.0
-rect_min_size = Vector2( 200, 0 )
+offset_left = 471.0
+offset_top = 5.0
+offset_right = 784.0
+offset_bottom = 19.0
+custom_minimum_size = Vector2( 200, 0 )
 size_flags_horizontal = 3
 autowrap = true
 max_lines_visible = 2
 
 [node name="Timeout" type="Label" parent="VBox/HBox"]
 visible = false
-margin_left = 684.0
-margin_top = 5.0
-margin_right = 784.0
-margin_bottom = 19.0
-rect_min_size = Vector2( 100, 0 )
+offset_left = 684.0
+offset_top = 5.0
+offset_right = 784.0
+offset_bottom = 19.0
+custom_minimum_size = Vector2( 100, 0 )
 valign = 1
 
 [node name="UserTimeout" type="Label" parent="VBox/HBox"]
 visible = false
-margin_left = 684.0
-margin_top = 5.0
-margin_right = 784.0
-margin_bottom = 19.0
-rect_min_size = Vector2( 100, 0 )
+offset_left = 684.0
+offset_top = 5.0
+offset_right = 784.0
+offset_bottom = 19.0
+custom_minimum_size = Vector2( 100, 0 )
 valign = 1
 
 [node name="Permission" type="Label" parent="VBox/HBox"]
-margin_left = 788.0
-margin_top = 5.0
-margin_right = 863.0
-margin_bottom = 19.0
-rect_min_size = Vector2( 75, 0 )
+offset_left = 788.0
+offset_top = 5.0
+offset_right = 863.0
+offset_bottom = 19.0
+custom_minimum_size = Vector2( 75, 0 )
 text = "None"
 align = 1
 
 [node name="Control" type="Control" parent="VBox/HBox"]
-margin_left = 867.0
-margin_right = 887.0
-margin_bottom = 24.0
-rect_min_size = Vector2( 20, 0 )
+offset_left = 867.0
+offset_right = 887.0
+offset_bottom = 24.0
+custom_minimum_size = Vector2( 20, 0 )
 
 [node name="CenterContainer" type="CenterContainer" parent="VBox/HBox"]
-margin_left = 891.0
-margin_right = 946.0
-margin_bottom = 24.0
+offset_left = 891.0
+offset_right = 946.0
+offset_bottom = 24.0
 
 [node name="Delete" type="Button" parent="VBox/HBox/CenterContainer"]
-margin_top = 2.0
-margin_right = 55.0
-margin_bottom = 22.0
+offset_top = 2.0
+offset_right = 55.0
+offset_bottom = 22.0
 text = "Delete"
 
 [node name="Control2" type="Control" parent="VBox/HBox"]
-margin_left = 950.0
-margin_right = 970.0
-margin_bottom = 24.0
-rect_min_size = Vector2( 20, 0 )
+offset_left = 950.0
+offset_right = 970.0
+offset_bottom = 24.0
+custom_minimum_size = Vector2( 20, 0 )
 
 [node name="CenterContainer2" type="CenterContainer" parent="VBox/HBox"]
-margin_left = 974.0
-margin_right = 1010.0
-margin_bottom = 24.0
+offset_left = 974.0
+offset_right = 1010.0
+offset_bottom = 24.0
 
 [node name="Edit" type="Button" parent="VBox/HBox/CenterContainer2"]
-margin_top = 2.0
-margin_right = 36.0
-margin_bottom = 22.0
+offset_top = 2.0
+offset_right = 36.0
+offset_bottom = 22.0
 text = "Edit"
 
-[node name="Tabs" type="TabContainer" parent="VBox"]
+[node name="TabBar" type="TabContainer" parent="VBox"]
 visible = false
-margin_top = 28.0
-margin_right = 1010.0
-margin_bottom = 586.0
+offset_top = 28.0
+offset_right = 1010.0
+offset_bottom = 586.0
 size_flags_vertical = 3
-tab_align = 0
+tab_alignment = 0
 use_hidden_tabs_for_min_size = true
 
-[node name="Settings" type="VBoxContainer" parent="VBox/Tabs"]
+[node name="Settings" type="VBoxContainer" parent="VBox/TabBar"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = 4.0
-margin_top = 32.0
-margin_right = -4.0
-margin_bottom = -4.0
+offset_left = 4.0
+offset_top = 32.0
+offset_right = -4.0
+offset_bottom = -4.0
 size_flags_vertical = 3
 custom_constants/separation = 10
 
-[node name="HBox" type="HBoxContainer" parent="VBox/Tabs/Settings"]
-margin_right = 1002.0
-margin_bottom = 24.0
+[node name="HBox" type="HBoxContainer" parent="VBox/TabBar/Settings"]
+offset_right = 1002.0
+offset_bottom = 24.0
 
-[node name="Label" type="Label" parent="VBox/Tabs/Settings/HBox"]
-margin_top = 5.0
-margin_right = 150.0
-margin_bottom = 19.0
-rect_min_size = Vector2( 150, 0 )
+[node name="Label" type="Label" parent="VBox/TabBar/Settings/HBox"]
+offset_top = 5.0
+offset_right = 150.0
+offset_bottom = 19.0
+custom_minimum_size = Vector2( 150, 0 )
 text = "Command Name:"
 align = 2
 
-[node name="CommandName" type="LineEdit" parent="VBox/Tabs/Settings/HBox"]
-margin_left = 154.0
-margin_right = 1002.0
-margin_bottom = 24.0
+[node name="CommandName" type="LineEdit" parent="VBox/TabBar/Settings/HBox"]
+offset_left = 154.0
+offset_right = 1002.0
+offset_bottom = 24.0
 size_flags_horizontal = 3
 
-[node name="HBox4" type="HBoxContainer" parent="VBox/Tabs/Settings"]
-margin_top = 34.0
-margin_right = 1002.0
-margin_bottom = 58.0
+[node name="HBox4" type="HBoxContainer" parent="VBox/TabBar/Settings"]
+offset_top = 34.0
+offset_right = 1002.0
+offset_bottom = 58.0
 
-[node name="Label" type="Label" parent="VBox/Tabs/Settings/HBox4"]
-margin_top = 5.0
-margin_right = 150.0
-margin_bottom = 19.0
-rect_min_size = Vector2( 150, 0 )
+[node name="Label" type="Label" parent="VBox/TabBar/Settings/HBox4"]
+offset_top = 5.0
+offset_right = 150.0
+offset_bottom = 19.0
+custom_minimum_size = Vector2( 150, 0 )
 text = "Usage Hint:"
 align = 2
 
-[node name="UsageHint" type="LineEdit" parent="VBox/Tabs/Settings/HBox4"]
-margin_left = 154.0
-margin_right = 1002.0
-margin_bottom = 24.0
+[node name="UsageHint" type="LineEdit" parent="VBox/TabBar/Settings/HBox4"]
+offset_left = 154.0
+offset_right = 1002.0
+offset_bottom = 24.0
 size_flags_horizontal = 3
 placeholder_text = "Enter usage hint"
 
-[node name="HBox5" type="HBoxContainer" parent="VBox/Tabs/Settings"]
-margin_top = 68.0
-margin_right = 1002.0
-margin_bottom = 92.0
+[node name="HBox5" type="HBoxContainer" parent="VBox/TabBar/Settings"]
+offset_top = 68.0
+offset_right = 1002.0
+offset_bottom = 92.0
 
-[node name="Label" type="Label" parent="VBox/Tabs/Settings/HBox5"]
-margin_top = 5.0
-margin_right = 150.0
-margin_bottom = 19.0
-rect_min_size = Vector2( 150, 0 )
+[node name="Label" type="Label" parent="VBox/TabBar/Settings/HBox5"]
+offset_top = 5.0
+offset_right = 150.0
+offset_bottom = 19.0
+custom_minimum_size = Vector2( 150, 0 )
 text = "Example Response:"
 align = 2
 
-[node name="ExampleReply" type="LineEdit" parent="VBox/Tabs/Settings/HBox5"]
-margin_left = 154.0
-margin_right = 1002.0
-margin_bottom = 24.0
+[node name="ExampleReply" type="LineEdit" parent="VBox/TabBar/Settings/HBox5"]
+offset_left = 154.0
+offset_right = 1002.0
+offset_bottom = 24.0
 size_flags_horizontal = 3
 placeholder_text = "Enter example response"
 
-[node name="HBox2" type="HBoxContainer" parent="VBox/Tabs/Settings"]
-margin_top = 34.0
-margin_right = 1002.0
-margin_bottom = 54.0
+[node name="HBox2" type="HBoxContainer" parent="VBox/TabBar/Settings"]
+offset_top = 34.0
+offset_right = 1002.0
+offset_bottom = 54.0
 
-[node name="Label" type="Label" parent="VBox/Tabs/Settings/HBox2"]
-margin_top = 3.0
-margin_right = 150.0
-margin_bottom = 17.0
-rect_min_size = Vector2( 150, 0 )
+[node name="Label" type="Label" parent="VBox/TabBar/Settings/HBox2"]
+offset_top = 3.0
+offset_right = 150.0
+offset_bottom = 17.0
+custom_minimum_size = Vector2( 150, 0 )
 text = "User Level:"
 align = 2
 
-[node name="UserLevel" type="OptionButton" parent="VBox/Tabs/Settings/HBox2"]
-margin_left = 154.0
-margin_right = 1002.0
-margin_bottom = 20.0
+[node name="UserLevel" type="OptionButton" parent="VBox/TabBar/Settings/HBox2"]
+offset_left = 154.0
+offset_right = 1002.0
+offset_bottom = 20.0
 size_flags_horizontal = 3
 text = "Everyone"
 items = [ "Everyone", null, false, 0, null, "Subscriber", null, false, 1, null, "VIP", null, false, 2, null, "Moderator", null, false, 3, null, "Broadcaster", null, false, 4, null ]
 selected = 0
 
-[node name="HBox3" type="HBoxContainer" parent="VBox/Tabs/Settings"]
-margin_top = 64.0
-margin_right = 1002.0
-margin_bottom = 92.0
+[node name="HBox3" type="HBoxContainer" parent="VBox/TabBar/Settings"]
+offset_top = 64.0
+offset_right = 1002.0
+offset_bottom = 92.0
 size_flags_vertical = 3
 
-[node name="Label" type="Label" parent="VBox/Tabs/Settings/HBox3"]
-margin_right = 150.0
-margin_bottom = 14.0
-rect_min_size = Vector2( 150, 0 )
+[node name="Label" type="Label" parent="VBox/TabBar/Settings/HBox3"]
+offset_right = 150.0
+offset_bottom = 14.0
+custom_minimum_size = Vector2( 150, 0 )
 size_flags_vertical = 0
 text = "Response:"
 align = 2
 
-[node name="Response" type="TextEdit" parent="VBox/Tabs/Settings/HBox3"]
-margin_left = 154.0
-margin_right = 973.0
-margin_bottom = 28.0
-rect_min_size = Vector2( 0, 50 )
+[node name="Response" type="TextEdit" parent="VBox/TabBar/Settings/HBox3"]
+offset_left = 154.0
+offset_right = 973.0
+offset_bottom = 28.0
+custom_minimum_size = Vector2( 0, 50 )
 size_flags_horizontal = 3
 size_flags_vertical = 3
 highlight_current_line = true
-syntax_highlighting = true
+syntax_highlighter = true
 show_line_numbers = true
 draw_tabs = true
 fold_gutter = true
 smooth_scrolling = true
 wrap_enabled = true
 
-[node name="Advanced" type="VBoxContainer" parent="VBox/Tabs"]
+[node name="Advanced" type="VBoxContainer" parent="VBox/TabBar"]
 visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = 4.0
-margin_top = 32.0
-margin_right = -4.0
-margin_bottom = -4.0
+offset_left = 4.0
+offset_top = 32.0
+offset_right = -4.0
+offset_bottom = -4.0
 size_flags_vertical = 3
 custom_constants/separation = 12
 
-[node name="HBox" type="HBoxContainer" parent="VBox/Tabs/Advanced"]
-margin_right = 1002.0
-margin_bottom = 24.0
+[node name="HBox" type="HBoxContainer" parent="VBox/TabBar/Advanced"]
+offset_right = 1002.0
+offset_bottom = 24.0
 custom_constants/separation = 100
 
-[node name="HBox" type="HBoxContainer" parent="VBox/Tabs/Advanced/HBox"]
+[node name="HBox" type="HBoxContainer" parent="VBox/TabBar/Advanced/HBox"]
 visible = false
-margin_right = 451.0
-margin_bottom = 24.0
+offset_right = 451.0
+offset_bottom = 24.0
 size_flags_horizontal = 3
 
-[node name="Label" type="Label" parent="VBox/Tabs/Advanced/HBox/HBox"]
-margin_top = 5.0
-margin_right = 347.0
-margin_bottom = 19.0
+[node name="Label" type="Label" parent="VBox/TabBar/Advanced/HBox/HBox"]
+offset_top = 5.0
+offset_right = 347.0
+offset_bottom = 19.0
 size_flags_horizontal = 3
 text = "Global Cooldown:"
 align = 2
 
-[node name="GlobalCooldown" type="SpinBox" parent="VBox/Tabs/Advanced/HBox/HBox"]
-margin_left = 351.0
-margin_right = 451.0
-margin_bottom = 24.0
-rect_min_size = Vector2( 100, 0 )
+[node name="GlobalCooldown" type="SpinBox" parent="VBox/TabBar/Advanced/HBox/HBox"]
+offset_left = 351.0
+offset_right = 451.0
+offset_bottom = 24.0
+custom_minimum_size = Vector2( 100, 0 )
 max_value = 1e+06
 suffix = "sec."
 
-[node name="HBox2" type="HBoxContainer" parent="VBox/Tabs/Advanced/HBox"]
+[node name="HBox2" type="HBoxContainer" parent="VBox/TabBar/Advanced/HBox"]
 visible = false
-margin_left = 551.0
-margin_right = 1002.0
-margin_bottom = 24.0
+offset_left = 551.0
+offset_right = 1002.0
+offset_bottom = 24.0
 size_flags_horizontal = 3
 
-[node name="Label" type="Label" parent="VBox/Tabs/Advanced/HBox/HBox2"]
-margin_top = 5.0
-margin_right = 100.0
-margin_bottom = 19.0
+[node name="Label" type="Label" parent="VBox/TabBar/Advanced/HBox/HBox2"]
+offset_top = 5.0
+offset_right = 100.0
+offset_bottom = 19.0
 text = "User Cooldown:"
 align = 2
 
-[node name="UserCooldown" type="SpinBox" parent="VBox/Tabs/Advanced/HBox/HBox2"]
-margin_left = 104.0
-margin_right = 204.0
-margin_bottom = 24.0
-rect_min_size = Vector2( 100, 0 )
+[node name="UserCooldown" type="SpinBox" parent="VBox/TabBar/Advanced/HBox/HBox2"]
+offset_left = 104.0
+offset_right = 204.0
+offset_bottom = 24.0
+custom_minimum_size = Vector2( 100, 0 )
 max_value = 1e+06
 suffix = "sec."
 
-[node name="HBox2" type="HBoxContainer" parent="VBox/Tabs/Advanced"]
-margin_top = 36.0
-margin_right = 1002.0
-margin_bottom = 60.0
+[node name="HBox2" type="HBoxContainer" parent="VBox/TabBar/Advanced"]
+offset_top = 36.0
+offset_right = 1002.0
+offset_bottom = 60.0
 
-[node name="Label" type="Label" parent="VBox/Tabs/Advanced/HBox2"]
-margin_top = 5.0
-margin_right = 100.0
-margin_bottom = 19.0
-rect_min_size = Vector2( 100, 0 )
+[node name="Label" type="Label" parent="VBox/TabBar/Advanced/HBox2"]
+offset_top = 5.0
+offset_right = 100.0
+offset_bottom = 19.0
+custom_minimum_size = Vector2( 100, 0 )
 text = "Aliases:"
 align = 2
 
-[node name="Aliases" type="LineEdit" parent="VBox/Tabs/Advanced/HBox2"]
-margin_left = 104.0
-margin_right = 1002.0
-margin_bottom = 24.0
+[node name="Aliases" type="LineEdit" parent="VBox/TabBar/Advanced/HBox2"]
+offset_left = 104.0
+offset_right = 1002.0
+offset_bottom = 24.0
 size_flags_horizontal = 3
 placeholder_text = "Enter aliases for this command (comma-separated)"
 
-[node name="HBox3" type="HBoxContainer" parent="VBox/Tabs/Advanced"]
-margin_top = 72.0
-margin_right = 1002.0
-margin_bottom = 96.0
+[node name="HBox3" type="HBoxContainer" parent="VBox/TabBar/Advanced"]
+offset_top = 72.0
+offset_right = 1002.0
+offset_bottom = 96.0
 
-[node name="Label" type="Label" parent="VBox/Tabs/Advanced/HBox3"]
-margin_top = 5.0
-margin_right = 100.0
-margin_bottom = 19.0
-rect_min_size = Vector2( 100, 0 )
+[node name="Label" type="Label" parent="VBox/TabBar/Advanced/HBox3"]
+offset_top = 5.0
+offset_right = 100.0
+offset_bottom = 19.0
+custom_minimum_size = Vector2( 100, 0 )
 text = "Keywords:"
 align = 2
 
-[node name="Keywords" type="LineEdit" parent="VBox/Tabs/Advanced/HBox3"]
-margin_left = 104.0
-margin_right = 1002.0
-margin_bottom = 24.0
+[node name="Keywords" type="LineEdit" parent="VBox/TabBar/Advanced/HBox3"]
+offset_left = 104.0
+offset_right = 1002.0
+offset_bottom = 24.0
 size_flags_horizontal = 3
 placeholder_text = "Enter keywords for this command (comma-separated)"
 
-[node name="HBox4" type="HBoxContainer" parent="VBox/Tabs/Advanced"]
-margin_top = 108.0
-margin_right = 1002.0
-margin_bottom = 132.0
+[node name="HBox4" type="HBoxContainer" parent="VBox/TabBar/Advanced"]
+offset_top = 108.0
+offset_right = 1002.0
+offset_bottom = 132.0
 
-[node name="Label" type="Label" parent="VBox/Tabs/Advanced/HBox4"]
-margin_top = 5.0
-margin_right = 100.0
-margin_bottom = 19.0
-rect_min_size = Vector2( 100, 0 )
+[node name="Label" type="Label" parent="VBox/TabBar/Advanced/HBox4"]
+offset_top = 5.0
+offset_right = 100.0
+offset_bottom = 19.0
+custom_minimum_size = Vector2( 100, 0 )
 text = "RegEx:"
 align = 2
 
-[node name="RegEx" type="LineEdit" parent="VBox/Tabs/Advanced/HBox4"]
-margin_left = 104.0
-margin_right = 930.0
-margin_bottom = 24.0
+[node name="RegEx" type="LineEdit" parent="VBox/TabBar/Advanced/HBox4"]
+offset_left = 104.0
+offset_right = 930.0
+offset_bottom = 24.0
 size_flags_horizontal = 3
 max_length = 100
 placeholder_text = "RegEx"
 
-[node name="Label2" type="Label" parent="VBox/Tabs/Advanced/HBox4"]
-margin_left = 934.0
-margin_top = 5.0
-margin_right = 959.0
-margin_bottom = 19.0
-rect_min_size = Vector2( 25, 0 )
+[node name="Label2" type="Label" parent="VBox/TabBar/Advanced/HBox4"]
+offset_left = 934.0
+offset_top = 5.0
+offset_right = 959.0
+offset_bottom = 19.0
+custom_minimum_size = Vector2( 25, 0 )
 text = "100"
 align = 1
 
-[node name="Test" type="Button" parent="VBox/Tabs/Advanced/HBox4"]
-margin_left = 963.0
-margin_right = 1002.0
-margin_bottom = 24.0
+[node name="Test" type="Button" parent="VBox/TabBar/Advanced/HBox4"]
+offset_left = 963.0
+offset_right = 1002.0
+offset_bottom = 24.0
 text = "Test"
 
 [node name="RegexTester" parent="." instance=ExtResource( 2 )]
 visible = false
-margin_left = 7.0
-margin_top = 7.0
-margin_right = 1017.0
-margin_bottom = 593.0
+offset_left = 7.0
+offset_top = 7.0
+offset_right = 1017.0
+offset_bottom = 593.0
 
 [connection signal="pressed" from="VBox/HBox/CenterContainer/Delete" to="." method="_on_Delete_pressed"]
 [connection signal="pressed" from="VBox/HBox/CenterContainer2/Edit" to="." method="_on_Edit_pressed"]
-[connection signal="text_changed" from="VBox/Tabs/Settings/HBox/CommandName" to="." method="_on_CommandName_text_changed"]
-[connection signal="item_selected" from="VBox/Tabs/Settings/HBox2/UserLevel" to="." method="_on_UserLevel_item_selected"]
-[connection signal="text_changed" from="VBox/Tabs/Advanced/HBox4/RegEx" to="." method="_on_RegEx_text_changed"]
-[connection signal="pressed" from="VBox/Tabs/Advanced/HBox4/Test" to="." method="_on_Test_pressed"]
+[connection signal="text_changed" from="VBox/TabBar/Settings/HBox/CommandName" to="." method="_on_CommandName_text_changed"]
+[connection signal="item_selected" from="VBox/TabBar/Settings/HBox2/UserLevel" to="." method="_on_UserLevel_item_selected"]
+[connection signal="text_changed" from="VBox/TabBar/Advanced/HBox4/RegEx" to="." method="_on_RegEx_text_changed"]
+[connection signal="pressed" from="VBox/TabBar/Advanced/HBox4/Test" to="." method="_on_Test_pressed"]
 [connection signal="popup_hide" from="RegexTester" to="." method="_on_RegexTester_popup_hide"]

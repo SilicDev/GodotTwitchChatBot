@@ -7,7 +7,7 @@ var host : String = "irc.chat.twitch.tv"
 var port : int = 6667
 
 
-func _init() -> void:
+func _init():
 	socket = StreamPeerTCP.new()
 
 
@@ -45,7 +45,7 @@ func send(message: String) -> void:
 				print("< PASS oauth:" + "*".repeat(message.length() - 11))
 			else:
 				print("< " + message)
-		socket.put_data((message + "\r\n").to_utf8())
+		socket.put_data((message + "\r\n").to_utf8_buffer())
 	
 	else:
 		push_warning("Must be connected to send a message!")
@@ -58,7 +58,7 @@ func receive() -> String:
 			if data[0]:
 				status = Status.ERROR
 				push_error(str(data[0]) + ": Error occured while receiving message")
-			return PoolByteArray(data[1]).get_string_from_utf8()
+			return PackedByteArray(data[1]).get_string_from_utf8()
 	
 	else:
 		push_error("Must be connected to receive messages!")

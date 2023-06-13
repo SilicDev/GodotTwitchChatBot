@@ -1,30 +1,30 @@
 extends PanelContainer
 
 
-onready var active := $VBox/HBox/CheckBox
-onready var usageLabel := $VBox/HBox/UsageHint
-onready var exampleLabel := $VBox/HBox/ExampleReply
-onready var timeoutLabel := $VBox/HBox/Timeout
-onready var userTimeoutLabel := $VBox/HBox/UserTimeout
-onready var permissionLabel := $VBox/HBox/Permission
+@onready var active := $VBox/HBox/CheckBox
+@onready var usageLabel := $VBox/HBox/UsageHint
+@onready var exampleLabel := $VBox/HBox/ExampleReply
+@onready var timeoutLabel := $VBox/HBox/Timeout
+@onready var userTimeoutLabel := $VBox/HBox/UserTimeout
+@onready var permissionLabel := $VBox/HBox/Permission
 
-onready var tabs := $VBox/Tabs
+@onready var tabs := $VBox/TabBar
 
-onready var commandName := $VBox/Tabs/Settings/HBox/CommandName
-onready var usageHint := $VBox/Tabs/Settings/HBox4/UsageHint
-onready var exampleReply := $VBox/Tabs/Settings/HBox5/ExampleReply
-onready var userLevel := $VBox/Tabs/Settings/HBox2/UserLevel
-onready var responseInput := $VBox/Tabs/Settings/HBox3/Response
+@onready var commandName := $VBox/TabBar/Settings/HBox/CommandName
+@onready var usageHint := $VBox/TabBar/Settings/HBox4/UsageHint
+@onready var exampleReply := $VBox/TabBar/Settings/HBox5/ExampleReply
+@onready var userLevel := $VBox/TabBar/Settings/HBox2/UserLevel
+@onready var responseInput := $VBox/TabBar/Settings/HBox3/Response
 
-onready var cooldown := $VBox/Tabs/Advanced/HBox/HBox/GlobalCooldown
-onready var userCooldown := $VBox/Tabs/Advanced/HBox/HBox2/UserCooldown
-onready var aliases := $VBox/Tabs/Advanced/HBox2/Aliases
-onready var keywords := $VBox/Tabs/Advanced/HBox3/Keywords
-onready var regex := $VBox/Tabs/Advanced/HBox4/RegEx
-onready var regexRemaining := $VBox/Tabs/Advanced/HBox4/Label2
+@onready var cooldown := $VBox/TabBar/Advanced/HBox/HBox/GlobalCooldown
+@onready var userCooldown := $VBox/TabBar/Advanced/HBox/HBox2/UserCooldown
+@onready var aliases := $VBox/TabBar/Advanced/HBox2/Aliases
+@onready var keywords := $VBox/TabBar/Advanced/HBox3/Keywords
+@onready var regex := $VBox/TabBar/Advanced/HBox4/RegEx
+@onready var regexRemaining := $VBox/TabBar/Advanced/HBox4/Label2
 
-onready var regexTester := $RegexTester
-onready var regexTesterRegex := $RegexTester/PanelCon/VBox/HBox/Regex
+@onready var regexTester := $RegexTester
+@onready var regexTesterRegex := $RegexTester/PanelCon/VBox/HBox/Regex
 
 
 ## Called when the node enters the scene tree for the first time.
@@ -38,7 +38,7 @@ func _ready() -> void:
 
 
 func set_data(cmd: Command) -> void:
-	active.pressed = cmd.active
+	active.button_pressed = cmd.active
 	active.text = cmd.name
 	
 	usageLabel.text = cmd.usage_hint

@@ -1,8 +1,8 @@
 extends Node
 
 
-export(String) var oauth = ""
-export(String) var client_id = ""
+@export var oauth: String = ""
+@export var client_id: String = ""
 
 
 var test = preload("res://addons/godot_twitch_bot/util/TwitchAPI.gd").new()
@@ -13,21 +13,28 @@ var messageParser = preload("res://addons/godot_twitch_bot/util/IRCMessageParser
 func _ready() -> void:
 	## These should authenticate the application you program
 	## Never share your OAuth key on stream or otherwise
-	test.headers.append_array([
+	test.headers = [
 		"Authorization: Bearer " + oauth,
 		"Client-Id: " + client_id,
-	])
-	var manager = ManagerMock.new(test)
-	## Create new command object
-	var cmd: Command #= preload("res://addons/godot_twitch_bot/commands/YourCommand.gd").new()
-	## Add manager if requested
-	if "manager" in cmd:
-		cmd.manager = manager
-	## Create message
-	var msg = create_mock_message("!settitle params")
-	## test command
-	if cmd.should_fire(msg):
-		print(manager.formatter.format_message(cmd.get_response(msg), msg))
+	]
+	await test.connect_to_twitch()
+#	var manager = ManagerMock.new(test)
+#	## Create new command object
+#	var cmd: Command #= preload("res://addons/godot_twitch_bot/commands/YourCommand.gd").new()
+#	## Add manager if requested
+#	if "manager" in cmd:
+#		cmd.manager = manager
+#	## Create message
+#	var msg = create_mock_message("!settitle params")
+#	## test command
+#	if cmd.should_fire(msg):
+#		print(manager.formatter.format_message(cmd.get_response(msg), msg))
+	var users = await test.get_users_by_name(["orbot_sa_55"])
+	var orbot
+	for d in users.data:
+		if d.login == "orbot_sa_55":
+			orbot = d
+	print(await test.update_user_chat_color(orbot.id, " "))
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -47,7 +54,7 @@ func create_mock_message(
 	var msg := "@badge-info=;badges=broadcaster/1;client-nonce=ffffffffffffffffffffffffffffffff;color=;" + \
 			"display-name=" + sender + ";emotes=;first-msg=0;flags=;id=ffffffff-ffff-ffff-ffff-ffffffffffff;" + \
 			"mod=0;returning-chatter=0;room-id=" + room_id + ";subscriber=0;tmi-sent-ts=" + \
-			str(OS.get_unix_time()) + ";turbo=0;" + "user-id=0;user-type= :" + login + "!" + login + \
+			str(Time.get_unix_time_from_system()) + ";turbo=0;" + "user-id=0;user-type= :" + login + "!" + login + \
 			"@" + login + ".tmi.twitch.tv PRIVMSG #" + channel + " :" + \
 			message
 	return messageParser.parse_message(msg)
@@ -59,6 +66,6 @@ class ManagerMock:
 	var counters := {}
 	var formatter = load("res://addons/godot_twitch_bot/util/MessageFormater.gd").new()
 	
-	func _init(api) -> void:
+	func _init(api):
 		formatter.counterManager = self
 		formatter.api = api

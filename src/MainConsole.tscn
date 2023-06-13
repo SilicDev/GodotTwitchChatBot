@@ -1,91 +1,73 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=4 format=3 uid="uid://cjd01u48dmawa"]
 
-[ext_resource path="res://addons/godot_twitch_bot/bot/Bot.gd" type="Script" id=1]
-[ext_resource path="res://src/MainConsole.gd" type="Script" id=2]
-[ext_resource path="res://src/ConfigureDialog.tscn" type="PackedScene" id=3]
+[ext_resource type="Script" path="res://addons/godot_twitch_bot/bot/Bot.gd" id="1"]
+[ext_resource type="Script" path="res://src/MainConsole.gd" id="2"]
+[ext_resource type="PackedScene" uid="uid://dwynjgkgsqhi1" path="res://src/ConfigureDialog.tscn" id="3"]
 
 [node name="MainConsole" type="Panel"]
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-script = ExtResource( 2 )
+script = ExtResource("2")
 
 [node name="Bot" type="Node" parent="."]
-script = ExtResource( 1 )
+script = ExtResource("1")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
-custom_constants/margin_right = 5
-custom_constants/margin_top = 5
-custom_constants/margin_left = 5
-custom_constants/margin_bottom = 5
 
 [node name="VBox" type="VBoxContainer" parent="MarginContainer"]
-margin_left = 5.0
-margin_top = 5.0
-margin_right = 1019.0
-margin_bottom = 595.0
+layout_mode = 2
 
 [node name="HBox" type="HBoxContainer" parent="MarginContainer/VBox"]
-margin_right = 1014.0
-margin_bottom = 26.0
+layout_mode = 2
 
 [node name="Config" type="Button" parent="MarginContainer/VBox/HBox"]
-margin_right = 72.0
-margin_bottom = 26.0
+layout_mode = 2
 text = "Configure"
 
 [node name="VSeparator" type="VSeparator" parent="MarginContainer/VBox/HBox"]
-margin_left = 76.0
-margin_right = 80.0
-margin_bottom = 26.0
+layout_mode = 2
 
 [node name="Connect" type="Button" parent="MarginContainer/VBox/HBox"]
-margin_left = 84.0
-margin_right = 210.0
-margin_bottom = 26.0
+layout_mode = 2
 text = "Connect to Twitch"
 
 [node name="HBox" type="HBoxContainer" parent="MarginContainer/VBox/HBox"]
-margin_left = 214.0
-margin_right = 1014.0
-margin_bottom = 26.0
+layout_mode = 2
 size_flags_horizontal = 3
 alignment = 2
 
 [node name="LineEdit" type="LineEdit" parent="MarginContainer/VBox/HBox/HBox"]
-margin_left = 561.0
-margin_right = 761.0
-margin_bottom = 26.0
-rect_min_size = Vector2( 200, 0 )
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+placeholder_text = "Enter Channel"
 expand_to_text_length = true
 context_menu_enabled = false
 clear_button_enabled = true
-placeholder_text = "Enter Channel"
 
 [node name="Join" type="Button" parent="MarginContainer/VBox/HBox/HBox"]
-margin_left = 765.0
-margin_right = 800.0
-margin_bottom = 26.0
+layout_mode = 2
 disabled = true
 text = "Join"
 
 [node name="TabContainer" type="TabContainer" parent="MarginContainer/VBox"]
-margin_top = 30.0
-margin_right = 1014.0
-margin_bottom = 590.0
+layout_mode = 2
 size_flags_vertical = 3
-tab_align = 0
 
-[node name="ConfigureDialog" parent="." instance=ExtResource( 3 )]
+[node name="ConfigureDialog" parent="." instance=ExtResource("3")]
 
 [connection signal="chat_message_deleted" from="Bot" to="." method="_on_Bot_chat_message_deleted"]
 [connection signal="chat_message_received" from="Bot" to="." method="_on_Bot_chat_message_received"]
 [connection signal="chat_message_send" from="Bot" to="." method="_on_Bot_chat_message_send"]
+[connection signal="command_fired" from="Bot" to="." method="_on_Bot_command_fired"]
 [connection signal="connected" from="Bot" to="." method="_on_Bot_connected"]
 [connection signal="disconnected" from="Bot" to="." method="_on_Bot_disconnected"]
 [connection signal="joined_channel" from="Bot" to="." method="_on_Bot_joined_channel"]
 [connection signal="parted_channel" from="Bot" to="." method="_on_Bot_parted_channel"]
+[connection signal="pinged" from="Bot" to="." method="_on_Bot_pinged"]
 [connection signal="roomstate_received" from="Bot" to="." method="_on_Bot_roomstate_received"]
 [connection signal="user_messages_deleted" from="Bot" to="." method="_on_Bot_user_messages_deleted"]
 [connection signal="userstate_received" from="Bot" to="." method="_on_Bot_userstate_received"]
@@ -93,5 +75,4 @@ tab_align = 0
 [connection signal="pressed" from="MarginContainer/VBox/HBox/Connect" to="." method="_on_Connect_pressed"]
 [connection signal="text_changed" from="MarginContainer/VBox/HBox/HBox/LineEdit" to="." method="_on_LineEdit_text_changed"]
 [connection signal="pressed" from="MarginContainer/VBox/HBox/HBox/Join" to="." method="_on_Join_pressed"]
-[connection signal="about_to_show" from="ConfigureDialog" to="." method="_on_ConfigureDialog_about_to_show"]
-[connection signal="popup_hide" from="ConfigureDialog" to="." method="_on_ConfigureDialog_popup_hide"]
+[connection signal="about_to_popup" from="ConfigureDialog" to="." method="_on_ConfigureDialog_about_to_show"]

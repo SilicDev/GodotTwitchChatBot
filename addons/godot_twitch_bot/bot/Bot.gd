@@ -1,4 +1,5 @@
-class_name TwitchBot, "res://addons/godot_twitch_bot/assets/icon.png"
+@icon("res://addons/godot_twitch_bot/assets/icon.png")
+class_name TwitchBot
 extends Node
 
 
@@ -40,10 +41,12 @@ var display_name := ""
 var chat_color := ""
 var bot_id := ""
 
-var connected = false
+var connected_to_twitch := false
 
 var read_only := false
 var request_membership := true
+
+var full_IRC := false
 
 var default_channels := []
 var channels := {}
@@ -63,8 +66,8 @@ func _ready() -> void:
 
 func _notification(what: int) -> void:
 	## Handle quiting gracefully
-	if what == NOTIFICATION_WM_QUIT_REQUEST:
-		if connected:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		if connected_to_twitch:
 			disconnect_from_twitch()
 		save_ini()
 
@@ -77,8 +80,8 @@ func _process(delta: float) -> void:
 	
 	if connection.status == Connection.Status.CONNECTED:
 		
-		if not connected:
-			connected = true
+		if not connected_to_twitch:
+			connected_to_twitch = true
 			print("Authorizing...")
 			
 			if not read_only:
@@ -95,16 +98,17 @@ func _process(delta: float) -> void:
 		if connection.has_message():
 			var messages := connection.receive().split("\r\n")
 			for msg in messages:
-				if OS.is_debug_build():
-					if not msg.empty():
-						print("> " + msg)
-				
 				var parsedMessage = messageParser.parse_message(msg)
+				if OS.is_debug_build():
+					if not msg.is_empty():
+						if full_IRC:
+							print("> " + msg)
+					
+				
 				if parsedMessage:
+					var tags = parsedMessage.get("tags", {})
 					var commandDict = parsedMessage.get("command", {})
 					var parameters = parsedMessage.get("parameters", "")
-					var tags = parsedMessage.get("tags", {})
-					
 					var c := ""
 					c = commandDict.get("channel", "")
 					if c.begins_with("#"):
@@ -114,6 +118,9 @@ func _process(delta: float) -> void:
 						"PRIVMSG":
 							emit_signal("chat_message_received", parsedMessage, c)
 							channels[c].handle_message(parsedMessage)
+							if not full_IRC:
+								var display_name = tags.get("display-name", "Anonymous")
+								print("> " + display_name + ": " + parameters)
 						
 						"PING":
 							emit_signal("pinged")
@@ -129,7 +136,7 @@ func _process(delta: float) -> void:
 								print("joined " + commandDict.channel)
 								if not c in channels.keys():
 									channels[c] = channelManagerScript.new(c)
-									channels[c].connect("command_fired", self, "_on_Channel_command_fired")
+									channels[c].connect("command_fired",Callable(self,"_on_Channel_command_fired"))
 								channels[c].connected = true
 								emit_signal("joined_channel", c)
 						
@@ -162,7 +169,7 @@ func _process(delta: float) -> void:
 							else:
 								emit_signal("chat_message_deleted", "", c)
 		for c in channels.keys():
-			if channels[c].connected and not channels[c].message_queue.empty():
+			if channels[c].connected and not channels[c].message_queue.is_empty():
 				var data = channels[c].message_queue.pop_front()
 				if data is String:
 					chat(c, data)
@@ -178,14 +185,14 @@ func _process(delta: float) -> void:
 		if connection.status == Connection.Status.ERROR:
 			push_warning("Lost Connection")
 			disconnect_from_twitch()
-			OS.request_attention()
-			OS.move_window_to_foreground()
+			get_window().request_attention()
+			get_window().move_to_foreground()
 		
-		if connection.status == Connection.Status.DISCONNECTED and connected:
+		if connection.status == Connection.Status.DISCONNECTED and connected_to_twitch:
 			push_warning("Lost Connection")
-			OS.request_attention()
-			OS.move_window_to_foreground()
-			connected = false
+			get_window().request_attention()
+			get_window().move_to_foreground()
+			connected_to_twitch = false
 
 
 func connect_to_twitch() -> int:
@@ -203,7 +210,7 @@ func connect_to_twitch() -> int:
 		emit_signal("connected")
 		print("Connected")
 	else:
-		connected = false
+		connected_to_twitch = false
 	return err
 
 
@@ -211,7 +218,7 @@ func disconnect_from_twitch() -> void:
 	for c in channels.keys():
 		part_channel(c)
 	connection.disconnect_from_host()
-	connected = false
+	connected_to_twitch = false
 	emit_signal("disconnected")
 	print("Disconnected")
 
@@ -239,7 +246,7 @@ func chat(channel: String, msg: String, reply_id: String = "") -> void:
 		var c := channel.to_lower()
 		if c.begins_with("#"):
 			c = c.substr(1)
-		if not reply_id.empty():
+		if not reply_id.is_empty():
 			send("@reply-parent-msg-id=" + reply_id + " PRIVMSG #" + c + " :" + msg)
 		else:
 			send("PRIVMSG #" + c + " :" + msg)
@@ -286,8 +293,7 @@ func save_ini() -> void:
 	config.set_value("twitch", "client_id", client_id)
 	
 	var path = "user://config.ini"
-	var file := File.new()
-	var dir := Directory.new()
+	var dir := DirAccess.open("user://")
 	if not dir.dir_exists(path.get_base_dir()):
 		dir.make_dir_recursive(path.get_base_dir())
 	
@@ -312,7 +318,7 @@ func parse_notice(tags, parameters: String, channel: String):
 	var msg_id = ""
 	if tags:
 		msg_id = tags.get("msg-id", "")
-	if msg_id.empty():
+	if msg_id.is_empty():
 		## If the authentication failed, leave the channel.
 		## The server will close the connection.
 		if "Login authentication failed" == parameters or "Invalid NICK" == parameters:

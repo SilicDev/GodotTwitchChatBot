@@ -14,7 +14,7 @@ func _init() -> void:
 
 
 func get_response(parsedMessage: Dictionary) -> String:
-	var params := PoolStringArray()
+	var params := PackedStringArray()
 	if parsedMessage.command.has("botCommandParams"):
 		params = parsedMessage.command.botCommandParams.split(" ")
 	var sender = parsedMessage.get("tags", {}).get("display-name", "")
@@ -22,7 +22,7 @@ func get_response(parsedMessage: Dictionary) -> String:
 	
 	var quoteDict := get_quotes(channel)
 	
-	if params.empty():
+	if params.is_empty():
 		if quoteDict.keys().size() > 0:
 			var quoteID = quoteDict.keys()[rng.randi() % quoteDict.keys().size()]
 			return "Quote #" + quoteID + ": " + quoteDict[quoteID]
@@ -44,9 +44,11 @@ func get_response(parsedMessage: Dictionary) -> String:
 			return "Quote with ID #" + quoteID + " doesn't exist!"
 		
 		"add":
-			var quote = ""
-			for i in range(1, params.size()):
+			var quote = "";
+			for i in range(1, params.size()): 
 				quote += params[i] + " "
+			if quote.is_empty():
+				return "Can't save empty quote!"
 			quote = quote.substr(0, quote.length() - 1)
 			
 			var nextID = quoteDict.get("size", quoteDict.keys().size()) + 1
@@ -57,6 +59,7 @@ func get_response(parsedMessage: Dictionary) -> String:
 					#return "Quote capacity reached!"
 			
 			var ID = str(nextID)
+			print(ID)
 			quoteDict[ID] = quote
 			quoteDict["size"] = nextID
 			save_quotes(channel, quoteDict)
@@ -85,18 +88,22 @@ func get_quotes(channel: String) -> Dictionary:
 	if c.begins_with("#"):
 		c = c.substr(1)
 	
-	var file := File.new()
 	var path = "user://channels/" + c + "/quotes.json"
-	var err := file.open(path, File.READ)
+	var file := FileAccess.open(path, FileAccess.READ)
+	var err := FileAccess.get_open_error()
 	if err:
+		push_warning("Failed to load quotes file")
 		return {}
 	
-	var res := JSON.parse(file.get_as_text())
+	var test_json_conv = JSON.new()
+	err = test_json_conv.parse(file.get_as_text())
+	var res := test_json_conv.get_data()
 	file.close()
-	if not res.error:
-		if not res.result.has("size"):
-			res.result.size = res.result.keys().size()
-		return res.result
+	if not err:
+		if not res.has("size"):
+			res.size = res.keys().size()
+		return res
+	push_warning("Failed to parse quotes json! %s (%d)" % [test_json_conv.get_error_message(), test_json_conv.get_error_line()])
 	return {}
 
 
@@ -105,13 +112,13 @@ func save_quotes(channel: String, quotes: Dictionary) -> int:
 	if c.begins_with("#"):
 		c = c.substr(1)
 	
-	var file := File.new()
 	var path = "user://channels/" + c + "/quotes.json"
-	var err := file.open(path, File.WRITE)
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	var err := FileAccess.get_open_error()
 	if err:
 		push_error("Unable to save quotes!")
 		return err
 	
-	file.store_string(JSON.print(quotes, "\t"))
+	file.store_string(JSON.stringify(quotes, "\t"))
 	file.close()
 	return OK

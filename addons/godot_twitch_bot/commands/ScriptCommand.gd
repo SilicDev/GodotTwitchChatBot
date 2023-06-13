@@ -15,7 +15,7 @@ func get_response(parsedMessage: Dictionary) -> String:
 
 
 func get_save_dict() -> Dictionary:
-	var dict := .get_save_dict()
+	var dict := super.get_save_dict()
 	dict["response"] = response
 	dict["usage_hint"] = usage_hint
 	dict["example_reply"] = example_reply

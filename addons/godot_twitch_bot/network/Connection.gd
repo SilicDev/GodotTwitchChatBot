@@ -1,5 +1,5 @@
 class_name Connection
-extends Reference
+extends RefCounted
 
 
 enum Status {

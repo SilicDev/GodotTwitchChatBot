@@ -4,7 +4,7 @@ extends ScriptCommand
 var manager
 
 
-func _init() -> void:
+func _init():
 	usage_hint = "!module on|off <module>"
 	example_reply = "Successfully enabled module \"quote\"!"
 	name = "module"
@@ -12,11 +12,11 @@ func _init() -> void:
 
 
 func get_response(parsedMessage: Dictionary) -> String:
-	var params := PoolStringArray()
+	var params := PackedStringArray()
 	if parsedMessage.command.has("botCommandParams"):
 		params = parsedMessage.command.botCommandParams.split(" ")
 	
-	if params.empty() or params.size() < 2:
+	if params.is_empty() or params.size() < 2:
 		return "${sender} usage of command \"" + name + "\": " + usage_hint
 	
 	var toggle = false

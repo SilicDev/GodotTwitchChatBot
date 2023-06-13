@@ -1,15 +1,15 @@
 extends Connection
 
 
-var socket : WebSocketClient
+var socket : WebSocketPeer
 
 var host : String = "irc-ws.chat.twitch.tv"
 var port : int = 443
 
 
-func _init() -> void:
-	socket = WebSocketClient.new()
-	socket.verify_ssl = true
+func _init():
+	socket = WebSocketPeer.new()
+	#socket.verify_ssl = true
 
 
 func connect_to_host() -> int:
@@ -23,17 +23,16 @@ func connect_to_host() -> int:
 
 
 func update() -> void:
-	if socket.get_connection_status() == NetworkedMultiplayerPeer.CONNECTION_CONNECTED and status == Status.CONNECTING:
+	if socket.get_ready_state() == WebSocketPeer.STATE_OPEN and status == Status.CONNECTING:
 		status = Status.CONNECTED
-		socket.get_peer(1).set_write_mode(WebSocketPeer.WRITE_MODE_TEXT)
-	elif socket.get_connection_status() == NetworkedMultiplayerPeer.CONNECTION_DISCONNECTED:
-		status == Status.DISCONNECTED
-	if socket.get_connection_status() != NetworkedMultiplayerPeer.CONNECTION_DISCONNECTED:
+	elif socket.get_ready_state() == WebSocketPeer.STATE_CLOSED:
+		status = Status.DISCONNECTED
+	if socket.get_ready_state() != WebSocketPeer.STATE_CLOSED:
 		socket.poll()
 
 
 func disconnect_from_host() -> void:
-	socket.get_peer(1).close(1000, "Client disconnected")
+	socket.close(1000, "Client disconnected")
 	status = Status.DISCONNECTED
 
 
@@ -44,21 +43,21 @@ func send(message: String) -> void:
 		else:
 			print("< " + message)
 	
-	var err := socket.get_peer(1).put_packet((message + "\r\n").to_utf8())
+	var err := socket.send_text(message + "\r\n")
 	if err:
 		push_error("Error occured while sending message: " + str(err))
 		status = Status.ERROR
 
 
 func receive() -> String:
-	if socket.get_peer(1).get_available_packet_count() != 0:
-		return socket.get_peer(1).get_packet().get_string_from_utf8()
+	if socket.get_available_packet_count() != 0:
+		return socket.get_packet().get_string_from_utf8()
 	return ""
 
 
 func has_message() -> bool:
-	return socket.get_peer(1).get_available_packet_count() != 0
+	return socket.get_available_packet_count() != 0
 
 
 func is_connected_to_host() -> bool:
-	return socket.get_peer(1).is_connected_to_host()
+	return socket.get_ready_state() == WebSocketPeer.STATE_OPEN

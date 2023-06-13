@@ -6,58 +6,34 @@
 ;   [section] ; section goes between []
 ;   param=value ; assign values to parameters
 
-config_version=4
-
-_global_script_classes=[ {
-"base": "Resource",
-"class": "Command",
-"language": "GDScript",
-"path": "res://addons/godot_twitch_bot/commands/Command.gd"
-}, {
-"base": "Reference",
-"class": "Connection",
-"language": "GDScript",
-"path": "res://addons/godot_twitch_bot/network/Connection.gd"
-}, {
-"base": "Command",
-"class": "ScriptCommand",
-"language": "GDScript",
-"path": "res://addons/godot_twitch_bot/commands/ScriptCommand.gd"
-}, {
-"base": "Reference",
-"class": "TwitchAPI",
-"language": "GDScript",
-"path": "res://addons/godot_twitch_bot/util/TwitchAPI.gd"
-}, {
-"base": "Node",
-"class": "TwitchBot",
-"language": "GDScript",
-"path": "res://addons/godot_twitch_bot/bot/Bot.gd"
-} ]
-_global_script_class_icons={
-"Command": "",
-"Connection": "",
-"ScriptCommand": "",
-"TwitchAPI": "res://addons/godot_twitch_bot/assets/icon.png",
-"TwitchBot": "res://addons/godot_twitch_bot/assets/icon.png"
-}
+config_version=5
 
 [application]
 
 config/name="GodotTwitchChatBot"
 run/main_scene="res://src/MainConsole.tscn"
+run/disable_stdout=true
 config/use_custom_user_dir=true
 config/custom_user_dir_name="GodotTwitchBot"
+config/features=PackedStringArray("4.0")
+run/low_processor_mode=true
 config/icon="res://icon.png"
 config/windows_native_icon="res://assets/icon/icon.ico"
 
+[debug]
+
+settings/stdout/verbose_stdout=true
+settings/fps/force_fps=30
+settings/physics_interpolation/enable_warnings=false
+
+[display]
+
+window/size/resizable=false
+window/vsync/vsync_via_compositor=true
+
 [editor_plugins]
 
-enabled=PoolStringArray( "res://addons/godot_twitch_bot/plugin.cfg" )
-
-[gui]
-
-common/drop_mouse_on_gui_input_disabled=true
+enabled=PackedStringArray("res://addons/godot_twitch_bot/plugin.cfg")
 
 [physics]
 
@@ -65,4 +41,5 @@ common/enable_pause_aware_picking=true
 
 [rendering]
 
-environment/default_environment="res://default_env.tres"
+environment/defaults/default_environment="res://default_env.tres"
+quality/driver/driver_name="GLES2"

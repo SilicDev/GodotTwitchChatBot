@@ -19,11 +19,11 @@ var reply_id := ""
 var parsedMessage := {}
 
 
-onready var message := $HBoxContainer/MessageBody/Message
-onready var reply := $HBoxContainer/MessageBody/Reply
+@onready var message := $HBoxContainer/MessageBody/Message
+@onready var reply := $HBoxContainer/MessageBody/Reply
 
-onready var modButtons := $HBoxContainer/ModButtons
-onready var replyContainer := $HBoxContainer/ReplyCont
+@onready var modButtons := $HBoxContainer/ModButtons
+@onready var replyContainer := $HBoxContainer/ReplyCont
 
 
 ## Called when the node enters the scene tree for the first time.
@@ -44,4 +44,4 @@ func _on_Delete_pressed() -> void:
 
 
 func _on_Reply_pressed() -> void:
-	emit_signal("reply_requested", id if reply_id.empty() else reply_id)
+	emit_signal("reply_requested", id if reply_id.is_empty() else reply_id)

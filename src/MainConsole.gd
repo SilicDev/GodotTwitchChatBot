@@ -1,20 +1,23 @@
 extends Panel
 
 
+const chatWindowScene := preload("res://src/chat/ChatWindow.tscn")
+
+
 var chats = {}
 
 var active_threads := []
 
 
-onready var bot : TwitchBot = $Bot
+@onready var bot : TwitchBot = $Bot
 
-onready var connectButton := $MarginContainer/VBox/HBox/Connect
-onready var channelName := $MarginContainer/VBox/HBox/HBox/LineEdit
-onready var joinButton := $MarginContainer/VBox/HBox/HBox/Join
+@onready var connectButton := $MarginContainer/VBox/HBox/Connect
+@onready var channelName := $MarginContainer/VBox/HBox/HBox/LineEdit
+@onready var joinButton := $MarginContainer/VBox/HBox/HBox/Join
 
-onready var tabs := $MarginContainer/VBox/TabContainer
+@onready var tabs := $MarginContainer/VBox/TabContainer
 
-onready var configMenu := $ConfigureDialog
+@onready var configMenu := $ConfigureDialog
 
 
 ## Called when the node enters the scene tree for the first time.
@@ -28,15 +31,14 @@ onready var configMenu := $ConfigureDialog
 
 
 func cleanup_threads() -> void:
-	var temp = PoolIntArray([])
-	for i in range(active_threads.size()):
-		if not active_threads[i].is_alive():
-			print(active_threads[i].get_id(), ": ", active_threads[i].wait_to_finish())
-			temp.append(i)
-	temp.sort()
-	temp.invert()
-	for i in temp:
-		active_threads.pop_at(i)
+	var temp = []
+	for t in active_threads:
+		if not t.is_alive():
+			print(t.get_id(), ": ", t.wait_to_finish())
+			temp.append(t)
+	for t in temp:
+		active_threads.erase(t)
+	temp.clear()
 
 
 func ban_user(arguments: Dictionary) -> void:
@@ -66,7 +68,7 @@ func delete_message(arguments: Dictionary) -> void:
 
 func _on_Connect_pressed() -> void:
 	connectButton.disabled = true
-	if not bot.connected:
+	if not bot.connected_to_twitch:
 		var err = bot.connect_to_twitch()
 		if err:
 			print("Connection failed")
@@ -75,29 +77,29 @@ func _on_Connect_pressed() -> void:
 
 
 func _on_Join_pressed() -> void:
-	if not channelName.text.empty() and not bot.is_connected_to_channel(channelName.text):
+	if not channelName.text.is_empty() and not bot.is_connected_to_channel(channelName.text):
 		bot.join_channel(channelName.text)
 		joinButton.disabled = true
 		channelName.text = ""
 
 
 func _on_LineEdit_text_changed(new_text: String) -> void:
-	var invalid_channel := (new_text.empty() or bot.is_connected_to_channel(new_text))
-	joinButton.disabled = not bot.connected or invalid_channel
+	var invalid_channel := (new_text.is_empty() or bot.is_connected_to_channel(new_text))
+	joinButton.disabled = not bot.connected_to_twitch or invalid_channel
 
 
 func _on_Bot_joined_channel(channel) -> void:
 	if not channel in chats.keys():
-		var chat = load("res://src/chat/ChatWindow.tscn").instance()
+		var chat = chatWindowScene.instantiate()
 		tabs.add_child(chat)
 		
-		chat.connect("send_button_pressed", self, "_on_Chat_send_button_pressed")
-		chat.connect("part_requested", self, "_on_Chat_part_requested")
-		chat.connect("join_requested", self, "_on_Chat_join_requested")
+		chat.connect("send_button_pressed",Callable(self,"_on_Chat_send_button_pressed"))
+		chat.connect("part_requested",Callable(self,"_on_Chat_part_requested"))
+		chat.connect("join_requested",Callable(self,"_on_Chat_join_requested"))
 		
-		chat.connect("ban_user_requested", self, "_on_Chat_ban_user_requested")
-		chat.connect("timeout_user_requested", self, "_on_Chat_timeout_user_requested")
-		chat.connect("delete_message_requested", self, "_on_Chat_delete_message_requested")
+		chat.connect("ban_user_requested",Callable(self,"_on_Chat_ban_user_requested"))
+		chat.connect("timeout_user_requested",Callable(self,"_on_Chat_timeout_user_requested"))
+		chat.connect("delete_message_requested",Callable(self,"_on_Chat_delete_message_requested"))
 		
 		chat.name = channel
 		
@@ -121,11 +123,12 @@ func _on_Bot_joined_channel(channel) -> void:
 	]
 	var t = Thread.new()
 	active_threads.append(t)
-	t.start(chats[channel].channelInstance.api, "connect_to_twitch")
+	t.start(Callable(chats[channel].channelInstance.api,"connect_to_twitch"))
+	print("Thread started: ", t.get_id())
 	
 	chats[channel].load_ini()
 	
-	if not chats[channel].join_message.empty():
+	if not chats[channel].join_message.is_empty():
 		bot.chat(channel, chats[channel].join_message)
 
 
@@ -206,7 +209,7 @@ func _on_ConfigureDialog_popup_hide() -> void:
 	config.save("user://config.ini")
 	config.clear()
 	
-	if not bot.connected:
+	if not bot.connected_to_twitch:
 		bot.load_ini()
 
 
@@ -217,7 +220,7 @@ func _on_Config_pressed() -> void:
 func _on_Bot_userstate_received(tags, channel) -> void:
 	chats[channel].bot_color = tags.get("color", "#ffffff")
 	chats[channel].bot_name = tags.get("display-name", "")
-	chats[channel].is_mod = tags.get("mod", 0)
+	chats[channel].is_mod = tags.get("mod", "0") == "1"
 	
 	if chats[channel].lastBotMessage:
 		chats[channel].lastBotMessage.id = tags.get("id", "")
@@ -232,14 +235,14 @@ func _on_Bot_chat_message_deleted(id, channel) -> void:
 	var message: Control = chats[channel].get_message_by_id(id)
 	if message:
 		message.call_deferred("free")
-		chats[channel].scroll.scroll_vertical -= message.rect_size.y
+		chats[channel].scroll.scroll_vertical -= message.size.y
 
 
 func _on_Bot_user_messages_deleted(id, channel) -> void:
 	var messages = chats[channel].get_messages_by_user_id(id)
 	for msg in messages:
 		msg.call_deferred("free")
-		chats[channel].scroll.scroll_vertical -= msg.rect_size.y
+		chats[channel].scroll.scroll_vertical -= msg.size.y
 
 
 func _on_Chat_ban_user_requested(channel, id) -> void:
@@ -250,7 +253,7 @@ func _on_Chat_ban_user_requested(channel, id) -> void:
 		"moderator_id" : bot.bot_id,
 		"user_id" : id,
 	}
-	t.start(self, "ban_user", args)
+	t.start(Callable(self,"ban_user").bind(args))
 
 
 func _on_Chat_timeout_user_requested(channel, id, length) -> void:
@@ -263,7 +266,7 @@ func _on_Chat_timeout_user_requested(channel, id, length) -> void:
 		"user_id" : id,
 		"duration": length
 	}
-	t.start(self, "timeout_user", args)
+	t.start(Callable(self,"timeout_user").bind(args))
 
 
 func _on_Chat_delete_message_requested(channel, id) -> void:
@@ -275,4 +278,12 @@ func _on_Chat_delete_message_requested(channel, id) -> void:
 		"moderator_id" : bot.bot_id,
 		"msg_id" : id,
 	}
-	t.start(self, "delete_message", args)
+	t.start(Callable(self,"delete_message").bind(args))
+
+
+func _on_Bot_command_fired(cmd, params, channel):
+	pass # Replace with function body.
+
+
+func _on_Bot_pinged():
+	pass # Replace with function body.

@@ -1,4 +1,4 @@
-extends Reference
+extends RefCounted
 
 
 signal timer_triggered(message)
