@@ -33,20 +33,21 @@ func get_response(parsedMessage: Dictionary) -> String:
 
 
 func should_fire(parsedMessage: Dictionary) -> bool:
-	if is_broadcaster(parsedMessage) or get_permission(parsedMessage) >= permission_level:
-		var cmd = parsedMessage.get("command", {}).get("botCommand", "")
-		if cmd == name or cmd in aliases:
-			return true
-		
-		var parameters = parsedMessage.get("parameters", "")
-		for keyword in keywords:
-			if keyword in parameters:
+	if Time.get_ticks_msec() - last_sent > timeout * 1000:
+		if is_broadcaster(parsedMessage) or get_permission(parsedMessage) >= permission_level:
+			var cmd = parsedMessage.get("command", {}).get("botCommand", "")
+			if cmd == name.to_lower() or cmd in aliases:
 				return true
-		
-		if not regex.empty():
-			matcher.compile(regex)
-			if matcher.search(parameters):
-				return true
+			
+			var parameters = parsedMessage.get("parameters", "")
+			for keyword in keywords:
+				if keyword in parameters:
+					return true
+			
+			if not regex.empty():
+				matcher.compile(regex)
+				if matcher.search(parameters):
+					return true
 		
 	return false
 

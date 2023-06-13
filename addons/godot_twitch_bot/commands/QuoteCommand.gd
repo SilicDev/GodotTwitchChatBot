@@ -47,6 +47,8 @@ func get_response(parsedMessage: Dictionary) -> String:
 			var quote = ""
 			for i in range(1, params.size()):
 				quote += params[i] + " "
+			if not quote:
+				return "Can't save empty quote!"
 			quote = quote.substr(0, quote.length() - 1)
 			
 			var nextID = quoteDict.get("size", quoteDict.keys().size()) + 1

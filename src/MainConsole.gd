@@ -1,6 +1,9 @@
 extends Panel
 
 
+const chatWindowScene := preload("res://src/chat/ChatWindow.tscn")
+
+
 var chats = {}
 
 var active_threads := []
@@ -28,15 +31,14 @@ onready var configMenu := $ConfigureDialog
 
 
 func cleanup_threads() -> void:
-	var temp = PoolIntArray([])
-	for i in range(active_threads.size()):
-		if not active_threads[i].is_alive():
-			print(active_threads[i].get_id(), ": ", active_threads[i].wait_to_finish())
-			temp.append(i)
-	temp.sort()
-	temp.invert()
-	for i in temp:
-		active_threads.pop_at(i)
+	var temp = []
+	for t in active_threads:
+		if not t.is_alive():
+			print(t.get_id(), ": ", t.wait_to_finish())
+			temp.append(t)
+	for t in temp:
+		active_threads.erase(t)
+	temp.clear()
 
 
 func ban_user(arguments: Dictionary) -> void:
@@ -88,7 +90,7 @@ func _on_LineEdit_text_changed(new_text: String) -> void:
 
 func _on_Bot_joined_channel(channel) -> void:
 	if not channel in chats.keys():
-		var chat = load("res://src/chat/ChatWindow.tscn").instance()
+		var chat = chatWindowScene.instance()
 		tabs.add_child(chat)
 		
 		chat.connect("send_button_pressed", self, "_on_Chat_send_button_pressed")
@@ -122,6 +124,7 @@ func _on_Bot_joined_channel(channel) -> void:
 	var t = Thread.new()
 	active_threads.append(t)
 	t.start(chats[channel].channelInstance.api, "connect_to_twitch")
+	print("Thread started: ", t.get_id())
 	
 	chats[channel].load_ini()
 	

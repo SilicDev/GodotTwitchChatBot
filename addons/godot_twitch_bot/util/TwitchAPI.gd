@@ -879,6 +879,10 @@ func send_whisper(from_id : String, to_id : String, message: String) -> Dictiona
 	return {}
 
 
+func _to_string() -> String:
+	return "[TwitchAPI:" + str(get_instance_id()) + "]"
+
+
 ## Helper functions
 func _request(method: int, url: String, request_headers: PoolStringArray, body := "") -> int:
 	mutex.lock()

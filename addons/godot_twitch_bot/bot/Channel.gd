@@ -1,3 +1,4 @@
+class_name Channel
 extends Reference
 
 
@@ -43,10 +44,15 @@ func _init(cnl: String) -> void:
 	counters.load_data()
 
 
+func _to_string() -> String:
+	return "[Channel(" + channel + ":" + channel_id + "):" + str(get_instance_id()) + "]"
+
+
 func handle_message(parsedMessage: Dictionary) -> void:
 	var t = Thread.new()
 	active_threads.append(t)
 	t.start(self, "trigger_command", parsedMessage)
+	print("Thread started: ", t.get_id())
 	timers.update()
 
 
@@ -76,15 +82,14 @@ func save_data() -> void:
 
 
 func cleanup_threads() -> void:
-	var temp = PoolIntArray([])
-	for i in range(active_threads.size()):
-		if not active_threads[i].is_alive():
-			active_threads[i].wait_to_finish()
-			temp.append(i)
-	temp.sort()
-	temp.invert() # Highest to lowest to avoid wrong indices
-	for i in temp:
-		active_threads.pop_at(i)
+	var temp = []
+	for t in active_threads:
+		if not t.is_alive():
+			print(t.get_id(), ": ", t.wait_to_finish())
+			temp.append(t)
+	for t in temp:
+		active_threads.erase(t)
+	temp.clear()
 
 
 func set_channel_id(new_channel_id: String) -> void:

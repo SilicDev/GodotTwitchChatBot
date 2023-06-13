@@ -40,10 +40,12 @@ var display_name := ""
 var chat_color := ""
 var bot_id := ""
 
-var connected = false
+var connected := false
 
 var read_only := false
 var request_membership := true
+
+var full_IRC := false
 
 var default_channels := []
 var channels := {}
@@ -95,16 +97,17 @@ func _process(delta: float) -> void:
 		if connection.has_message():
 			var messages := connection.receive().split("\r\n")
 			for msg in messages:
+				var parsedMessage = messageParser.parse_message(msg)
 				if OS.is_debug_build():
 					if not msg.empty():
-						print("> " + msg)
+						if full_IRC:
+							print("> " + msg)
+					
 				
-				var parsedMessage = messageParser.parse_message(msg)
 				if parsedMessage:
+					var tags = parsedMessage.get("tags", {})
 					var commandDict = parsedMessage.get("command", {})
 					var parameters = parsedMessage.get("parameters", "")
-					var tags = parsedMessage.get("tags", {})
-					
 					var c := ""
 					c = commandDict.get("channel", "")
 					if c.begins_with("#"):
@@ -114,6 +117,9 @@ func _process(delta: float) -> void:
 						"PRIVMSG":
 							emit_signal("chat_message_received", parsedMessage, c)
 							channels[c].handle_message(parsedMessage)
+							if not full_IRC:
+								var display_name = tags.get("display-name", "Anonymous")
+								print("> " + display_name + ": " + parameters)
 						
 						"PING":
 							emit_signal("pinged")

@@ -1,0 +1,1 @@
+Taken from the 3.X Rich Text Demo https://github.com/godotengine/godot-demo-projects/tree/3.4-b0d4a7c/gui/rich_text_bbcode

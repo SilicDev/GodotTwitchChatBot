@@ -10,6 +10,9 @@ signal timeout_user_requested(channel, id, length)
 signal delete_message_requested(channel, id)
 
 
+const msgPanelScene := preload("res://src/chat/ChatMessage.tscn")
+
+
 var bot_color := ""
 var bot_name := ""
 var bot_id := ""
@@ -22,9 +25,29 @@ var join_message := ""
 var reply_id := ""
 var lastBotMessage
 
-var channelInstance
+var channelInstance: Channel
 
 var config := ConfigFile.new()
+
+var _colors := [
+	"#ff0000",
+	"#0000ff",
+	"#008000",
+	"#b22222",
+	"#ff7f50",
+	"#9acd32",
+	"#ff4500",
+	"#2e8b57",
+	"#daa520",
+	"#d2691e",
+	"#5f9ea0",
+	"#1e90ff",
+	"#ff69b4",
+	"#8a2be2",
+	"#00ff7f",
+]
+
+var users := {}
 
 
 onready var chat := $VBoxContainer/PanelContainer/Scroll/VBox
@@ -39,6 +62,8 @@ onready var partButton := $VBoxContainer/HBoxContainer/CenterContainer3/Part
 
 onready var configMenu := $ChannelConfigDialog
 
+var last_message_time := Time.get_ticks_msec()
+
 
 ## Called when the node enters the scene tree for the first time.
 #func _ready() -> void:
@@ -46,12 +71,17 @@ onready var configMenu := $ChannelConfigDialog
 
 
 ## Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta: float) -> void:
-#	pass
+func _process(delta: float) -> void:
+	if channelInstance:
+		channelInstance.cleanup_threads()
+		if Time.get_ticks_msec() - last_message_time > 60000000:
+			var res = channelInstance.api.get_users_by_id([bot_id])
+			last_message_time = Time.get_ticks_msec()
+	pass
 
 
 func add_message(message: Dictionary) -> void:
-	var msgPanel = load("res://src/chat/ChatMessage.tscn").instance()
+	var msgPanel = msgPanelScene.instance()
 	chat.add_child(msgPanel)
 	set_data(msgPanel, message)
 	
@@ -65,22 +95,29 @@ func set_data(msgPanel, message: Dictionary) -> void:
 	var tags = message.get("tags", {})
 	var display_name = tags.get("display-name", "Anonymous")
 	
-	if tags.has("color"):
-		var color = tags.get("color", "#ffffff")
-		if color == null:
-			color = "#ffffff"
-		msgPanel.message.append_bbcode("[b][color=" + color + "]" + display_name 
-				+ "[/color][/b]: " + message.parameters
-		)
-	else:
-		msgPanel.message.append_bbcode("[b]" + display_name + "[/b]: " + message.parameters)
-	
 	msgPanel.id = tags.get("id", "")
 	msgPanel.sender = display_name
 	msgPanel.sender_id = tags.get("user-id", "")
 	msgPanel.reply.visible = tags.has("reply-parent-user-id")
 	msgPanel.reply_sender_id = tags.get("reply-parent-user-id", "")
 	msgPanel.reply_id = tags.get("reply-parent-msg-id", "")
+	if not msgPanel.sender_id in users:
+		users[msgPanel.sender_id] = _colors[randi() % _colors.size()]
+	if tags.has("color"):
+		var color = tags.get("color", "#ffffff")
+		if color:
+			users[msgPanel.sender_id] = color
+	print(message.parameters)
+	if message.parameters.begins_with("\u0001ACTION"):
+		print("ACTION")
+		message.parameters = message.parameters.substr(8)
+		msgPanel.message.append_bbcode("[b][color=" + users[msgPanel.sender_id] + "]" + display_name 
+				+ "[/color][/b]: [i]" + message.parameters + "[/i]"
+		)
+	else:
+		msgPanel.message.append_bbcode("[b][color=" + users[msgPanel.sender_id] + "]" + display_name 
+				+ "[/color][/b]: " + message.parameters
+		)
 	
 	if not msgPanel.reply_id.empty():
 		var reply = get_message_by_id(msgPanel.reply_id)
@@ -95,7 +132,7 @@ func set_data(msgPanel, message: Dictionary) -> void:
 
 
 func add_bot_message(message: String, msg_reply_id := "") -> void:
-	var msgPanel = load("res://src/chat/ChatMessage.tscn").instance()
+	var msgPanel = msgPanelScene.instance()
 	chat.add_child(msgPanel)
 	
 	msgPanel.sender = bot_name
