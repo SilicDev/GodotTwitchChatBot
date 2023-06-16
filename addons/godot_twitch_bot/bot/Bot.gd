@@ -46,7 +46,7 @@ var connected_to_twitch := false
 var read_only := false
 var request_membership := true
 
-var full_IRC := false
+var full_IRC := true#false
 
 var default_channels := []
 var channels := {}
@@ -138,6 +138,7 @@ func _process(delta: float) -> void:
 									channels[c] = channelManagerScript.new(c)
 									channels[c].connect("command_fired",Callable(self,"_on_Channel_command_fired"))
 								channels[c].connected = true
+								channels[c].formatter.bot_id = bot_id
 								emit_signal("joined_channel", c)
 						
 						"PART":

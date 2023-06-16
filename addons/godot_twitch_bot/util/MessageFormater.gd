@@ -2,6 +2,7 @@ extends RefCounted
 
 var channel: String
 var channel_id: String
+var bot_id: String
 
 var counterManager
 var api : TwitchAPI
@@ -20,8 +21,10 @@ func format_message(msg: String, message: Dictionary) -> String:
 	msg = handle_args(msg, params)
 	msg = handle_channel(msg, channel)
 	msg = await handle_game(msg)
+	msg = await handle_web_request(msg)
 	msg = handle_random(msg)
 	msg = handle_counter(msg)
+	msg = await handle_shoutout(msg)
 	
 	return msg
 
@@ -83,6 +86,7 @@ func handle_channel(msg: String, channel: String) -> String:
 	var matches = regex.search_all(msg)
 	for m in matches:
 		var matched: String = m.strings[0]
+		
 		var cnl = matched.substr(10, matched.length() - 11).to_lower()
 		if cnl.begins_with("@"):
 			cnl = cnl.substr(1)
@@ -116,6 +120,76 @@ func handle_game(msg: String) -> String:
 		var game_name = (await api.get_channel_info([cnl_id])).data[0].game_name
 		msg = msg.insert(pos, game_name)
 	
+	return msg
+
+
+func handle_shoutout(msg: String) -> String:
+	var regex = RegEx.new()
+	regex.compile("\\$\\{shoutout (@)?[a-zA-Z0-9_]+\\}")
+	var matches = regex.search_all(msg)
+	for m in matches:
+		var matched: String = m.strings[0]
+		var cnl = matched.substr(11, matched.length() - 12).to_lower()
+		if cnl.begins_with("@"):
+			cnl = cnl.substr(1)
+		var channel = await api.get_users_by_name([cnl])
+		var cnl_id = channel.data[0].id
+		var pos = msg.find(matched)
+		msg = _str_erase(msg, pos, matched.length())
+		var result = await api.send_shoutout(channel_id, cnl_id, bot_id)
+		if result.status != 200:
+			push_warning("HTTP Error %s: %s" % [result.status, result.message])
+		msg = msg.insert(pos, "")
+	
+	return msg
+
+func handle_web_request(msg: String) -> String:
+	var regex = RegEx.new()
+	regex.compile("\\$\\{web [\\S]+\\}")
+	var matches = regex.search_all(msg)
+	for m in matches:
+		var matched: String = m.strings[0]
+		var address = matched.substr(6, matched.length() - 7).to_lower()
+		var host = address.left(address.find("/", address.find(":") + 3))
+		var connected = await connect_to_host(host)
+		var err = _request(HTTPClient.METHOD_GET, 
+				address.right(address.find("/", address.find(":") + 3)),
+				base_headers)
+		if err:
+			return "Failed to get web result: %s" % [client.get_response_code()]
+		var data := await _get_response()
+		disconnect_from_host()
+		var xml := XMLParser.new()
+		var text = ""
+		xml.open_buffer(data.message.to_utf8_buffer())
+		while not xml.read():
+			if xml.get_node_type() == XMLParser.NODE_TEXT:
+				text+= xml.get_node_data()
+		return text
+	regex.compile("\\$\\{webrl [\\S]+\\}")
+	matches = regex.search_all(msg)
+	for m in matches:
+		var matched: String = m.strings[0]
+		var address = matched.substr(8, matched.length() - 9)
+		var host = address.left(address.find("/", address.find(":") + 3))
+		var path = address.right(-address.find("/", address.find(":") + 3))
+		var connected = await connect_to_host(host)
+		var err = _request(HTTPClient.METHOD_GET, 
+				path,
+				base_headers)
+		if err:
+			return "Failed to get web result: %s" % [client.get_response_code()]
+		var data := await _get_response()
+		disconnect_from_host()
+		var xml := XMLParser.new()
+		var text = ""
+		xml.open_buffer(data.message.to_utf8_buffer())
+		while not xml.read():
+			if xml.get_node_type() == XMLParser.NODE_TEXT:
+				text+= xml.get_node_data()
+		var lines := text.split("\n")
+		var result := lines[randi()% lines.size()]
+		return result
 	return msg
 
 
@@ -193,3 +267,90 @@ func handle_counter(msg: String) -> String:
 
 func _str_erase(str: String, pos: int, len := 1) -> String:
 	return str.left(max(0, pos)) + str.substr(pos + len)
+
+var client := HTTPClient.new()
+var headers := []
+var base_headers := [
+	"User-Agent: Pirulo/1.0 (Godot)",
+	"Accept: application/json",
+]
+var mutex := Mutex.new()
+
+func connect_to_host(host: String, args = null) -> bool:
+	var err := client.connect_to_host(host)
+	if err:
+		return false
+	print("Connecting...")
+	while (client.get_status() == HTTPClient.STATUS_CONNECTING or 
+			client.get_status() == HTTPClient.STATUS_RESOLVING):
+		client.poll()
+		printraw(".")
+		if not OS.has_feature("web"):
+			OS.delay_msec(500)
+		else:
+			await Engine.get_main_loop().process_frame
+	return true
+
+func disconnect_from_host() -> void:
+	client.close()
+
+## Helper functions
+func _request(method: int, url: String, request_headers: PackedStringArray, body := "") -> int:
+	mutex.lock()
+	if not client.get_status() == HTTPClient.STATUS_CONNECTED:
+		push_error(client.get_status())
+		return FAILED
+	print("Requesting...")
+	return client.request(method, url, request_headers, body)
+
+
+func _get_response() -> Dictionary:
+	while client.get_status() == HTTPClient.STATUS_REQUESTING:
+		# Keep polling for as long as the request is being processed.
+		client.poll()
+		printraw(".")
+		if OS.has_feature("web"):
+			# Synchronous HTTP requests are not supported on the web,
+			# so wait for the next main loop iteration.
+			await Engine.get_main_loop().process_frame
+		else:
+			OS.delay_msec(500)
+	
+	if client.has_response():
+		var status = client.get_response_code()
+		# If there is a response...
+		
+		var rb = PackedByteArray() # Array that will hold the data.
+		
+		while client.get_status() == HTTPClient.STATUS_BODY:
+			# While there is body left to be read
+			client.poll()
+			# Get a chunk.
+			var chunk = client.read_response_body_chunk()
+			if chunk.size() == 0:
+				if not OS.has_feature("web"):
+					# Got nothing, wait for buffers to fill a bit.
+					OS.delay_usec(100)
+				else:
+					await Engine.get_main_loop().process_frame
+			else:
+				rb = rb + chunk # Append to read buffer.
+		# Done!
+		
+		var message = rb.get_string_from_utf8()
+		var test_json_conv = JSON.new()
+		var err := test_json_conv.parse(message)
+		var result = test_json_conv.get_data()
+		if not err:
+			if not "status" in result.keys():
+				result["status"] = status
+			mutex.unlock()
+			return result
+		var data = {
+			"message": message,
+			"status" : status,
+		}
+		mutex.unlock()
+		return data
+	mutex.unlock()
+	return {}
