@@ -238,6 +238,21 @@ func send_chat_announcement(
 		return test_json_conv.get_data()
 	return {}
 
+## Send A Shoutout
+## requires: token scope moderator:manage:shoutouts
+func send_shoutout(
+		from_broadcaster_id: String, 
+		to_broadcaster_id: String, 
+		mod_id: String
+) -> Dictionary:
+	var url = "/helix/chat/shoutouts?from_broadcaster_id=" + from_broadcaster_id + \
+			"&to_broadcaster_id=" + to_broadcaster_id + "&moderator_id=" + mod_id
+	var h := headers + base_headers + ["Content-Type: application/json"]
+	var err := _request(HTTPClient.METHOD_POST, url, h)
+	if not err:
+		return await _get_response()
+	return {}
+
 
 ## Get User Chat Color
 func get_user_chat_color(user_id: String) -> Dictionary:
@@ -889,7 +904,7 @@ func _to_string() -> String:
 ## Helper functions
 func _request(method: int, url: String, request_headers: PackedStringArray, body := "") -> int:
 	mutex.lock()
-	if not client.get_status() != HTTPClient.STATUS_CONNECTED:
+	if client.get_status() != HTTPClient.STATUS_CONNECTED:
 		disconnect_from_twitch()
 		connect_to_twitch()
 	print("Requesting...")
@@ -942,6 +957,7 @@ func _get_response() -> Dictionary:
 			"message": message,
 			"status" : status,
 		}
+		push_warning(data)
 		mutex.unlock()
 		return data
 	mutex.unlock()

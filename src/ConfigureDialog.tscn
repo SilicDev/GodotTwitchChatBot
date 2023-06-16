@@ -191,5 +191,5 @@ layout_mode = 2
 text = "Cancel"
 
 [connection signal="toggled" from="PanelContainer/VBoxContainer/ReadOnly/ReadOnly" to="." method="_on_ReadOnly_toggled"]
-[connection signal="pressed" from="PanelContainer/VBoxContainer/HBoxContainer/Save" to="." method="_on_Hide_pressed"]
-[connection signal="pressed" from="PanelContainer/VBoxContainer/HBoxContainer/Cancel" to="." method="_on_Hide_pressed"]
+[connection signal="pressed" from="PanelContainer/VBoxContainer/HBoxContainer/Save" to="." method="_on_Hide_pressed" binds= [true]]
+[connection signal="pressed" from="PanelContainer/VBoxContainer/HBoxContainer/Cancel" to="." method="_on_Hide_pressed" binds= [false]]
