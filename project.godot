@@ -16,7 +16,6 @@ run/disable_stdout=true
 config/use_custom_user_dir=true
 config/custom_user_dir_name="GodotTwitchBot"
 config/features=PackedStringArray("4.0")
-run/low_processor_mode=true
 config/icon="res://icon.png"
 config/windows_native_icon="res://assets/icon/icon.ico"
 

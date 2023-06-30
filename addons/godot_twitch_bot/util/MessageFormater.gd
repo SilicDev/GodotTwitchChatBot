@@ -156,6 +156,7 @@ func handle_web_request(msg: String) -> String:
 				address.right(address.find("/", address.find(":") + 3)),
 				base_headers)
 		if err:
+			disconnect_from_host()
 			return "Failed to get web result: %s" % [client.get_response_code()]
 		var data := await _get_response()
 		disconnect_from_host()
@@ -178,6 +179,7 @@ func handle_web_request(msg: String) -> String:
 				path,
 				base_headers)
 		if err:
+			disconnect_from_host()
 			return "Failed to get web result: %s" % [client.get_response_code()]
 		var data := await _get_response()
 		disconnect_from_host()
