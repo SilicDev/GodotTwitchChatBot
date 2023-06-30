@@ -12,7 +12,7 @@ func _init():
 	#socket.verify_ssl = true
 
 
-func connect_to_host() -> int:
+func connect_to_host() -> Error:
 	status = Status.CONNECTING
 	var err = socket.connect_to_url("wss://" + host + ":" + str(port))
 	if not err:

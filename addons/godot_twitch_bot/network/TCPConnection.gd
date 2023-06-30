@@ -11,7 +11,7 @@ func _init():
 	socket = StreamPeerTCP.new()
 
 
-func connect_to_host() -> int:
+func connect_to_host() -> Error:
 	if not is_connected_to_host():
 		status = Status.CONNECTING
 		var err = socket.connect_to_host(host, port)
@@ -24,7 +24,7 @@ func connect_to_host() -> int:
 
 
 func update() -> void:
-	if socket.is_connected_to_host() and socket.get_status() == socket.STATUS_CONNECTED:
+	if socket.get_status() == socket.STATUS_CONNECTED:
 		status = Status.CONNECTED
 	elif status == Status.CONNECTED:
 		status == Status.DISCONNECTED
@@ -52,7 +52,7 @@ func send(message: String) -> void:
 
 
 func receive() -> String:
-	if socket.is_connected_to_host():
+	if socket.get_status() == socket.STATUS_CONNECTED:
 		if socket.get_available_bytes() > 0:
 			var data := socket.get_data(socket.get_available_bytes())
 			if data[0]:
@@ -66,7 +66,7 @@ func receive() -> String:
 
 
 func has_message() -> bool:
-	return socket.is_connected_to_host() and socket.get_available_bytes() > 0
+	return socket.get_status() == socket.STATUS_CONNECTED and socket.get_available_bytes() > 0
 
 
 func is_connected_to_host() -> bool:

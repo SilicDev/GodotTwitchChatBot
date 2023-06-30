@@ -13,7 +13,7 @@ enum Status {
 var status = Status.DISCONNECTED
 
 
-func connect_to_host() -> int:
+func connect_to_host() -> Error:
 	return OK
 
 
