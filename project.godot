@@ -15,7 +15,7 @@ run/main_scene="res://src/MainConsole.tscn"
 run/disable_stdout=true
 config/use_custom_user_dir=true
 config/custom_user_dir_name="GodotTwitchBot"
-config/features=PackedStringArray("4.0")
+config/features=PackedStringArray("4.1")
 config/icon="res://icon.png"
 config/windows_native_icon="res://assets/icon/icon.ico"
 

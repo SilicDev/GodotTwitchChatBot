@@ -39,7 +39,7 @@ func handle_args(msg: String, args: PackedStringArray) -> String:
 		var arg = int(matched.substr(2, matched.length() - 3)) - 1
 		if arg < args.size() and arg >= 0:
 			var pos = msg.find(matched)
-			msg = _str_erase(msg, pos, matched.length())
+			msg = msg.erase(pos, matched.length())
 			var param = args[arg]
 			if param.begins_with("@"):
 				param = param.substr(1)
@@ -55,7 +55,7 @@ func handle_args(msg: String, args: PackedStringArray) -> String:
 		var arg2 = matched.substr(matched.find(":"), length - 2)
 		var out = ""
 		var pos = msg.find(matched)
-		msg = _str_erase(msg, pos, length)
+		msg = msg.erase(pos, length)
 		if arg2.is_empty():
 			if arg < args.size() and arg >= 0:
 				for i in range(arg, args.size()):
@@ -92,7 +92,7 @@ func handle_channel(msg: String, channel: String) -> String:
 			cnl = cnl.substr(1)
 		
 		var pos = msg.find(matched)
-		msg = _str_erase(msg, pos, matched.length())
+		msg = msg.erase(pos, matched.length())
 		msg = msg.insert(pos, str(cnl))
 	
 	return msg
@@ -116,7 +116,7 @@ func handle_game(msg: String) -> String:
 		var channel = await api.get_users_by_name([cnl])
 		var cnl_id = channel.data[0].id
 		var pos = msg.find(matched)
-		msg = _str_erase(msg, pos, matched.length())
+		msg = msg.erase(pos, matched.length())
 		var game_name = (await api.get_channel_info([cnl_id])).data[0].game_name
 		msg = msg.insert(pos, game_name)
 	
@@ -135,7 +135,7 @@ func handle_shoutout(msg: String) -> String:
 		var channel = await api.get_users_by_name([cnl])
 		var cnl_id = channel.data[0].id
 		var pos = msg.find(matched)
-		msg = _str_erase(msg, pos, matched.length())
+		msg = msg.erase(pos, matched.length())
 		var result = await api.send_shoutout(channel_id, cnl_id, bot_id)
 		if result.status != 200:
 			push_warning("HTTP Error %s: %s" % [result.status, result.message])
@@ -203,7 +203,7 @@ func handle_random(msg: String) -> String:
 		var matched = m.strings[0]
 		var bound = int(matched.substr(9, matched.length() - 10))
 		var pos = msg.find(matched)
-		msg = _str_erase(msg, pos, matched.length())
+		msg = msg.erase(pos, matched.length())
 		msg = msg.insert(pos, str(randi() % bound + 1))
 	
 	return msg
@@ -220,7 +220,7 @@ func handle_counter(msg: String) -> String:
 			counterManager.counters[counter] = 0
 		counterManager.counters[counter] += 1
 		var pos = msg.find(matched)
-		msg = _str_erase(msg, pos, matched.length())
+		msg = msg.erase(pos, matched.length())
 		msg = msg.insert(pos, str(counterManager.counters[counter]))
 	
 	regex.compile("\\$\\{count [a-zA-Z0-9]+ [0-9]+\\}")
@@ -232,7 +232,7 @@ func handle_counter(msg: String) -> String:
 		var val = int(matched.substr(matched.rfind(" "), length - 2))
 		counterManager.counters[counter] = val
 		var pos = msg.find(matched)
-		msg = _str_erase(msg, pos, length)
+		msg = msg.erase(pos, length)
 		msg = msg.insert(pos, str(counterManager.counters[counter]))
 	
 	regex.compile("\\$\\{count [a-zA-Z0-9]+ (\\+|-)[0-9]+\\}")
@@ -248,7 +248,7 @@ func handle_counter(msg: String) -> String:
 		
 		counterManager.counters[counter] += val
 		var pos = msg.find(matched)
-		msg = _str_erase(msg, pos, length)
+		msg = msg.erase(pos, length)
 		msg = msg.insert(pos, str(counterManager.counters[counter]))
 	
 	regex.compile("\\$\\{getcount [a-zA-Z0-9]+\\}")
@@ -261,14 +261,10 @@ func handle_counter(msg: String) -> String:
 			counterManager.counters[counter] = 0
 		
 		var pos = msg.find(matched)
-		msg = _str_erase(msg, pos, matched.length())
+		msg = msg.erase(pos, matched.length())
 		msg = msg.insert(pos, str(counterManager.counters[counter]))
 	
 	return msg
-
-
-func _str_erase(str: String, pos: int, len := 1) -> String:
-	return str.left(max(0, pos)) + str.substr(pos + len)
 
 var client := HTTPClient.new()
 var headers := []
