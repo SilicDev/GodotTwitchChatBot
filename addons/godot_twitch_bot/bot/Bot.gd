@@ -136,7 +136,7 @@ func _process(delta: float) -> void:
 								print("joined " + commandDict.channel)
 								if not c in channels.keys():
 									channels[c] = channelManagerScript.new(c)
-									channels[c].connect("command_fired",Callable(self,"_on_Channel_command_fired"))
+									channels[c].connect("command_fired",_on_Channel_command_fired)
 								channels[c].connected = true
 								channels[c].formatter.bot_id = bot_id
 								emit_signal("joined_channel", c)

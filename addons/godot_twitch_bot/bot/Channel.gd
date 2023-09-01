@@ -51,7 +51,7 @@ func _to_string() -> String:
 func handle_message(parsedMessage: Dictionary) -> void:
 	var t = Thread.new()
 	active_threads.append(t)
-	t.start(Callable(self,"trigger_command").bind(parsedMessage))
+	t.start(trigger_command.bind(parsedMessage))
 	print("Thread started: ", t.get_id())
 	timers.update()
 
@@ -62,7 +62,7 @@ func trigger_command(parsedMessage: Dictionary) -> void:
 		var commandDict = parsedMessage.command
 		var resp : String = commands.get_response(cmd, parsedMessage)
 		var params : PackedStringArray = commandDict.get("botCommandParams", "").split(" ")
-		emit_signal("command_fired", cmd, params, channel)
+		call_deferred("emit_signal", "command_fired", cmd, params, channel)
 		if not resp.is_empty():
 			var msgs := PackedStringArray()
 			while resp.length() >= 500:
