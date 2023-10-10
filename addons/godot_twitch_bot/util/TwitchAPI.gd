@@ -907,7 +907,7 @@ func _request(method: int, url: String, request_headers: PackedStringArray, body
 	if client.get_status() != HTTPClient.STATUS_CONNECTED:
 		disconnect_from_twitch()
 		connect_to_twitch()
-	print("Requesting...")
+	print("Requesting %s ..." % url)
 	return client.request(method, url, request_headers, body)
 
 
@@ -941,7 +941,7 @@ func _get_response() -> Dictionary:
 				else:
 					await Engine.get_main_loop().process_frame
 			else:
-				rb = rb + chunk # Append to read buffer.
+				rb.append_array(chunk) # Append to read buffer.
 		# Done!
 		
 		var message = rb.get_string_from_utf8()

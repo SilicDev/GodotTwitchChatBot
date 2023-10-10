@@ -9,7 +9,6 @@ var port : int = 443
 
 func _init():
 	socket = WebSocketPeer.new()
-	#socket.verify_ssl = true
 
 
 func connect_to_host() -> Error:

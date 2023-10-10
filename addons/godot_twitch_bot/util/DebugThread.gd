@@ -28,7 +28,7 @@ func update() -> void:
 		update()
 
 
-func get_id() -> int:
+func get_id() -> String:
 	return thread.get_id()
 
 
