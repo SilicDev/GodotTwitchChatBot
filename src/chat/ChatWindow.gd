@@ -74,9 +74,6 @@ var last_message_time := Time.get_ticks_msec()
 func _process(delta: float) -> void:
 	if channelInstance:
 		channelInstance.cleanup_threads()
-		if Time.get_ticks_msec() - last_message_time > 60000:
-			var res = await channelInstance.api.get_users_by_id([bot_id])
-			last_message_time = Time.get_ticks_msec()
 	pass
 
 

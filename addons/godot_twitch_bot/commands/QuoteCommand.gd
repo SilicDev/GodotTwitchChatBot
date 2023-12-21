@@ -25,7 +25,7 @@ func get_response(parsedMessage: Dictionary) -> String:
 	if params.is_empty():
 		if quoteDict.keys().size() > 0:
 			var quoteID = quoteDict.keys()[rng.randi() % quoteDict.keys().size()]
-			return "Quote #" + quoteID + ": " + quoteDict[quoteID]
+			return "Quote #" + str(quoteID) + ": " + quoteDict[quoteID]
 		else:
 			return sender + " usage of command \"" + name + "\": " + usage_hint
 	

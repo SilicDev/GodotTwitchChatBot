@@ -42,7 +42,7 @@ func cleanup_threads() -> void:
 
 
 func ban_user(arguments: Dictionary) -> void:
-	bot.api.ban_user(
+	bot.channels[arguments.get("broadcaster_id", "")].api.ban_user(
 		arguments.get("broadcaster_id", ""), 
 		arguments.get("moderator_id", ""), 
 		arguments.get("user_id", "")
@@ -50,7 +50,7 @@ func ban_user(arguments: Dictionary) -> void:
 
 
 func timeout_user(arguments: Dictionary) -> void:
-	bot.api.ban_user(
+	bot.channels[arguments.get("broadcaster_id", "")].api.ban_user(
 		arguments.get("broadcaster_id", ""), 
 		arguments.get("moderator_id", ""), 
 		arguments.get("user_id", ""),
@@ -59,7 +59,7 @@ func timeout_user(arguments: Dictionary) -> void:
 
 
 func delete_message(arguments: Dictionary) -> void:
-	bot.api.delete_chat_messages(
+	bot.channels[arguments.get("broadcaster_id", "")].api.delete_chat_messages(
 		arguments.get("broadcaster_id", ""), 
 		arguments.get("moderator_id", ""), 
 		arguments.get("msg_id", "")

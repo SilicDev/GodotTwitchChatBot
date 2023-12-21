@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://src/ConfigureDialog.gd" id="1"]
 
 [node name="ConfigureDialog" type="Window"]
-size = Vector2i(520, 385)
+size = Vector2i(600, 385)
 visible = false
 transient = true
 exclusive = true
@@ -87,9 +87,13 @@ custom_minimum_size = Vector2(350, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 placeholder_text = "Enter bot user key"
-secret = true
 caret_blink = true
 caret_blink_interval = 0.5
+secret = true
+
+[node name="Auth" type="Button" parent="PanelContainer/VBoxContainer/OAuth"]
+layout_mode = 2
+text = "Connect"
 
 [node name="Protocol" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
 layout_mode = 2
@@ -177,9 +181,9 @@ custom_minimum_size = Vector2(350, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 placeholder_text = "Enter application client ID"
-secret = true
 caret_blink = true
 caret_blink_interval = 0.5
+secret = true
 
 [node name="HSeparator3" type="HSeparator" parent="PanelContainer/VBoxContainer"]
 layout_mode = 2
@@ -197,5 +201,6 @@ layout_mode = 2
 text = "Cancel"
 
 [connection signal="toggled" from="PanelContainer/VBoxContainer/ReadOnly/ReadOnly" to="." method="_on_ReadOnly_toggled"]
+[connection signal="pressed" from="PanelContainer/VBoxContainer/OAuth/Auth" to="." method="_on_auth_pressed"]
 [connection signal="pressed" from="PanelContainer/VBoxContainer/HBoxContainer/Save" to="." method="_on_Hide_pressed" binds= [true]]
 [connection signal="pressed" from="PanelContainer/VBoxContainer/HBoxContainer/Cancel" to="." method="_on_Hide_pressed" binds= [false]]

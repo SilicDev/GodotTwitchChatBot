@@ -1,6 +1,5 @@
 extends Window
 
-
 var read_only := false
 var bot_name := ""
 var oauth := ""
@@ -66,3 +65,24 @@ func _on_Hide_pressed(save: bool) -> void:
 		
 		clientID = twitchClientID.text
 	hide()
+
+func _on_auth_pressed() -> void:
+	var redirect_url := "http://localhost:3000"
+	var scopes: Array[String] = [
+		"chat:read",
+		"chat:edit",
+		"moderator:manage:announcements",
+		"moderator:manage:banned_users",
+		"moderator:manage:chat_messages",
+		"user:manage:whispers",
+		"channel:manage:broadcast",
+		"user:manage:chat_color"
+	]
+	var scopes_str = scopes.reduce(func(acc: String, s: String):
+			if not acc.is_empty():
+				acc += "+"
+			return acc + s.uri_encode(), "")
+	var url := "https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=%s&redirect_uri=%s&scope=%s&token_type=bearer" % [clientID, redirect_url, scopes_str]
+	OS.shell_open(url)
+	pass # Replace with function body.
+
