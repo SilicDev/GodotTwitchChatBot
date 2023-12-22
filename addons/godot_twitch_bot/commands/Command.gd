@@ -59,14 +59,14 @@ func get_permission(parsedMessage: Dictionary) -> int:
 	if is_broadcaster(parsedMessage):
 		return Badge.BROADCASTER
 	
-	var tags = parsedMessage.get("tags", {})
-	if tags.get("mod", 0):
+	var tags := parsedMessage.get("tags", {})
+	if bool(int(tags.get("mod", 0))):
 		return Badge.MODERATOR
 	
-	if tags.has("vip"):
+	if bool(int(tags.has("vip"))):
 		return Badge.VIP
 	
-	if tags.get("sub", 0):
+	if int(tags.get("subscriber", 0)):
 		return Badge.SUBSCRIBER
 	
 	return Badge.NONE

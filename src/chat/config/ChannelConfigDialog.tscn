@@ -10,7 +10,6 @@ transient = true
 exclusive = true
 unresizable = true
 borderless = true
-always_on_top = true
 popup_window = true
 script = ExtResource("1")
 
