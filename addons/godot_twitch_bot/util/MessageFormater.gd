@@ -20,11 +20,12 @@ func format_message(msg: String, message: Dictionary) -> String:
 	
 	msg = handle_args(msg, params)
 	msg = handle_channel(msg, channel)
-	msg = await handle_game(msg)
+	msg = handle_clip(msg, channel_id)
+	msg = handle_game(msg)
 	msg = await handle_web_request(msg)
 	msg = handle_random(msg)
 	msg = handle_counter(msg)
-	msg = await handle_shoutout(msg)
+	msg = handle_shoutout(msg)
 	
 	return msg
 
@@ -100,7 +101,7 @@ func handle_channel(msg: String, channel: String) -> String:
 
 func handle_game(msg: String) -> String:
 	if "${game}" in msg:
-		var result = await api.get_channel_info([channel_id])
+		var result = api.get_channel_info([channel_id])
 		var own_game_name = result.data[0].game_name
 		if own_game_name.is_empty():
 			own_game_name = "[No Game found]"
@@ -113,12 +114,13 @@ func handle_game(msg: String) -> String:
 		var cnl = matched.substr(7, matched.length() - 8).to_lower()
 		if cnl.begins_with("@"):
 			cnl = cnl.substr(1)
-		var channel = await api.get_users_by_name([cnl])
-		var cnl_id = channel.data[0].id
-		var pos = msg.find(matched)
-		msg = msg.erase(pos, matched.length())
-		var game_name = (await api.get_channel_info([cnl_id])).data[0].game_name
-		msg = msg.insert(pos, game_name)
+		var channel = api.get_users_by_name([cnl])
+		if not channel.is_empty():
+			var cnl_id = channel.data[0].id
+			var pos = msg.find(matched)
+			msg = msg.erase(pos, matched.length())
+			var game_name = (api.get_channel_info([cnl_id])).data[0].game_name
+			msg = msg.insert(pos, game_name)
 	
 	return msg
 
@@ -132,14 +134,33 @@ func handle_shoutout(msg: String) -> String:
 		var cnl = matched.substr(11, matched.length() - 12).to_lower()
 		if cnl.begins_with("@"):
 			cnl = cnl.substr(1)
-		var channel = await api.get_users_by_name([cnl])
+		var channel = api.get_users_by_name([cnl])
 		var cnl_id = channel.data[0].id
 		var pos = msg.find(matched)
 		msg = msg.erase(pos, matched.length())
-		var result = await api.send_shoutout(channel_id, cnl_id, bot_id)
-		if result.status != 200:
+		var result = api.send_shoutout(channel_id, cnl_id, bot_id)
+		if result.status >= 300:
 			push_warning("HTTP Error %s: %s" % [result.status, result.message])
 		msg = msg.insert(pos, "")
+	
+	return msg
+
+
+func handle_clip(msg: String, channel_id: String) -> String:
+	var regex = RegEx.new()
+	regex.compile("\\$\\{clip\\}")
+	var matches = regex.search_all(msg)
+	for m in matches:
+		var matched: String = m.strings[0]
+		var pos = msg.find(matched)
+		msg = msg.erase(pos, matched.length())
+		var result = api.create_clip(channel_id)
+		if result.is_empty():
+			result = api.create_clip(channel_id)
+		elif result.status >= 300:
+			push_warning("HTTP Error %s: %s" % [result.status, result.message])
+		else:
+			msg = msg.insert(pos, "http://clips.twitch.tv/" + result.data[0].get("id", "API returned no data"))
 	
 	return msg
 

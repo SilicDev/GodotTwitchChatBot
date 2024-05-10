@@ -25,10 +25,10 @@ func connect_to_twitch(args = null) -> bool:
 			client.get_status() == HTTPClient.STATUS_RESOLVING):
 		client.poll()
 		printraw(".")
-		if not OS.has_feature("web"):
-			OS.delay_msec(500)
-		else:
-			await Engine.get_main_loop().process_frame
+		#if not OS.has_feature("web"):
+		OS.delay_msec(500)
+		#else:
+			#await Engine.get_main_loop().process_frame
 	return true
 
 func disconnect_from_twitch() -> void:
@@ -48,7 +48,7 @@ func start_commercial(broadcaster_id: String, length: int) -> Dictionary:
 			JSON.stringify(data)
 	)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -74,7 +74,7 @@ func get_channel_info(broadcaster_ids: PackedStringArray) -> Dictionary:
 			headers + base_headers
 	)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -104,7 +104,7 @@ func modify_channel_info(
 			JSON.stringify(data)
 	)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -139,7 +139,7 @@ func get_channel_emotes(broadcaster_id: String) -> Dictionary:
 			headers + base_headers
 	)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -151,7 +151,7 @@ func get_global_emotes() -> Dictionary:
 			headers + base_headers
 	)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -163,7 +163,7 @@ func get_emote_set(broadcaster_id: String) -> Dictionary:
 			headers + base_headers
 	)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -175,7 +175,7 @@ func get_channel_chat_badges(broadcaster_id: String) -> Dictionary:
 			headers + base_headers
 	)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -187,7 +187,7 @@ func get_global_chat_badges() -> Dictionary:
 			headers + base_headers
 	)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -198,7 +198,7 @@ func get_chat_settings(broadcaster_id: String, mod_id: String = "") -> Dictionar
 			("&moderator_id=" + mod_id) if not mod_id.is_empty() else ""
 	var err := _request(HTTPClient.METHOD_GET, url, headers + base_headers)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -214,7 +214,7 @@ func update_chat_settings(
 	var h := headers + base_headers + ["Content-Type: application/json"]
 	var err := _request(HTTPClient.METHOD_GET, url, h, JSON.stringify(settings))
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -250,7 +250,7 @@ func send_shoutout(
 	var h := headers + base_headers + ["Content-Type: application/json"]
 	var err := _request(HTTPClient.METHOD_POST, url, h)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -262,7 +262,7 @@ func get_user_chat_color(user_id: String) -> Dictionary:
 			headers + base_headers
 	)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -275,7 +275,7 @@ func update_user_chat_color(user_id: String, color: String) -> Dictionary:
 			headers + base_headers
 	)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -283,12 +283,12 @@ func update_user_chat_color(user_id: String, color: String) -> Dictionary:
 ## requires: token scope clips:edit
 func create_clip(broadcaster_id: String, delay := false) -> Dictionary:
 	var err := _request(
-			HTTPClient.METHOD_PUT, 
-			"/helix/chat/clips?broadcaster_id=" + broadcaster_id + "&has_delay=" + str(delay), 
+			HTTPClient.METHOD_POST, 
+			"/helix/clips?broadcaster_id=" + broadcaster_id + "&has_delay=" + str(delay), 
 			headers + base_headers
 	)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -318,7 +318,7 @@ func get_clips_by_broadcaster(
 			headers + base_headers
 	)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -348,7 +348,7 @@ func get_clips_by_game(
 			headers + base_headers
 	)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -371,7 +371,7 @@ func get_clips_by_ids(
 		url += "&id=" + ids[i]
 	var err := _request(HTTPClient.METHOD_GET, url + optional_query, headers + base_headers)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -412,7 +412,7 @@ func get_extension_live_channels(extension_id: String, after := "", first := 20)
 			headers + base_headers
 	)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -437,7 +437,7 @@ func get_released_extensions(extension_id: String, extension_version := "") -> D
 			headers + base_headers
 	)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -461,7 +461,7 @@ func get_games_by_name(game_names: PackedStringArray) -> Dictionary:
 		url += "&name=" + game_names[i]
 	var err := _request(HTTPClient.METHOD_GET, url, headers + base_headers)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -472,7 +472,7 @@ func get_games_by_id(ids: PackedStringArray) -> Dictionary:
 		url += "&id=" + ids[i]
 	var err := _request(HTTPClient.METHOD_GET, url, headers + base_headers)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -489,7 +489,7 @@ func get_games(game_names: PackedStringArray, ids: PackedStringArray) -> Diction
 		url += "&id=" + ids[i]
 	var err := _request(HTTPClient.METHOD_GET, url, headers + base_headers)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 # Get Creator Goals
@@ -537,7 +537,7 @@ func ban_user(
 			JSON.stringify(data)
 	)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -555,7 +555,7 @@ func unban_user(
 			headers + base_headers
 	)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -579,7 +579,7 @@ func delete_chat_messages(broadcaster_id: String, moderator_id: String, message_
 			headers + base_headers
 	)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -634,7 +634,7 @@ func get_channel_stream_schedule(broadcaster_id: String) -> Dictionary:
 			headers + base_headers
 	)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -646,7 +646,7 @@ func get_channel_icalendar(broadcaster_id: String) -> Dictionary:
 			base_headers
 	)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -701,7 +701,7 @@ func get_stream_tags(broadcaster_id: String) -> Dictionary:
 			headers + base_headers
 	)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -717,7 +717,7 @@ func replace_stream_tags(broadcaster_id: String, tag_ids: PackedStringArray) -> 
 			JSON.stringify(tag_ids)
 	)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -729,7 +729,7 @@ func get_channel_teams(broadcaster_id: String) -> Dictionary:
 			headers + base_headers
 	)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -741,7 +741,7 @@ func get_teams_by_name(name: String) -> Dictionary:
 			headers + base_headers
 	)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -753,7 +753,7 @@ func get_teams_by_id(id: String) -> Dictionary:
 			headers + base_headers
 	)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -765,7 +765,7 @@ func get_users_by_name(user_names: PackedStringArray) -> Dictionary:
 		url += "&login=" + user_names[i]
 	var err := _request(HTTPClient.METHOD_GET, url, headers + base_headers)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -777,7 +777,7 @@ func get_users_by_id(ids: PackedStringArray) -> Dictionary:
 		url += "&id=" + ids[i]
 	var err := _request(HTTPClient.METHOD_GET, url, headers + base_headers)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -795,7 +795,7 @@ func get_users(user_names: PackedStringArray, ids: PackedStringArray) -> Diction
 		url += "&id=" + ids[i]
 	var err := _request(HTTPClient.METHOD_GET, url, headers + base_headers)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -809,7 +809,7 @@ func update_user(description: String) -> Dictionary:
 			headers + base_headers
 	)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -826,7 +826,7 @@ func get_users_follows_from(from_id : String, after := "", first := 20) -> Dicti
 			headers + base_headers
 	)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -843,7 +843,7 @@ func get_users_follows_to(to_id : String, after := "", first := 20) -> Dictionar
 			headers + base_headers
 	)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -855,7 +855,7 @@ func get_users_follows_from_to(from_id : String, to_id : String) -> Dictionary:
 			headers + base_headers
 	)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -893,7 +893,7 @@ func send_whisper(from_id : String, to_id : String, message: String) -> Dictiona
 			JSON.stringify({"message": message})
 	)
 	if not err:
-		return await _get_response()
+		return _get_response() #return await _get_response()
 	return {}
 
 
@@ -916,10 +916,11 @@ func _get_response() -> Dictionary:
 		# Keep polling for as long as the request is being processed.
 		client.poll()
 		printraw(".")
-		if OS.has_feature("web"):
+		if false and OS.has_feature("web"):
 			# Synchronous HTTP requests are not supported on the web,
 			# so wait for the next main loop iteration.
-			await Engine.get_main_loop().process_frame
+			#await Engine.get_main_loop().process_frame
+			pass
 		else:
 			OS.delay_msec(500)
 	
@@ -935,11 +936,12 @@ func _get_response() -> Dictionary:
 			# Get a chunk.
 			var chunk = client.read_response_body_chunk()
 			if chunk.size() == 0:
-				if not OS.has_feature("web"):
+				if true or not OS.has_feature("web"):
 					# Got nothing, wait for buffers to fill a bit.
 					OS.delay_usec(100)
 				else:
-					await Engine.get_main_loop().process_frame
+					#await Engine.get_main_loop().process_frame
+					pass
 			else:
 				rb.append_array(chunk) # Append to read buffer.
 		# Done!
