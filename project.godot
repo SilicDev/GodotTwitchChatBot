@@ -31,7 +31,7 @@ window/vsync/vsync_via_compositor=true
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/godot_twitch_bot/plugin.cfg")
+enabled=PackedStringArray("res://addons/godot_twitch_bot/plugin.cfg", "res://addons/script-ide/plugin.cfg")
 
 [physics]
 
