@@ -23,6 +23,7 @@ func test_commands(message: Dictionary) -> String:
 func get_response(cmd: String, message: Dictionary) -> String:
 	if cmd in commands.keys():
 		var msg : String = commands[cmd].get_response(message)
+		commands[cmd].last_sent = Time.get_ticks_msec()
 		if not ("no_formatting" in commands[cmd] and commands[cmd].no_formatting):
 			msg = formatter.format_message(msg, message)
 		return msg
