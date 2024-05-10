@@ -71,9 +71,11 @@ func _on_auth_pressed() -> void:
 	var scopes: Array[String] = [
 		"chat:read",
 		"chat:edit",
+		"clips:edit",
 		"moderator:manage:announcements",
 		"moderator:manage:banned_users",
 		"moderator:manage:chat_messages",
+		"moderator:manage:shoutouts",
 		"user:manage:whispers",
 		"channel:manage:broadcast",
 		"user:manage:chat_color"
