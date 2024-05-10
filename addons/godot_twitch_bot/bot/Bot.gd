@@ -59,6 +59,8 @@ var messageParser = preload("res://addons/godot_twitch_bot/util/IRCMessageParser
 var channelManagerScript = preload("res://addons/godot_twitch_bot/bot/Channel.gd")
 
 
+var last_ping = -1
+
 ## Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	load_ini()
@@ -77,7 +79,11 @@ func _process(delta: float) -> void:
 	if not connection:
 		return
 	connection.update()
-	
+	if last_ping != -1 and (Time.get_unix_time_from_system() - last_ping) > 300:
+		disconnect_from_twitch()
+		connect_to_twitch.call_deferred()
+		push_warning("Missed Ping!")
+		last_ping = -1
 	if connection.status == Connection.Status.CONNECTED:
 		
 		if not connected_to_twitch:
@@ -123,6 +129,9 @@ func _process(delta: float) -> void:
 								print("> " + display_name + ": " + parameters)
 						
 						"PING":
+							if last_ping != -1:
+								print("Ping time: %fs" % (Time.get_unix_time_from_system() - last_ping))
+							last_ping = Time.get_unix_time_from_system()
 							emit_signal("pinged")
 							send("PONG :" + parameters)
 						
