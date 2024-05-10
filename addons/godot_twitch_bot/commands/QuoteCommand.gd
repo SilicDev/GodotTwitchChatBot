@@ -25,6 +25,8 @@ func get_response(parsedMessage: Dictionary) -> String:
 	if params.is_empty():
 		if quoteDict.keys().size() > 0:
 			var quoteID = quoteDict.keys()[rng.randi() % quoteDict.keys().size()]
+			while not quoteID.is_valid_int():
+				quoteID = quoteDict.keys()[rng.randi() % quoteDict.keys().size()]
 			return "Quote #" + str(quoteID) + ": " + quoteDict[quoteID]
 		else:
 			return sender + " usage of command \"" + name + "\": " + usage_hint
@@ -32,16 +34,19 @@ func get_response(parsedMessage: Dictionary) -> String:
 	match params[0].to_lower():
 		"edit":
 			var quoteID = params[1].replace("#", "")
-			var quote = ""
-			for i in range(2, params.size()):
-				quote += params[i] + " "
-			quote = quote.substr(0, quote.length() - 1)
-			if quoteID in quoteDict:
-				quoteDict[quoteID] = quote
-				save_quotes(channel, quoteDict)
-				return sender + ", successfully edited quote #" + quoteID + ": " + quoteDict[quoteID]
-			
-			return "Quote with ID #" + quoteID + " doesn't exist!"
+			if quoteID.is_valid_int():
+				var quote = ""
+				for i in range(2, params.size()):
+					quote += params[i] + " "
+				quote = quote.substr(0, quote.length() - 1)
+				if quoteID in quoteDict:
+					quoteDict[quoteID] = quote
+					save_quotes(channel, quoteDict)
+					return sender + ", successfully edited quote #" + quoteID + ": " + quoteDict[quoteID]
+				
+				return "Quote with ID #" + quoteID + " doesn't exist!"
+			else:
+				return "Requested ID #" + quoteID + " is invalid!"
 		
 		"add":
 			var quote = "";
@@ -67,18 +72,24 @@ func get_response(parsedMessage: Dictionary) -> String:
 		
 		"remove":
 			var quoteID = params[1].replace("#", "")
-			var res = quoteDict.erase(quoteID)
-			save_quotes(channel, quoteDict)
-			if res:
-				return sender + ", successfully removed quote #" + quoteID + "!"
+			if quoteID.is_valid_int():
+				var res = quoteDict.erase(quoteID)
+				save_quotes(channel, quoteDict)
+				if res:
+					return sender + ", successfully removed quote #" + quoteID + "!"
+				else:
+					return "Quote with ID #" + quoteID + " doesn't exist!"
 			else:
-				return "Quote with ID #" + quoteID + " doesn't exist!"
+				return "Requested ID #" + quoteID + " is invalid!"
 		
 		_:
 			var quoteID = params[0].replace("#", "")
-			if quoteID in quoteDict:
-				return "Quote #" + quoteID + ": " + quoteDict[quoteID]
-			return "Quote with ID #" + quoteID + " doesn't exist!"
+			if quoteID.is_valid_int():
+				if quoteID in quoteDict:
+					return "Quote #" + quoteID + ": " + quoteDict[quoteID]
+				return "Quote with ID #" + quoteID + " doesn't exist!"
+			else:
+				return "Requested ID #" + quoteID + " is invalid!"
 		
 	return ""
 
