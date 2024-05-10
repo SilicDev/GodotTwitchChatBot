@@ -37,19 +37,19 @@ func should_fire(parsedMessage: Dictionary) -> bool:
 		if is_broadcaster(parsedMessage) or get_permission(parsedMessage) >= permission_level:
 			var cmd: String = parsedMessage.get("command", {}).get("botCommand", "")
 			if not cmd.is_empty() and (cmd == name.to_lower() or cmd in aliases):
-				print("name match", "\n", name, aliases)
+				#print("name match", "\n", name, aliases)
 				return true
 			
 			var parameters = parsedMessage.get("parameters", "")
 			for keyword in keywords:
 				if keyword in parameters:
-					print("keyword match", "\n", name, keywords)
+					#print("keyword match", "\n", name, keywords)
 					return true
 			
 			if not regex.is_empty():
 				matcher.compile(regex)
 				if matcher.search(parameters):
-					print("regex match", "\n", name, regex)
+					#print("regex match", "\n", name, regex)
 					return true
 		
 	return false

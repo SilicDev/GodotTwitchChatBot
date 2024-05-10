@@ -71,7 +71,7 @@ var last_message_time := Time.get_ticks_msec()
 
 
 ## Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if channelInstance:
 		channelInstance.cleanup_threads()
 	pass
@@ -104,9 +104,7 @@ func set_data(msgPanel, message: Dictionary) -> void:
 		var color = tags.get("color", "#ffffff")
 		if color:
 			users[msgPanel.sender_id] = color
-	print(message.parameters)
 	if message.parameters.begins_with("\u0001ACTION"):
-		print("ACTION")
 		message.parameters = message.parameters.substr(8)
 		msgPanel.message.append_text("[b][color=" + users[msgPanel.sender_id] + "]" + display_name 
 				+ "[/color][/b]: [i]" + message.parameters + "[/i]"
@@ -183,7 +181,7 @@ func add_bot_message(message: String, msg_reply_id := "") -> void:
 func get_message_by_id(msg_id: String):
 	for c in chat.get_children():
 		if c is PanelContainer:
-			if c.id == msg_id or not msg_id.is_empty():
+			if c.id == msg_id and not msg_id.is_empty():
 				return c
 	return null
 
@@ -221,8 +219,8 @@ func save_ini() -> void:
 		if err:
 			push_error("Unable to create channel save directory")
 	
-	var err := config.save(path)
-	if err:
+	var save_err := config.save(path)
+	if save_err:
 		push_error("Failed to save channel config!")
 	config.clear()
 
@@ -233,9 +231,10 @@ func get_reply_message(reply) -> String:
 
 
 func can_moderate(tags: Dictionary) -> bool:
-	var sender_is_self = tags.get("display-name", "Anonymous").to_lower() == name
+	var sender_is_broadcaster = tags.get("display-name", "Anonymous").to_lower() == name
+	var sender_is_self = tags.get("display-name", "Anonymous").to_lower() == bot_name
 	var sender_is_mod = int(tags.get("mod", "0"))
-	return not (sender_is_self or sender_is_mod) and is_mod
+	return not (sender_is_self or sender_is_mod or sender_is_broadcaster) and is_mod
 
 
 func _on_Send_pressed() -> void:

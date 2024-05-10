@@ -253,7 +253,7 @@ func _on_Chat_ban_user_requested(channel, id) -> void:
 		"moderator_id" : bot.bot_id,
 		"user_id" : id,
 	}
-	t.start(Callable(self,"ban_user").bind(args))
+	t.start(ban_user.bind(args))
 
 
 func _on_Chat_timeout_user_requested(channel, id, length) -> void:
@@ -266,7 +266,7 @@ func _on_Chat_timeout_user_requested(channel, id, length) -> void:
 		"user_id" : id,
 		"duration": length
 	}
-	t.start(Callable(self,"timeout_user").bind(args))
+	t.start(timeout_user.bind(args))
 
 
 func _on_Chat_delete_message_requested(channel, id) -> void:
@@ -278,10 +278,10 @@ func _on_Chat_delete_message_requested(channel, id) -> void:
 		"moderator_id" : bot.bot_id,
 		"msg_id" : id,
 	}
-	t.start(Callable(self,"delete_message").bind(args))
+	t.start(delete_message.bind(args))
 
 
-func _on_Bot_command_fired(cmd, params, channel):
+func _on_Bot_command_fired(_cmd, _params, _channel):
 	pass # Replace with function body.
 
 
