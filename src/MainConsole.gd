@@ -42,7 +42,7 @@ func cleanup_threads() -> void:
 
 
 func ban_user(arguments: Dictionary) -> void:
-	bot.channels[arguments.get("broadcaster_id", "")].api.ban_user(
+	bot.get_channel_by_id(arguments.get("broadcaster_id", "")).api.ban_user(
 		arguments.get("broadcaster_id", ""), 
 		arguments.get("moderator_id", ""), 
 		arguments.get("user_id", "")
@@ -50,7 +50,7 @@ func ban_user(arguments: Dictionary) -> void:
 
 
 func timeout_user(arguments: Dictionary) -> void:
-	bot.channels[arguments.get("broadcaster_id", "")].api.ban_user(
+	bot.get_channel_by_id(arguments.get("broadcaster_id", "")).api.ban_user(
 		arguments.get("broadcaster_id", ""), 
 		arguments.get("moderator_id", ""), 
 		arguments.get("user_id", ""),
@@ -59,7 +59,7 @@ func timeout_user(arguments: Dictionary) -> void:
 
 
 func delete_message(arguments: Dictionary) -> void:
-	bot.channels[arguments.get("broadcaster_id", "")].api.delete_chat_messages(
+	bot.get_channel_by_id(arguments.get("broadcaster_id", "")).api.delete_chat_messages(
 		arguments.get("broadcaster_id", ""), 
 		arguments.get("moderator_id", ""), 
 		arguments.get("msg_id", "")
@@ -86,6 +86,11 @@ func _on_Join_pressed() -> void:
 func _on_LineEdit_text_changed(new_text: String) -> void:
 	var invalid_channel := (new_text.is_empty() or bot.is_connected_to_channel(new_text))
 	joinButton.disabled = not bot.connected_to_twitch or invalid_channel
+
+
+func _on_LineEdit_text_submitted(new_text: String) -> void:
+	_on_Join_pressed()
+	pass # Replace with function body.
 
 
 func _on_Bot_joined_channel(channel) -> void:

@@ -160,7 +160,8 @@ func _process(delta: float) -> void:
 						
 						"GLOBALUSERSTATE":
 							display_name = tags.get("display-name", "")
-							chat_color = tags.get("color", "#ffffff")
+							var color = tags.get("color", "#ffffff")
+							chat_color = color if color != null else Color.WHITE 
 							bot_id = tags.get("user-id", "")
 						
 						"USERSTATE":
@@ -358,3 +359,9 @@ func is_sender_self(parsedMessage: Dictionary) -> bool:
 
 func _on_Channel_command_fired(cmd, parsedMessage, channel) -> void:
 	emit_signal("command_fired", cmd, parsedMessage, channel)
+	
+func get_channel_by_id(id: String) -> Channel:
+	for c in channels.keys():
+		if channels[c].channel_id == id:
+			return channels[c]
+	return null

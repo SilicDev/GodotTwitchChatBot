@@ -74,5 +74,6 @@ size_flags_vertical = 3
 [connection signal="pressed" from="MarginContainer/VBox/HBox/Config" to="." method="_on_Config_pressed"]
 [connection signal="pressed" from="MarginContainer/VBox/HBox/Connect" to="." method="_on_Connect_pressed"]
 [connection signal="text_changed" from="MarginContainer/VBox/HBox/HBox/LineEdit" to="." method="_on_LineEdit_text_changed"]
+[connection signal="text_submitted" from="MarginContainer/VBox/HBox/HBox/LineEdit" to="." method="_on_LineEdit_text_submitted"]
 [connection signal="pressed" from="MarginContainer/VBox/HBox/HBox/Join" to="." method="_on_Join_pressed"]
 [connection signal="about_to_popup" from="ConfigureDialog" to="." method="_on_ConfigureDialog_about_to_show"]
