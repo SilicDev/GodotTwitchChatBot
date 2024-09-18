@@ -231,7 +231,7 @@ func send_chat_announcement(
 	var h := headers + base_headers + ["Content-Type: application/json"]
 	var data := {"message":message,"color":color}
 	var err := _request(HTTPClient.METHOD_POST, url, h, JSON.stringify(data))
-	var response = await _get_response()
+	var response =  _get_response() #await _get_response()
 	if not response.is_empty():
 		var test_json_conv = JSON.new()
 		err = test_json_conv.parse(response)
@@ -785,9 +785,9 @@ func get_users_by_id(ids: PackedStringArray) -> Dictionary:
 ## might require: token scope user:read:email 
 func get_users(user_names: PackedStringArray, ids: PackedStringArray) -> Dictionary:
 	if user_names.is_empty():
-		return await get_users_by_id(ids)
+		return get_users_by_id(ids)
 	if ids.is_empty():
-		return await get_users_by_name(user_names)
+		return get_users_by_name(user_names)
 	var url = "/helix/users?login=" + user_names[0]
 	for i in range(1, user_names.size()):
 		url += "&login=" + user_names[i]
@@ -954,6 +954,7 @@ func _get_response() -> Dictionary:
 			if not "status" in result.keys():
 				result["status"] = status
 			mutex.unlock()
+			print(result)
 			return result
 		var data = {
 			"message": message,

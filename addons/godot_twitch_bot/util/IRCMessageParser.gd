@@ -224,4 +224,3 @@ static func parseParameters(rawParametersComponent, command) -> Dictionary:
 		# TODO: remove extra spaces in parameters string
 
 	return command
-

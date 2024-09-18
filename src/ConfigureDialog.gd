@@ -87,4 +87,3 @@ func _on_auth_pressed() -> void:
 	var url := "https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=%s&redirect_uri=%s&scope=%s&token_type=bearer" % [clientID, redirect_url, scopes_str]
 	OS.shell_open(url)
 	pass # Replace with function body.
-

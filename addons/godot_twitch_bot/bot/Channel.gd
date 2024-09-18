@@ -56,13 +56,13 @@ func handle_message(parsedMessage: Dictionary) -> void:
 	timers.update()
 
 
-func trigger_command(parsedMessage: Dictionary) -> void:
+func trigger_command(parsedMessage: Dictionary) -> String:
 	var cmd : String = commands.test_commands(parsedMessage)
 	if not cmd.is_empty():
 		var commandDict = parsedMessage.command
 		var resp : String = commands.get_response(cmd, parsedMessage)
 		var params : PackedStringArray = commandDict.get("botCommandParams", "").split(" ")
-		call_deferred("emit_signal", "command_fired", cmd, params, channel)
+		emit_signal.call_deferred("command_fired", cmd, params, channel)
 		if not resp.is_empty():
 			var msgs := PackedStringArray()
 			while resp.length() >= 500:
@@ -78,6 +78,7 @@ func trigger_command(parsedMessage: Dictionary) -> void:
 			for msg in msgs:
 				message_queue.push_back(msg)
 			queue_mutex.unlock()
+	return cmd
 
 
 func load_data() -> void:
