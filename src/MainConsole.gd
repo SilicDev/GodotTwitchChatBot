@@ -98,13 +98,13 @@ func _on_Bot_joined_channel(channel) -> void:
 		var chat = chatWindowScene.instantiate()
 		tabs.add_child(chat)
 		
-		chat.connect("send_button_pressed",Callable(self,"_on_Chat_send_button_pressed"))
-		chat.connect("part_requested",Callable(self,"_on_Chat_part_requested"))
-		chat.connect("join_requested",Callable(self,"_on_Chat_join_requested"))
+		chat.connect("send_button_pressed", _on_Chat_send_button_pressed)
+		chat.connect("part_requested", _on_Chat_part_requested)
+		chat.connect("join_requested", _on_Chat_join_requested)
 		
-		chat.connect("ban_user_requested",Callable(self,"_on_Chat_ban_user_requested"))
-		chat.connect("timeout_user_requested",Callable(self,"_on_Chat_timeout_user_requested"))
-		chat.connect("delete_message_requested",Callable(self,"_on_Chat_delete_message_requested"))
+		chat.connect("ban_user_requested", _on_Chat_ban_user_requested)
+		chat.connect("timeout_user_requested", _on_Chat_timeout_user_requested)
+		chat.connect("delete_message_requested", _on_Chat_delete_message_requested)
 		
 		chat.name = channel
 		
@@ -128,7 +128,7 @@ func _on_Bot_joined_channel(channel) -> void:
 	]
 	var t = Thread.new()
 	active_threads.append(t)
-	t.start(Callable(chats[channel].channelInstance.api,"connect_to_twitch"))
+	t.start(chats[channel].channelInstance.api.connect_to_twitch)
 	print("Thread started: ", t.get_id())
 	
 	chats[channel].load_ini()
