@@ -904,6 +904,7 @@ func _to_string() -> String:
 ## Helper functions
 func _request(method: int, url: String, request_headers: PackedStringArray, body := "") -> int:
 	mutex.lock()
+	client.poll()
 	if client.get_status() != HTTPClient.STATUS_CONNECTED:
 		disconnect_from_twitch()
 		connect_to_twitch()
