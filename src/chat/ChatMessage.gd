@@ -32,16 +32,16 @@ func _ready() -> void:
 
 
 func _on_Ban_pressed() -> void:
-	emit_signal("ban_user_requested", sender_id)
+	ban_user_requested.emit(sender_id)
 
 
 func _on_Timeout_pressed() -> void:
-	emit_signal("timeout_user_requested", sender_id, 60)
+	timeout_user_requested.emit(sender_id, 60)
 
 
 func _on_Delete_pressed() -> void:
-	emit_signal("delete_message_requested", id)
+	delete_message_requested.emit(id)
 
 
 func _on_Reply_pressed() -> void:
-	emit_signal("reply_requested", id if reply_id.is_empty() else reply_id)
+	reply_requested.emit(id if reply_id.is_empty() else reply_id)

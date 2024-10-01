@@ -91,7 +91,7 @@ func get_active_base_commands() -> Dictionary:
 
 
 func _on_Reload_pressed() -> void:
-	emit_signal("reload")
+	reload.emit()
 
 
 func _on_New_pressed() -> void:

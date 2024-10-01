@@ -238,7 +238,7 @@ func can_moderate(tags: Dictionary) -> bool:
 
 
 func _on_Send_pressed() -> void:
-	emit_signal("send_button_pressed", messageInput.text, name, reply_id)
+	send_button_pressed.emit(messageInput.text, name, reply_id)
 	reply_id = ""
 	replyBox.visible = false
 	messageInput.text = ""
@@ -246,10 +246,10 @@ func _on_Send_pressed() -> void:
 
 func _on_Part_pressed() -> void:
 	if partButton.text == "Part Channel":
-		emit_signal("part_requested", name)
+		part_requested.emit(name)
 		partButton.text = "Rejoin"
 	else:
-		emit_signal("join_requested", name)
+		join_requested.emit(name)
 		partButton.text = "Part Channel"
 
 
@@ -259,15 +259,15 @@ func _on_EndReply_pressed() -> void:
 
 
 func _on_ban_user_requested(id) -> void:
-	emit_signal("ban_user_requested", name, id)
+	ban_user_requested.emit(name, id)
 
 
 func _on_timeout_user_requested(id, length) -> void:
-	emit_signal("timeout_user_requested", name, id, length)
+	timeout_user_requested.emit(name, id, length)
 
 
 func _on_delete_message_requested(id) -> void:
-	emit_signal("delete_message_requested", name, id)
+	delete_message_requested.emit(name, id)
 
 
 func _on_reply_requested(id) -> void:

@@ -88,7 +88,7 @@ func _on_LineEdit_text_changed(new_text: String) -> void:
 	joinButton.disabled = not bot.connected_to_twitch or invalid_channel
 
 
-func _on_LineEdit_text_submitted(new_text: String) -> void:
+func _on_LineEdit_text_submitted(_new_text: String) -> void:
 	_on_Join_pressed()
 	pass # Replace with function body.
 
