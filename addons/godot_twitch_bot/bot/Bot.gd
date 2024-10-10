@@ -197,12 +197,12 @@ func _process(delta: float) -> void:
 			push_warning("Lost Connection")
 			disconnect_from_twitch()
 			get_window().request_attention()
-			get_window().move_to_foreground()
+			get_window().grab_focus()
 		
 		if connection.status == Connection.Status.DISCONNECTED and connected_to_twitch:
 			push_warning("Lost Connection")
 			get_window().request_attention()
-			get_window().move_to_foreground()
+			get_window().grab_focus()
 			connected_to_twitch = false
 
 
