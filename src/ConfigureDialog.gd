@@ -70,6 +70,7 @@ func _on_auth_pressed() -> void:
 	var redirect_url := "http://localhost:3000"
 	var scopes: Array[String] = [
 		"chat:read",
+		"chat:write",
 		"chat:edit",
 		"clips:edit",
 		"moderator:manage:announcements",
