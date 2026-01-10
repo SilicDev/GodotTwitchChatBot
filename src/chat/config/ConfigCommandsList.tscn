@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://btlcr7s6xvuuw"]
 
-[ext_resource type="Script" path="res://src/chat/config/ConfigCommandsList.gd" id="1"]
+[ext_resource type="Script" uid="uid://ded8lfnmqbuhi" path="res://src/chat/config/ConfigCommandsList.gd" id="1"]
 
 [node name="Commands" type="TabContainer"]
 anchors_preset = 15

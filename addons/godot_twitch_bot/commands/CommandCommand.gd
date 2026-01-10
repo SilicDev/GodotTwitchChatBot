@@ -6,7 +6,7 @@ var no_formating := true
 
 
 func _init():
-	usage_hint = "!command add|edit|remove <command> msg"
+	usage_hint = "!command add|disable|edit|enable|remove <command> msg"
 	example_reply = "Successfully added command \"test\"!"
 	name = "command"
 	permission_level = Command.Badge.MODERATOR
@@ -53,6 +53,24 @@ func get_response(parsedMessage: Dictionary) -> String:
 			var res = manager.remove_command(cmd)
 			if res:
 				return "Successfully removed command \"" + cmd + "\"!"
+			else:
+				return "Command with name \"" + cmd + "\" doesn't exist!"
+		
+		"enable":
+			if manager.is_command_enabled(cmd):
+				return "Command \"" + cmd + "\" is already enabled!"
+			var res = manager.toggle_command(cmd, true)
+			if res:
+				return "Successfully enabled command \"" + cmd + "\"!"
+			else:
+				return "Command with name \"" + cmd + "\" doesn't exist!"
+		
+		"disable":
+			if not manager.is_command_enabled(cmd):
+				return "Command \"" + cmd + "\" is already disabled!"
+			var res = manager.toggle_command(cmd, false)
+			if res:
+				return "Successfully disabled command \"" + cmd + "\"!"
 			else:
 				return "Command with name \"" + cmd + "\" doesn't exist!"
 	

@@ -1,8 +1,9 @@
+class_name _IRCMessageParser
 extends RefCounted
 
 
-static func parse_message(message: String):
-	var parsedMessage := {  # Contains the component parts.
+static func parse_message(message: String) -> Dictionary[String, Variant]:
+	var parsedMessage: Dictionary[String, Variant] = {  # Contains the component parts.
 		"tags" : null,
 		"source" : null,
 		"command" : null,
@@ -50,12 +51,12 @@ static func parse_message(message: String):
 	# we care about; we ignore some messages.
 	
 	if parsedMessage.command == null:  # Is null if it's a message we don't care about.
-		return null
+		return {}
 	else:
 		if rawTagsComponent:  # The IRC message contains tags.
 			parsedMessage.tags = parseTags(rawTagsComponent)
-		
-		parsedMessage.source = parseSource(rawSourceComponent)
+		if rawSourceComponent:
+			parsedMessage.source = parseSource(rawSourceComponent)
 		
 		parsedMessage.parameters = rawParametersComponent
 		if rawParametersComponent and rawParametersComponent[0] == '!':  
@@ -66,15 +67,15 @@ static func parse_message(message: String):
 
 
 # Parses the tags component of the IRC message.
-static func parseTags(tags) -> Dictionary:
+static func parseTags(tags) -> Dictionary[String, Variant]:
 	# badge-info=;badges=broadcaster/1;color=#0000FF;...
 
-	var tagsToIgnore = {  # List of tags to ignore.
-		'client-nonce': null,
-		'flags': null,
-	}
+	var tagsToIgnore := [  # List of tags to ignore.
+		'client-nonce',
+		'flags',
+	]
 
-	var dictParsedTags = {} # Holds the parsed list of tags.
+	var dictParsedTags: Dictionary[String, Variant] = {} # Holds the parsed list of tags.
 							# The key is the tag's name (e.g., color).
 	var parsedTags = tags.split(';');
 
@@ -137,7 +138,7 @@ static func parseTags(tags) -> Dictionary:
 
 
 # Parses the command component of the IRC message.
-static func parseCommand(rawCommandComponent):
+static func parseCommand(rawCommandComponent: String):
 	var parsedCommand = null
 	var commandParts = rawCommandComponent.split(' ')
 
@@ -199,8 +200,8 @@ static func parseCommand(rawCommandComponent):
 
 
 # Parses the source (nick and host) components of the IRC message.
-static func parseSource(rawSourceComponent):
-	if rawSourceComponent == null or rawSourceComponent.is_empty():  # Not all messages contain a source
+static func parseSource(rawSourceComponent: String):
+	if rawSourceComponent.is_empty():  # Not all messages contain a source
 		return null
 	else:
 		var sourceParts = rawSourceComponent.split('!')
@@ -211,7 +212,7 @@ static func parseSource(rawSourceComponent):
 
 
 # Parsing the IRC parameters component if it contains a command (e.g., !dice).
-static func parseParameters(rawParametersComponent, command) -> Dictionary:
+static func parseParameters(rawParametersComponent: String, command) -> Dictionary:
 	var idx = 0
 	var commandParts = rawParametersComponent.substr(idx + 1).trim_suffix(" ").trim_suffix("\r\n");
 	var paramsIdx = commandParts.find(' ')

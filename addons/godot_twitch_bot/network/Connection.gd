@@ -1,14 +1,12 @@
 class_name Connection
 extends RefCounted
 
-
 enum Status {
 	DISCONNECTED,
 	CONNECTING,
 	CONNECTED,
 	ERROR,
 }
-
 
 var status = Status.DISCONNECTED
 

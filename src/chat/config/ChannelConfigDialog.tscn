@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://stuuggi1hibd"]
 
-[ext_resource type="Script" path="res://src/chat/config/ChannelConfigDialog.gd" id="1"]
+[ext_resource type="Script" uid="uid://cvhe3detsny3" path="res://src/chat/config/ChannelConfigDialog.gd" id="1"]
 [ext_resource type="PackedScene" uid="uid://btlcr7s6xvuuw" path="res://src/chat/config/ConfigCommandsList.tscn" id="2"]
 
 [node name="ChannelConfigDialog" type="Window"]

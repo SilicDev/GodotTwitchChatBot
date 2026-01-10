@@ -23,7 +23,7 @@ func test_commands(message: Dictionary) -> String:
 func get_response(cmd: String, message: Dictionary) -> String:
 	if cmd in commands.keys():
 		var msg : String = commands[cmd].get_response(message)
-		commands[cmd].last_sent = Time.get_ticks_msec()
+		commands[cmd].last_sent = Time.get_unix_time_from_system()
 		if not ("no_formatting" in commands[cmd] and commands[cmd].no_formatting):
 			msg = formatter.format_message(msg, message)
 		return msg
@@ -112,9 +112,9 @@ func load_command_list(path: String):
 
 func save_command_list(path: String) -> int:
 	
+	if not DirAccess.dir_exists_absolute(path.get_base_dir()):
+		DirAccess.make_dir_recursive_absolute(path.get_base_dir())
 	var dir := DirAccess.open(path.get_base_dir())
-	if not dir.dir_exists(path.get_base_dir()):
-		dir.make_dir_recursive(path.get_base_dir())
 	
 	file = FileAccess.open(path, FileAccess.WRITE)
 	var err := FileAccess.get_open_error() 
@@ -206,6 +206,17 @@ func edit_command(name: String, response: String) -> bool:
 		commands[name].response = response
 		save_data()
 		return true
+	
+	push_warning("Command with this name doesn't exists!")
+	return false
+
+
+func is_command_enabled(name: String) -> bool:
+	load_data()
+	
+	name = name.to_lower()
+	if name in commands.keys():
+		return commands[name].active
 	
 	push_warning("Command with this name doesn't exists!")
 	return false

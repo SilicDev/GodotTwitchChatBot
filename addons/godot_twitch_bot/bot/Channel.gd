@@ -68,7 +68,7 @@ func trigger_command(parsedMessage: Dictionary) -> String:
 			while resp.length() >= 500:
 				var pos := 0
 				while resp.find(" ", pos) < 500:
-					pos = resp.find(" ", pos)
+					pos = resp.find(" ", pos) + 1
 				if pos == 0:
 					pos = 499
 				msgs.append(resp.left(pos))

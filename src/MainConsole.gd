@@ -21,8 +21,11 @@ var active_threads := []
 
 
 ## Called when the node enters the scene tree for the first time.
-#func _ready() -> void:
-#	pass
+func _ready() -> void:
+	var valid_token = await validate_token()
+	if not valid_token:
+		bot.on_API_authentication_failed()
+	pass
 
 
 ## Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -64,6 +67,78 @@ func delete_message(arguments: Dictionary) -> void:
 		arguments.get("moderator_id", ""), 
 		arguments.get("msg_id", "")
 	)
+
+
+func validate_token() -> bool:
+	var url = "/oauth2/validate"
+	var headers = [
+		"Authorization: OAuth " + bot.oauth, 
+	]
+	var http_client = HTTPClient.new()
+	http_client.connect_to_host("https://id.twitch.tv")
+	http_client.poll()
+	var client_alive = true
+	var request_timeout = 0
+	while client_alive:
+		match http_client.get_status():
+			HTTPClient.STATUS_DISCONNECTED:
+				client_alive = false
+				print("Disconnected")
+			HTTPClient.STATUS_RESOLVING:
+				http_client.poll()
+			HTTPClient.STATUS_CANT_RESOLVE:
+				client_alive = false
+			HTTPClient.STATUS_CONNECTING:
+				http_client.poll()
+			HTTPClient.STATUS_CANT_CONNECT:
+				client_alive = false
+			HTTPClient.STATUS_CONNECTED:
+				if request_timeout <= Time.get_ticks_msec():
+					var err := http_client.request(HTTPClient.METHOD_GET, url, headers)
+					if err:
+						client_alive = false
+			HTTPClient.STATUS_REQUESTING:
+				http_client.poll()
+			HTTPClient.STATUS_BODY:
+				var status = http_client.get_response_code()
+				# If there is a response...
+				var rb = PackedByteArray() # Array that will hold the data.
+				
+				while http_client.get_status() == HTTPClient.STATUS_BODY:
+					# Get a chunk.
+					var chunk = http_client.read_response_body_chunk()
+					if chunk.size() == 0:
+						OS.delay_msec(10)
+					else:
+						rb.append_array(chunk) # Append to read buffer.
+					# While there is body left to be read
+					http_client.poll()
+				# Done!
+				
+				var message = rb.get_string_from_utf8()
+				var test_json_conv = JSON.new()
+				var err := test_json_conv.parse(message)
+				if err:
+					request_timeout = Time.get_ticks_msec() + 5000
+					continue
+				var result: Dictionary = test_json_conv.get_data()
+				if status != 200 || not result.has("access_token"):
+					print(str(status) + ": " + str(result.get("message")))
+					return false
+				else:
+					return true
+			HTTPClient.STATUS_CONNECTION_ERROR:
+				print("Connection Error")
+				http_client.close()
+				await get_tree().physics_frame
+				http_client.connect_to_host("https://id.twitch.tv")
+				http_client.poll()
+			HTTPClient.STATUS_TLS_HANDSHAKE_ERROR:
+				client_alive = false
+				print("TLS Handshake Error")
+			_:
+				pass
+	return false
 
 
 func _on_Connect_pressed() -> void:
@@ -187,6 +262,7 @@ func _on_ConfigureDialog_about_to_show() -> void:
 	configMenu.read_only = bot.read_only
 	configMenu.bot_name = bot.bot_name
 	configMenu.oauth = bot.oauth
+	configMenu.refresh_token = bot.refresh_token
 	configMenu.protocol = bot.connection_method
 	
 	configMenu.channels = bot.default_channels
@@ -200,6 +276,7 @@ func _on_ConfigureDialog_popup_hide() -> void:
 	var config = ConfigFile.new()
 	config.set_value("auth", "bot_name", configMenu.bot_name)
 	config.set_value("auth", "oauth", configMenu.oauth)
+	config.set_value("auth", "refresh", configMenu.refresh_token)
 	config.set_value("auth", "protocol", bot.ConnectionMethod.keys()[configMenu.protocol])
 	config.set_value("auth", "read_only", configMenu.read_only)
 	
@@ -291,4 +368,9 @@ func _on_Bot_command_fired(_cmd, _params, _channel):
 
 
 func _on_Bot_pinged():
+	pass # Replace with function body.
+
+
+func _on_bot_auth_token_expired() -> void:
+	configMenu.request_device_code()
 	pass # Replace with function body.

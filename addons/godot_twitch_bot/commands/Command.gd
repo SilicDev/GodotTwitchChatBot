@@ -24,7 +24,7 @@ var user_timeout := 15
 
 var active := true
 
-var last_sent := Time.get_ticks_msec()
+var last_sent := 0.0
 var matcher := RegEx.new()
 
 
@@ -33,7 +33,7 @@ func get_response(parsedMessage: Dictionary) -> String:
 
 
 func should_fire(parsedMessage: Dictionary) -> bool:
-	if Time.get_ticks_msec() - last_sent > timeout * 1000:
+	if Time.get_unix_time_from_system() - last_sent > timeout:
 		if is_broadcaster(parsedMessage) or get_permission(parsedMessage) >= permission_level:
 			var cmd: String = parsedMessage.get("command", {}).get("botCommand", "")
 			if not cmd.is_empty() and (cmd == name.to_lower() or cmd in aliases):

@@ -10,24 +10,28 @@ config_version=5
 
 [application]
 
-config/name="GodotTwitchChatBot"
+config/name="GodotTwitchChatBotIRC"
 run/main_scene="res://src/MainConsole.tscn"
 config/use_custom_user_dir=true
 config/custom_user_dir_name="GodotTwitchBot"
-config/features=PackedStringArray("4.3")
+config/features=PackedStringArray("4.5")
 config/icon="res://icon.png"
 config/windows_native_icon="res://assets/icon/icon.ico"
 
 [debug]
 
 settings/stdout/verbose_stdout=true
-settings/fps/force_fps=30
 settings/physics_interpolation/enable_warnings=false
+settings/fps/force_fps=30
 
 [display]
 
 window/size/resizable=false
 window/vsync/vsync_via_compositor=true
+
+[dotnet]
+
+project/assembly_name="GodotTwitchChatBotIRC"
 
 [editor_plugins]
 

@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://dym7s06k4s3tj"]
 
-[ext_resource type="Script" path="res://src/chat/ChatWindow.gd" id="1"]
+[ext_resource type="Script" uid="uid://qvw5hj6febq3" path="res://src/chat/ChatWindow.gd" id="1"]
 [ext_resource type="PackedScene" uid="uid://stuuggi1hibd" path="res://src/chat/config/ChannelConfigDialog.tscn" id="2"]
 
 [node name="PanelContainer" type="PanelContainer"]

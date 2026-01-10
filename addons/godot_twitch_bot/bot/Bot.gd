@@ -21,6 +21,7 @@ signal connected()
 signal disconnected()
 signal pinged()
 
+signal auth_token_expired()
 
 enum ConnectionMethod {
 	WEBSOCKET,
@@ -32,9 +33,10 @@ var bot_name := ""
 var join_message := ""
 
 var connection : Connection
-var connection_method = ConnectionMethod.WEBSOCKET
+var connection_method := ConnectionMethod.WEBSOCKET
 
 var oauth := ""
+var refresh_token := ""
 var client_id := ""
 
 var display_name := ""
@@ -47,15 +49,17 @@ var read_only := false
 var request_membership := true
 
 var full_IRC := true#false
+var authenticated := false
+
+var reconnect_attempts = 0
 
 var default_channels := []
-var channels := {}
+var channels : Dictionary[String, Channel] = {}
 
 var active_threads := []
 
 var config := ConfigFile.new()
 
-var messageParser = preload("res://addons/godot_twitch_bot/util/IRCMessageParser.gd")
 var channelManagerScript = preload("res://addons/godot_twitch_bot/bot/Channel.gd")
 
 
@@ -88,6 +92,7 @@ func _process(delta: float) -> void:
 		
 		if not connected_to_twitch:
 			connected_to_twitch = true
+			authenticated = false
 			print("Authorizing...")
 			
 			if not read_only:
@@ -104,14 +109,14 @@ func _process(delta: float) -> void:
 		if connection.has_message():
 			var messages := connection.receive().split("\r\n")
 			for msg in messages:
-				var parsedMessage = messageParser.parse_message(msg)
+				var parsedMessage: Dictionary[String, Variant] = _IRCMessageParser.parse_message(msg)
 				if OS.is_debug_build():
 					if not msg.is_empty():
 						if full_IRC:
 							print("> " + msg)
 					
 				
-				if parsedMessage:
+				if not parsedMessage.is_empty():
 					var tags = parsedMessage.get("tags", {})
 					var commandDict = parsedMessage.get("command", {})
 					var parameters = parsedMessage.get("parameters", "")
@@ -123,7 +128,9 @@ func _process(delta: float) -> void:
 					match commandDict.get("command", ""):
 						"PRIVMSG":
 							emit_signal("chat_message_received", parsedMessage, c)
-							channels[c].handle_message(parsedMessage)
+							print()
+							if parsedMessage.tags.get("source-room-id", channels[c].channel_id) == channels[c].channel_id:
+								channels[c].handle_message(parsedMessage)
 							if not full_IRC:
 								var display_name = tags.get("display-name", "Anonymous")
 								print("> " + display_name + ": " + parameters)
@@ -137,6 +144,8 @@ func _process(delta: float) -> void:
 						
 						"001":
 							print("Successfully authorized!")
+							authenticated = true
+							reconnect_attempts = 0
 							for cnl in default_channels:
 								join_channel(cnl)
 						
@@ -145,6 +154,7 @@ func _process(delta: float) -> void:
 								print("joined " + commandDict.channel)
 								if not c in channels.keys():
 									channels[c] = channelManagerScript.new(c)
+									channels[c].api.authentication_failed.connect(on_API_authentication_failed)
 									channels[c].connect("command_fired",_on_Channel_command_fired)
 								channels[c].connected = true
 								channels[c].formatter.bot_id = bot_id
@@ -179,6 +189,9 @@ func _process(delta: float) -> void:
 								emit_signal("user_messages_deleted", tags.get("target-user-id"), c)
 							else:
 								emit_signal("chat_message_deleted", "", c)
+						
+						"RECONNECT":
+							save_ini()
 		for c in channels.keys():
 			if channels[c].connected and not channels[c].message_queue.is_empty():
 				var data = channels[c].message_queue.pop_front()
@@ -203,8 +216,16 @@ func _process(delta: float) -> void:
 			push_warning("Lost Connection")
 			get_window().request_attention()
 			get_window().grab_focus()
-			connected_to_twitch = false
-
+			disconnect_from_twitch()
+			var thread = Thread.new()
+			thread.start(func ():
+				while not authenticated and reconnect_attempts < 10:
+					await get_tree().create_timer(pow(2, reconnect_attempts)).timeout
+					if connection.status == Connection.Status.DISCONNECTED:
+						connect_to_twitch()
+						reconnect_attempts += 1
+			)
+			active_threads.append(thread)
 
 func connect_to_twitch() -> int:
 	load_ini()
@@ -230,6 +251,7 @@ func disconnect_from_twitch() -> void:
 		part_channel(c)
 	connection.disconnect_from_host()
 	connected_to_twitch = false
+	authenticated = false
 	emit_signal("disconnected")
 	print("Disconnected")
 
@@ -279,6 +301,7 @@ func load_ini() -> void:
 	
 	bot_name = config.get_value("auth", "bot_name", "")
 	oauth = config.get_value("auth", "oauth", "")
+	refresh_token = config.get_value("auth", "refresh", "")
 	
 	var protocol = config.get_value("auth", "protocol", "TCP").to_upper()
 	if protocol in ConnectionMethod.keys():
@@ -294,12 +317,16 @@ func load_ini() -> void:
 	config.clear()
 
 
-func save_ini() -> void:
+func save_ini(update_channels = true) -> void:
 	config.set_value("auth", "bot_name", bot_name)
 	config.set_value("auth", "oauth", oauth)
+	config.set_value("auth", "refresh", refresh_token)
 	config.set_value("auth", "protocol", ConnectionMethod.keys()[connection_method])
 	config.set_value("auth", "read_only", read_only)
-	config.set_value("channels", "channels", channels.keys())
+	if update_channels:
+		config.set_value("channels", "channels", channels.keys())
+	else:
+		config.set_value("channels", "channels", default_channels)
 	config.set_value("channels", "join_message", join_message)
 	config.set_value("twitch", "client_id", client_id)
 	
@@ -334,6 +361,7 @@ func parse_notice(tags, parameters: String, channel: String):
 		## The server will close the connection.
 		if "Login authentication failed" == parameters or "Invalid NICK" == parameters:
 			push_error("Authentication failed; left " + str(channels))
+			on_API_authentication_failed()
 			for cnl in channels:
 				part_channel(cnl)
 	
@@ -353,15 +381,102 @@ func parse_notice(tags, parameters: String, channel: String):
 				part_channel(c)
 
 
-func is_sender_self(parsedMessage: Dictionary) -> bool:
+func is_sender_self(parsedMessage: Dictionary[String, Variant]) -> bool:
 	return parsedMessage.get("source", {}).get("nick", "") == bot_name
 
 
-func _on_Channel_command_fired(cmd, parsedMessage, channel) -> void:
-	emit_signal("command_fired", cmd, parsedMessage, channel)
-	
 func get_channel_by_id(id: String) -> Channel:
 	for c in channels.keys():
 		if channels[c].channel_id == id:
 			return channels[c]
 	return null
+
+
+func _on_Channel_command_fired(cmd, parsedMessage, channel) -> void:
+	emit_signal("command_fired", cmd, parsedMessage, channel)
+
+
+func on_API_authentication_failed() -> void:
+	var url = "/oauth2/token"
+	var body = "grant_type=refresh_token&refresh_token={}&client_id={}".format([refresh_token, client_id], "{}")
+	var headers = [
+		"Content-Type: application/x-www-form-urlencoded", 
+		"Content-Length: " + str(body.length())
+	]
+	var http_client = HTTPClient.new()
+	http_client.connect_to_host("https://id.twitch.tv")
+	http_client.poll()
+	var client_alive = true
+	var request_timeout = 0
+	var token_found = false
+	while client_alive:
+		match http_client.get_status():
+			HTTPClient.STATUS_DISCONNECTED:
+				client_alive = false
+				print("Disconnected")
+			HTTPClient.STATUS_RESOLVING:
+				http_client.poll()
+			HTTPClient.STATUS_CANT_RESOLVE:
+				client_alive = false
+			HTTPClient.STATUS_CONNECTING:
+				http_client.poll()
+			HTTPClient.STATUS_CANT_CONNECT:
+				client_alive = false
+			HTTPClient.STATUS_CONNECTED:
+				if request_timeout <= Time.get_ticks_msec():
+					var err := http_client.request(HTTPClient.METHOD_POST, url, headers, body)
+					if err:
+						client_alive = false
+			HTTPClient.STATUS_REQUESTING:
+				http_client.poll()
+			HTTPClient.STATUS_BODY:
+				var status = http_client.get_response_code()
+				# If there is a response...
+				var rb = PackedByteArray() # Array that will hold the data.
+				
+				while http_client.get_status() == HTTPClient.STATUS_BODY:
+					# Get a chunk.
+					var chunk = http_client.read_response_body_chunk()
+					if chunk.size() == 0:
+						OS.delay_msec(10)
+					else:
+						rb.append_array(chunk) # Append to read buffer.
+					# While there is body left to be read
+					http_client.poll()
+				# Done!
+				
+				var message = rb.get_string_from_utf8()
+				var test_json_conv = JSON.new()
+				var err := test_json_conv.parse(message)
+				if err:
+					request_timeout = Time.get_ticks_msec() + 5000
+					continue
+				var result: Dictionary = test_json_conv.get_data()
+				if status != 200 || not result.has("access_token"):
+					print(str(status) + ": " + str(result.get("message")))
+					client_alive = false
+				else:
+					oauth = result.get("access_token")
+					refresh_token = result.get("refresh_token")
+					print("Auth time: " + str(result.get("expires_in")))
+					save_ini(false)
+					for c in channels.values():
+						c.api.headers = [
+								"Authorization: Bearer " + oauth,
+								"Client-Id: " + client_id,
+						]
+					http_client.close()
+					return
+			HTTPClient.STATUS_CONNECTION_ERROR:
+				print("Connection Error")
+				http_client.close()
+				await get_tree().physics_frame
+				http_client.connect_to_host("https://id.twitch.tv")
+				http_client.poll()
+			HTTPClient.STATUS_TLS_HANDSHAKE_ERROR:
+				client_alive = false
+				print("TLS Handshake Error")
+			_:
+				pass
+	auth_token_expired.emit()
+	pass

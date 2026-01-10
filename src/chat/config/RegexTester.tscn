@@ -1,17 +1,17 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=2 format=3 uid="uid://b7t3kxbiyascj"]
 
-[ext_resource path="res://src/chat/config/RegexTester.gd" type="Script" id=1]
+[ext_resource type="Script" uid="uid://d1pkis5omol25" path="res://src/chat/config/RegexTester.gd" id="1"]
 
 [node name="RegexTester" type="Popup"]
 visible = true
 offset_right = 40.0
 offset_bottom = 40.0
-script = ExtResource( 1 )
+script = ExtResource("1")
 
 [node name="PanelCon" type="PanelContainer" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
-custom_minimum_size = Vector2( 250, 0 )
+custom_minimum_size = Vector2(250, 0)
 
 [node name="VBox" type="VBoxContainer" parent="PanelCon"]
 offset_left = 7.0
@@ -40,7 +40,7 @@ placeholder_text = "Enter pattern"
 offset_top = 28.0
 offset_right = 236.0
 offset_bottom = 52.0
-custom_minimum_size = Vector2( 150, 0 )
+custom_minimum_size = Vector2(150, 0)
 placeholder_text = "Enter text to test"
 
 [node name="Output" type="Label" parent="PanelCon/VBox"]

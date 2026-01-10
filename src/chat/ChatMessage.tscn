@@ -3,7 +3,7 @@
 [ext_resource type="Texture2D" uid="uid://k7twdkfkjaqk" path="res://assets/ban.svg" id="1"]
 [ext_resource type="Texture2D" uid="uid://lnrfjkp76mpp" path="res://assets/delete.svg" id="2"]
 [ext_resource type="Texture2D" uid="uid://bf6edboeld8lc" path="res://assets/timeout.svg" id="3"]
-[ext_resource type="Script" path="res://src/chat/ChatMessage.gd" id="4"]
+[ext_resource type="Script" uid="uid://dbfio07x6il2v" path="res://src/chat/ChatMessage.gd" id="4"]
 
 [node name="ChatMessage" type="PanelContainer"]
 anchors_preset = 15

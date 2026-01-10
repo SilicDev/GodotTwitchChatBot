@@ -115,7 +115,7 @@ func handle_game(msg: String) -> String:
 		if cnl.begins_with("@"):
 			cnl = cnl.substr(1)
 		var channel = api.get_users_by_name([cnl])
-		if not channel.is_empty():
+		if not channel.is_empty() and not channel.has("status"):
 			var cnl_id = channel.data[0].id
 			var pos = msg.find(matched)
 			msg = msg.erase(pos, matched.length())

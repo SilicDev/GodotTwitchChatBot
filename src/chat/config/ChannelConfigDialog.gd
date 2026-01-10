@@ -84,6 +84,7 @@ func _on_Hide_pressed(save: bool) -> void:
 		var active: Dictionary = commandLists.get_active_base_commands()
 		for c in channel.commands.base_commands.keys():
 			channel.commands.commands[c].active = active.get(c, true)
+		channel.commands.save_data()
 	hide()
 	visible = false
 	commandLists.clear()

@@ -6,6 +6,7 @@ extends RefCounted
 ## check the documentation.
 ## Note that not all API endpoints are implemented at this point
 
+signal authentication_failed()
 
 var client := HTTPClient.new()
 var headers := []
@@ -927,6 +928,8 @@ func _get_response() -> Dictionary:
 	
 	if client.has_response():
 		var status = client.get_response_code()
+		if status == HTTPClient.RESPONSE_UNAUTHORIZED:
+			authentication_failed.emit()
 		# If there is a response...
 		
 		var rb = PackedByteArray() # Array that will hold the data.
